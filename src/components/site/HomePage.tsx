@@ -38,6 +38,10 @@ const newsCategories = [
   "Chapters",
 ];
 
+const homepageAnchorStyle = {
+  scrollMarginTop: "var(--atf-header-height, 76px)",
+};
+
 const heroContent = {
   eyebrow: "Established 1987 • Pan-African Science & Technology Network",
   headlinePrefixLines: ["Promoting the", "development of"],
@@ -437,7 +441,7 @@ function AboutSection() {
   return (
     <ContentBand
       id="about"
-      style={{ scrollMarginTop: "var(--atf-header-height, 76px)" }}
+      style={homepageAnchorStyle}
     >
       <div className="grid gap-12 lg:grid-cols-[1fr_0.9fr] lg:items-start">
         <div>
@@ -497,7 +501,7 @@ function AboutSection() {
 
 function ProgramsSection() {
   return (
-    <ContentBand muted>
+    <ContentBand id="programs" style={homepageAnchorStyle} muted>
       <SectionHeader
         eyebrow="What We Do"
         title={
@@ -547,7 +551,7 @@ function ProgramsSection() {
 
 function FunderSection() {
   return (
-    <ContentBand dark>
+    <ContentBand id="funder" style={homepageAnchorStyle} dark>
       <div className="grid gap-12 lg:grid-cols-[0.9fr_1fr] lg:items-start">
         <div>
           <Eyebrow light>For Partners & Funders</Eyebrow>
@@ -606,7 +610,7 @@ function FunderSection() {
 
 function ChaptersSection() {
   return (
-    <ContentBand>
+    <ContentBand id="chapters" style={homepageAnchorStyle}>
       <SectionHeader
         eyebrow="Where We Work"
         title={
@@ -658,7 +662,11 @@ function ChaptersSection() {
 
 function StudentSection() {
   return (
-    <section className="relative grid overflow-hidden bg-primary text-white lg:grid-cols-2">
+    <section
+      id="student"
+      style={homepageAnchorStyle}
+      className="relative grid overflow-hidden bg-primary text-white lg:grid-cols-2"
+    >
       <div
         className="absolute bottom-0 left-0 z-10 h-0 w-0 border-b-[56px] border-r-[56px] border-b-atf-black border-r-transparent"
         aria-hidden="true"
@@ -729,7 +737,7 @@ function NewsSection({
   onCategoryChange: (category: string) => void;
 }) {
   return (
-    <ContentBand>
+    <ContentBand id="news" style={homepageAnchorStyle}>
       <SectionHeader
         eyebrow="Newsroom"
         title={
