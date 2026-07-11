@@ -66,7 +66,6 @@ describe("application router homepage-only mode", () => {
       ["About", "/#about"],
       ["Programs", "/#programs"],
       ["Chapters", "/#chapters"],
-      ["News", "/#news"],
       ["Partner with Us", "/#funder"],
     ]);
     expect(
@@ -103,6 +102,144 @@ describe("application router homepage-only mode", () => {
     }
   });
 
+  it("keeps the News section mounted but hidden when enabled", async () => {
+    vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+    const router = createAppRouter({
+      homepageOnlyMode: true,
+      history: createMemoryHistory({ initialEntries: ["/"] }),
+    });
+
+    const { container } = render(<RouterProvider router={router} />);
+
+    await screen.findByRole("heading", {
+      name: /Three decades at the forefront of African technology/i,
+    });
+    expect(container.querySelector("#news")?.classList.contains("hidden")).toBe(
+      true,
+    );
+  });
+
+  it("keeps the News section visible when homepage-only mode is disabled", async () => {
+    vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+    const router = createAppRouter({
+      homepageOnlyMode: false,
+      history: createMemoryHistory({ initialEntries: ["/"] }),
+    });
+
+    const { container } = render(<RouterProvider router={router} />);
+
+    await screen.findByRole("heading", { name: /The latest from across/i });
+    expect(container.querySelector("#news")?.classList.contains("hidden")).toBe(
+      false,
+    );
+  });
+
+  it("links visible organization content directly to the homepage About section when enabled", async () => {
+    vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+    const router = createAppRouter({
+      homepageOnlyMode: true,
+      history: createMemoryHistory({ initialEntries: ["/"] }),
+    });
+
+    render(<RouterProvider router={router} />);
+
+    expect(
+      (await screen.findByRole("link", { name: /Explore our story/i })).getAttribute(
+        "href",
+      ),
+    ).toBe("/#about");
+  });
+
+  it.each([
+    ["ATF Consulting", "/#funder"],
+    ["02 / 03 ATF Challenge", "/#student"],
+    ["ATF Chapters", "/#chapters"],
+    ["Download Our Impact Report", "/#about"],
+    ["Nigeria", "/#chapters"],
+  ])(
+    "links visible homepage content for %s directly to %s when enabled",
+    async (name, expectedHref) => {
+      vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+      const router = createAppRouter({
+        homepageOnlyMode: true,
+        history: createMemoryHistory({ initialEntries: ["/"] }),
+      });
+
+      render(<RouterProvider router={router} />);
+
+      const links = await screen.findAllByRole("link", {
+        name: new RegExp(name, "i"),
+      });
+      expect(links.map((link) => link.getAttribute("href"))).toEqual(
+        links.map(() => expectedHref),
+      );
+    },
+  );
+
+  it("does not expose hidden-route destinations in visible homepage content when enabled", async () => {
+    vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+    const router = createAppRouter({
+      homepageOnlyMode: true,
+      history: createMemoryHistory({ initialEntries: ["/"] }),
+    });
+
+    render(<RouterProvider router={router} />);
+
+    const main = await screen.findByRole("main");
+    const hiddenRouteHref =
+      /^\/(?:about|who-we-are|team|what-we-do|consulting|challenge|chapters|where-we-work|countries(?:\/|$)|publications|articles|research|library|news(?:\/|$))/;
+
+    expect(
+      within(main)
+        .getAllByRole("link")
+        .map((link) => link.getAttribute("href"))
+        .filter((href): href is string => href !== null)
+        .filter((href) => hiddenRouteHref.test(href)),
+    ).toEqual([]);
+  });
+
+  it("keeps the external challenge application unchanged when enabled", async () => {
+    vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+    const router = createAppRouter({
+      homepageOnlyMode: true,
+      history: createMemoryHistory({ initialEntries: ["/"] }),
+    });
+
+    render(<RouterProvider router={router} />);
+
+    expect(
+      (
+        await screen.findByRole("link", { name: "Apply to ATF Challenge" })
+      ).getAttribute("href"),
+    ).toBe("https://bit.ly/atf-wf");
+  });
+
+  it.each([
+    ["Explore our story", "/about"],
+    ["02 / 03 ATF Challenge", "/challenge"],
+    ["Download Our Impact Report", "/research"],
+    ["Nigeria", "/countries/nigeria"],
+    ["View all news", "/news"],
+  ])(
+    "restores the original homepage destination for %s when disabled",
+    async (name, expectedHref) => {
+      vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+      const router = createAppRouter({
+        homepageOnlyMode: false,
+        history: createMemoryHistory({ initialEntries: ["/"] }),
+      });
+
+      render(<RouterProvider router={router} />);
+
+      const links = await screen.findAllByRole("link", {
+        name: new RegExp(name, "i"),
+      });
+      expect(
+        links.some((link) => link.getAttribute("href") === expectedHref),
+      ).toBe(true);
+    },
+  );
+
   it("exposes the homepage destinations through a predictable mobile menu", async () => {
     vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
     const router = createAppRouter({
@@ -127,7 +264,6 @@ describe("application router homepage-only mode", () => {
       ["About", "/#about"],
       ["Programs", "/#programs"],
       ["Chapters", "/#chapters"],
-      ["News", "/#news"],
       ["Partner with Us", "/#funder"],
     ]);
 
@@ -174,7 +310,6 @@ describe("application router homepage-only mode", () => {
       "/#about",
       "/#programs",
       "/#chapters",
-      "/#news",
       "/#funder",
       "/#student",
       "mailto:info@africantechnologyforum.org",
@@ -239,13 +374,13 @@ describe("application router homepage-only mode", () => {
     ["/where-we-work", "/#chapters"],
     ["/countries/ghana", "/#chapters"],
     ["/countries/%malformed?source=bookmark", "/#chapters"],
-    ["/publications", "/#news"],
-    ["/articles", "/#news"],
-    ["/research", "/#news"],
-    ["/library", "/#news"],
-    ["/news", "/#news"],
-    ["/news/manual-check", "/#news"],
-    ["/news/%malformed?source=bookmark", "/#news"],
+    ["/publications", "/#about"],
+    ["/articles", "/#about"],
+    ["/research", "/#about"],
+    ["/library", "/#about"],
+    ["/news", "/#about"],
+    ["/news/manual-check", "/#about"],
+    ["/news/%malformed?source=bookmark", "/#about"],
   ])("redirects %s to %s while homepage-only mode is enabled", async (path, expectedHref) => {
     vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
     const router = createAppRouter({
@@ -304,8 +439,8 @@ describe("application router homepage-only mode", () => {
     },
     {
       path: "/terms-of-service",
-      destination: "News",
-      expectedHref: "/#news",
+      destination: "About",
+      expectedHref: "/#about",
     },
   ])(
     "navigates from $path to the homepage $destination section",

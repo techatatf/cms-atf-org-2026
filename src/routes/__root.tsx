@@ -7,23 +7,9 @@ import {
 import { Footer } from "@/components/layout/Footer";
 import { HomepageOnlyShell } from "@/components/layout/HomepageOnlyShell";
 import { Navbar } from "@/components/layout/Navbar";
+import { homepageHashForHiddenPath } from "@/lib/homepage-only";
 import type { AppRouterContext } from "@/router";
 
-const redirectHashesByPath = new Map<string, string>([
-  ["/about", "about"],
-  ["/who-we-are", "about"],
-  ["/team", "about"],
-  ["/what-we-do", "programs"],
-  ["/consulting", "funder"],
-  ["/challenge", "student"],
-  ["/chapters", "chapters"],
-  ["/where-we-work", "chapters"],
-  ["/publications", "news"],
-  ["/articles", "news"],
-  ["/research", "news"],
-  ["/library", "news"],
-  ["/news", "news"],
-]);
 const homepageOnlyAllowedPaths = new Set([
   "/",
   "/privacy-policy",
@@ -36,11 +22,7 @@ export const Route = createRootRouteWithContext<AppRouterContext>()({
       return;
     }
 
-    const hash = location.pathname.startsWith("/countries/")
-      ? "chapters"
-      : location.pathname.startsWith("/news/")
-        ? "news"
-        : redirectHashesByPath.get(location.pathname);
+    const hash = homepageHashForHiddenPath(location.pathname);
 
     if (hash) {
       throw redirect({ to: "/", hash, replace: true });

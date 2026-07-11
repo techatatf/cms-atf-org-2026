@@ -19,7 +19,6 @@ const homepageNavigation = [
   { label: "About", hash: "about" },
   { label: "Programs", hash: "programs" },
   { label: "Chapters", hash: "chapters" },
-  { label: "News", hash: "news" },
 ] as const;
 
 const homepageFooterNavigation = [

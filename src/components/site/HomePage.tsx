@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 import {
   ArrowRight,
   Briefcase,
@@ -10,7 +10,10 @@ import {
 } from "lucide-react";
 
 import { AppLink } from "@/components/site/AppLink";
-import { OpportunityButton } from "@/components/site/OpportunityButton";
+import {
+  OpportunityButton,
+  type OpportunityButtonProps,
+} from "@/components/site/OpportunityButton";
 import {
   ContentBand,
   Eyebrow,
@@ -20,6 +23,7 @@ import {
   SurfaceCard,
   TriangleBullet,
 } from "@/components/site/Page";
+import { homepageHashForHiddenPath } from "@/lib/homepage-only";
 import { chapters, impactStats, newsItems, programs } from "@/lib/site-data";
 import { cn } from "@/lib/utils";
 
@@ -42,6 +46,42 @@ const homepageAnchorStyle = {
   scrollMarginTop: "var(--atf-header-height, 76px)",
 };
 
+const HomepageOnlyModeContext = createContext(false);
+
+function resolveHomepageHref(href: string, homepageOnlyMode: boolean) {
+  if (!homepageOnlyMode) return href;
+
+  const hash = homepageHashForHiddenPath(href);
+
+  return hash ? `/#${hash}` : href;
+}
+
+function HomepageOpportunityButton(props: OpportunityButtonProps) {
+  const homepageOnlyMode = useContext(HomepageOnlyModeContext);
+
+  if (!("href" in props) || !props.href) {
+    return <OpportunityButton {...props} />;
+  }
+
+  return (
+    <OpportunityButton
+      {...props}
+      href={resolveHomepageHref(props.href, homepageOnlyMode)}
+    />
+  );
+}
+
+function HomepageLink(props: Parameters<typeof AppLink>[0]) {
+  const homepageOnlyMode = useContext(HomepageOnlyModeContext);
+
+  return (
+    <AppLink
+      {...props}
+      href={resolveHomepageHref(props.href, homepageOnlyMode)}
+    />
+  );
+}
+
 const heroContent = {
   eyebrow: "Established 1987 • Pan-African Science & Technology Network",
   headlinePrefixLines: ["Promoting the", "development of"],
@@ -59,7 +99,11 @@ const heroContent = {
   ],
 } as const;
 
-export function HomePage() {
+export function HomePage({
+  homepageOnlyMode = false,
+}: {
+  homepageOnlyMode?: boolean;
+}) {
   const [videoOpen, setVideoOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
 
@@ -75,7 +119,7 @@ export function HomePage() {
   );
 
   return (
-    <>
+    <HomepageOnlyModeContext.Provider value={homepageOnlyMode}>
       <HeroSection videoOpen={videoOpen} onVideoOpen={setVideoOpen} />
       <TrustBar />
       <ImpactSection />
@@ -91,7 +135,7 @@ export function HomePage() {
         onCategoryChange={setActiveCategory}
       />
       <PartnersSection />
-    </>
+    </HomepageOnlyModeContext.Provider>
   );
 }
 
@@ -169,20 +213,20 @@ function DesktopHero({
               {heroContent.body}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <OpportunityButton
+              <HomepageOpportunityButton
                 href={heroContent.ctas[0].href}
                 variant="inverse"
                 size="lg"
               >
                 {heroContent.ctas[0].label}
-              </OpportunityButton>
-              <OpportunityButton
+              </HomepageOpportunityButton>
+              <HomepageOpportunityButton
                 href={heroContent.ctas[1].href}
                 variant="inverseOutline"
                 size="lg"
               >
                 {heroContent.ctas[1].label}
-              </OpportunityButton>
+              </HomepageOpportunityButton>
             </div>
             <div className="mt-9 flex flex-wrap gap-x-10 gap-y-4 border-t border-white/20 pt-6">
               {heroContent.stats.map((stat) => (
@@ -277,20 +321,20 @@ function CompactHero({
             {heroContent.body}
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
-            <OpportunityButton
+            <HomepageOpportunityButton
               href={heroContent.ctas[0].href}
               variant="primary"
               size="lg"
             >
               {heroContent.ctas[0].label}
-            </OpportunityButton>
-            <OpportunityButton
+            </HomepageOpportunityButton>
+            <HomepageOpportunityButton
               href={heroContent.ctas[1].href}
               variant="outline"
               size="lg"
             >
               {heroContent.ctas[1].label}
-            </OpportunityButton>
+            </HomepageOpportunityButton>
           </div>
           <div className="mt-7 flex flex-wrap gap-x-10 gap-y-4 border-t border-atf-gray-200 pt-5">
             {heroContent.stats.map((stat) => (
@@ -461,10 +505,10 @@ function AboutSection() {
             We work at the intersection of consulting, innovation, and capacity
             building to create systemic change across sectors and borders.
           </p>
-          <AppLink href="/about" className="atf-link mt-8">
+          <HomepageLink href="/about" className="atf-link mt-8">
             Explore our story
             <ArrowRight className="size-4" aria-hidden="true" />
-          </AppLink>
+          </HomepageLink>
         </div>
         <div className="grid grid-cols-2 gap-px bg-atf-gray-200 lg:mt-12">
           {[
@@ -517,7 +561,7 @@ function ProgramsSection() {
         {programs.map((program) => {
           const Icon = programIcons[program.slug];
           return (
-            <AppLink
+            <HomepageLink
               key={program.slug}
               href={program.href}
               className="group relative overflow-hidden bg-white p-8 transition-colors hover:bg-atf-gray-50"
@@ -541,7 +585,7 @@ function ProgramsSection() {
                   aria-hidden="true"
                 />
               </span>
-            </AppLink>
+            </HomepageLink>
           );
         })}
       </div>
@@ -584,7 +628,7 @@ function FunderSection() {
               href: "/consulting",
             },
           ].map((item) => (
-            <AppLink
+            <HomepageLink
               key={item.title}
               href={item.href}
               className="group flex items-center justify-between gap-6 border border-white/10 bg-white/5 p-6 transition-colors hover:bg-white/10"
@@ -600,7 +644,7 @@ function FunderSection() {
               <span className="inline-flex size-11 shrink-0 items-center justify-center border border-white/15 transition-colors group-hover:border-primary group-hover:bg-primary">
                 <ArrowRight className="size-5 text-white" aria-hidden="true" />
               </span>
-            </AppLink>
+            </HomepageLink>
           ))}
         </div>
       </div>
@@ -620,15 +664,15 @@ function ChaptersSection() {
           </>
         }
         action={
-          <AppLink href="/chapters" className="atf-link">
+          <HomepageLink href="/chapters" className="atf-link">
             View all chapters
             <ArrowRight className="size-4" aria-hidden="true" />
-          </AppLink>
+          </HomepageLink>
         }
       />
       <div className="grid gap-px bg-atf-gray-200 md:grid-cols-2 lg:grid-cols-4">
         {chapters.map((chapter) => (
-          <AppLink
+          <HomepageLink
             key={chapter.slug}
             href={`/countries/${chapter.slug}`}
             className="group relative overflow-hidden bg-atf-gray-50 p-7 transition-colors hover:bg-white"
@@ -653,7 +697,7 @@ function ChaptersSection() {
               />
             </span>
             <span className="absolute inset-x-0 bottom-0 h-[3px] origin-left scale-x-0 bg-primary transition-transform group-hover:scale-x-100" />
-          </AppLink>
+          </HomepageLink>
         ))}
       </div>
     </ContentBand>
@@ -693,7 +737,7 @@ function StudentSection() {
           ))}
         </ul>
         <div className="mt-8 flex flex-wrap gap-3">
-          <OpportunityButton
+          <HomepageOpportunityButton
             href="https://bit.ly/atf-wf"
             variant="inverse"
             size="lg"
@@ -701,14 +745,14 @@ function StudentSection() {
             rel="noreferrer"
           >
             Apply to ATF Challenge
-          </OpportunityButton>
-          <OpportunityButton
+          </HomepageOpportunityButton>
+          <HomepageOpportunityButton
             href="/chapters"
             variant="inverseOutline"
             size="lg"
           >
             Join a Chapter
-          </OpportunityButton>
+          </HomepageOpportunityButton>
         </div>
       </div>
       <div className="relative min-h-[340px] bg-atf-black">
@@ -736,8 +780,14 @@ function NewsSection({
   filteredNews: readonly (typeof newsItems)[number][];
   onCategoryChange: (category: string) => void;
 }) {
+  const homepageOnlyMode = useContext(HomepageOnlyModeContext);
+
   return (
-    <ContentBand id="news" style={homepageAnchorStyle}>
+    <ContentBand
+      id="news"
+      style={homepageAnchorStyle}
+      className={cn(homepageOnlyMode && "hidden")}
+    >
       <SectionHeader
         eyebrow="Newsroom"
         title={
@@ -747,14 +797,14 @@ function NewsSection({
           </>
         }
         action={
-          <AppLink href="/news" className="atf-link">
+          <HomepageLink href="/news" className="atf-link">
             View all news
             <ArrowRight className="size-4" aria-hidden="true" />
-          </AppLink>
+          </HomepageLink>
         }
       />
       <div className="grid gap-12 lg:grid-cols-[1.25fr_1fr]">
-        <AppLink href={`/news/${featuredNews.id}`} className="group block">
+        <HomepageLink href={`/news/${featuredNews.id}`} className="group block">
           <div className="relative aspect-[16/10] overflow-hidden bg-atf-gray-100">
             <img
               src="/atf-assets/atf-award-ceremony-2024.jpg"
@@ -779,7 +829,7 @@ function NewsSection({
               aria-hidden="true"
             />
           </span>
-        </AppLink>
+        </HomepageLink>
 
         <div>
           <div className="mb-4 flex flex-wrap gap-2" aria-label="Filter news">
@@ -795,7 +845,7 @@ function NewsSection({
           </div>
           <div className="border-t border-atf-gray-200">
             {filteredNews.map((item) => (
-              <AppLink
+              <HomepageLink
                 href={`/news/${item.id}`}
                 key={item.id}
                 className="group block border-b border-atf-gray-200 py-5"
@@ -806,7 +856,7 @@ function NewsSection({
                 <h3 className="mt-2 font-display text-lg font-bold leading-snug text-atf-ink group-hover:text-primary">
                   {item.title}
                 </h3>
-              </AppLink>
+              </HomepageLink>
             ))}
             {filteredNews.length === 0 ? (
               <p className="py-8 text-sm text-atf-gray-500">
