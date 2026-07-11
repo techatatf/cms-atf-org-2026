@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, Menu, X } from "lucide-react";
 
 import { ChallengeAnnouncementBanner } from "@/components/layout/ChallengeAnnouncementBanner";
+import { useHeaderHeight } from "@/components/layout/useHeaderHeight";
 import { OpportunityButton } from "@/components/site/OpportunityButton";
 import { IconButton, SiteLogo } from "@/components/site/Page";
 import {
@@ -167,39 +168,9 @@ function NavDropdownPanel({
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const headerChromeRef = useRef<HTMLDivElement>(null);
+  const headerChromeRef = useHeaderHeight<HTMLDivElement>();
 
   const closeMobile = () => setMobileOpen(false);
-
-  useEffect(() => {
-    const headerChrome = headerChromeRef.current;
-
-    if (typeof document === "undefined" || !headerChrome) return;
-
-    const root = document.documentElement;
-    const syncHeaderHeight = () => {
-      root.style.setProperty(
-        "--atf-header-height",
-        `${headerChrome.getBoundingClientRect().height}px`,
-      );
-    };
-
-    syncHeaderHeight();
-
-    const resizeObserver =
-      typeof ResizeObserver === "undefined"
-        ? null
-        : new ResizeObserver(syncHeaderHeight);
-
-    resizeObserver?.observe(headerChrome);
-    window.addEventListener("resize", syncHeaderHeight);
-
-    return () => {
-      resizeObserver?.disconnect();
-      window.removeEventListener("resize", syncHeaderHeight);
-      root.style.removeProperty("--atf-header-height");
-    };
-  }, []);
 
   return (
     <header className="sticky top-0 z-50 border-b border-atf-gray-200 bg-white text-atf-ink shadow-sm">

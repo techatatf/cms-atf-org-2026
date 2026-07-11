@@ -231,14 +231,14 @@ export function ContentBand({
   dark = false,
   muted = false,
   className,
-}: {
-  children: ReactNode;
+  ...sectionProps
+}: React.ComponentPropsWithoutRef<"section"> & {
   dark?: boolean;
   muted?: boolean;
-  className?: string;
 }) {
   return (
     <section
+      {...sectionProps}
       className={cn(
         "py-16 lg:py-24",
         dark

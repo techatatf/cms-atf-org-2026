@@ -435,7 +435,10 @@ function ImpactSection() {
 
 function AboutSection() {
   return (
-    <ContentBand>
+    <ContentBand
+      id="about"
+      style={{ scrollMarginTop: "var(--atf-header-height, 76px)" }}
+    >
       <div className="grid gap-12 lg:grid-cols-[1fr_0.9fr] lg:items-start">
         <div>
           <Eyebrow>Who We Are</Eyebrow>
