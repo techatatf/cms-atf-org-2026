@@ -213,6 +213,70 @@ describe("application router homepage-only mode", () => {
     ).toBeTruthy();
   });
 
+  it("redirects /team to the homepage About section before page content renders", async () => {
+    vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+    const router = createAppRouter({
+      homepageOnlyMode: true,
+      history: createMemoryHistory({ initialEntries: ["/team"] }),
+    });
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(router.state.location.href).toBe("/#about");
+    });
+    expect(
+      screen.queryByRole("heading", { level: 1, name: "Meet Our Team" }),
+    ).toBeNull();
+  });
+
+  it.each([
+    ["/who-we-are", "/#about"],
+    ["/what-we-do", "/#programs"],
+    ["/consulting", "/#funder"],
+    ["/challenge", "/#student"],
+    ["/chapters", "/#chapters"],
+    ["/where-we-work", "/#chapters"],
+    ["/countries/ghana", "/#chapters"],
+    ["/countries/%malformed?source=bookmark", "/#chapters"],
+    ["/publications", "/#news"],
+    ["/articles", "/#news"],
+    ["/research", "/#news"],
+    ["/library", "/#news"],
+    ["/news", "/#news"],
+    ["/news/manual-check", "/#news"],
+    ["/news/%malformed?source=bookmark", "/#news"],
+  ])("redirects %s to %s while homepage-only mode is enabled", async (path, expectedHref) => {
+    vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+    const router = createAppRouter({
+      homepageOnlyMode: true,
+      history: createMemoryHistory({ initialEntries: [path] }),
+    });
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(router.state.location.href).toBe(expectedHref);
+    });
+  });
+
+  it("redirects an unrecognized non-legal route to the homepage", async () => {
+    vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+    const router = createAppRouter({
+      homepageOnlyMode: true,
+      history: createMemoryHistory({
+        initialEntries: ["/homepage-only-manual-check?preview=true"],
+      }),
+    });
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(router.state.location.href).toBe("/");
+    });
+    expect(screen.queryByText("Not Found")).toBeNull();
+  });
+
   it.each([
     { path: "/privacy-policy", heading: "Privacy Policy" },
     { path: "/terms-of-service", heading: "Terms of Service" },
@@ -295,5 +359,32 @@ describe("application router homepage-only mode", () => {
       }),
     ).toBeTruthy();
     expect(router.state.location.pathname).toBe("/about");
+  });
+
+  it.each([
+    "/who-we-are",
+    "/team",
+    "/what-we-do",
+    "/consulting",
+    "/challenge",
+    "/chapters",
+    "/where-we-work",
+    "/countries/ghana",
+    "/publications",
+    "/articles",
+    "/research",
+    "/library",
+    "/news",
+    "/news/atf-challenge-2026",
+  ])("preserves direct access to %s when disabled", async (path) => {
+    const router = createAppRouter({
+      homepageOnlyMode: false,
+      history: createMemoryHistory({ initialEntries: [path] }),
+    });
+
+    await router.load();
+
+    expect(router.state.location.href).toBe(path);
+    expect(router.state.matches.at(-1)?.status).toBe("success");
   });
 });

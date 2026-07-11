@@ -1,10 +1,10 @@
-Status: ready-for-agent
+Status: done
 
 # Protect every hidden route in homepage-only mode
 
 ## Parent
 
-[Homepage-Only Mode PRD](../PRD.md)
+[Homepage-Only Mode PRD](../../PRD.md)
 
 ## What to build
 
@@ -57,5 +57,5 @@ Do not run the server or restart commands on the user's behalf. If the user is s
 
 ## Blocked by
 
-- [Issue 01: Tracer bullet: activate homepage-only mode through one complete route](./done/01-tracer-bullet-homepage-only-mode.md)
+- [Issue 01: Tracer bullet: activate homepage-only mode through one complete route](./01-tracer-bullet-homepage-only-mode.md)
 - [Issue 02: Complete the temporary responsive site shell](./02-complete-responsive-site-shell.md)
