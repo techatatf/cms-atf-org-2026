@@ -63,6 +63,8 @@
   --atf-gray-100: #f5f5f5;
   --atf-gray-50: #fafafa;
   --atf-white: #ffffff;
+  --color-success: #16A34A;
+  --color-error: #DC2626;
 
   --font-display: "Montserrat", ui-sans-serif, system-ui, sans-serif;
   --font-body: "DM Sans", "Segoe UI", ui-sans-serif, system-ui, sans-serif;

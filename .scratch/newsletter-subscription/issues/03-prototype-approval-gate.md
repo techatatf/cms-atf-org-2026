@@ -37,7 +37,7 @@ The comparison baseline is the rest of the ATF Org 2026 homepage, not the offici
 
 ## Blocked by
 
-- [Issue 02: Complete the newsletter prototype's validation and feedback states](./02-prototype-validation-and-feedback.md)
+- [Issue 02: Complete the newsletter prototype's validation and feedback states](./done/02-prototype-validation-and-feedback.md)
 
 ## Comments
 

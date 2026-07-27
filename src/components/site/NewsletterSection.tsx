@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Mail } from "lucide-react";
+import { useState, type FormEvent } from "react";
+import { CircleCheck, LoaderCircle, Mail, TriangleAlert } from "lucide-react";
 
 import { OpportunityButton } from "@/components/site/OpportunityButton";
 import {
@@ -11,8 +11,66 @@ const newsletterAnchorStyle = {
   scrollMarginTop: "var(--atf-header-height, 76px)",
 };
 
+const emailShape = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+type SubmissionState =
+  | { status: "idle" }
+  | { status: "submitting" }
+  | { status: "success"; message: string }
+  | { status: "error"; message: string };
+
+// Prototype-only transport substitute. Live integration replaces this function.
+function completePrototypeSubscription() {
+  return new Promise<void>((resolve) => {
+    setTimeout(resolve, 750);
+  });
+}
+
 export function NewsletterSection() {
   const [email, setEmail] = useState("");
+  const [submission, setSubmission] = useState<SubmissionState>({
+    status: "idle",
+  });
+
+  const isSubmitting = submission.status === "submitting";
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (isSubmitting) return;
+
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail) {
+      setSubmission({
+        status: "error",
+        message: "Email address is required",
+      });
+      return;
+    }
+
+    if (!emailShape.test(trimmedEmail)) {
+      setSubmission({
+        status: "error",
+        message: "Please enter a valid email address",
+      });
+      return;
+    }
+
+    setSubmission({ status: "submitting" });
+    await completePrototypeSubscription();
+    setSubmission({
+      status: "success",
+      message: "Successfully subscribed to our newsletter!",
+    });
+  }
+
+  function handleEmailChange(value: string) {
+    setEmail(value);
+    if (submission.status === "success" || submission.status === "error") {
+      setSubmission({ status: "idle" });
+    }
+  }
 
   return (
     <DiagonalAccentSection id="newsletter" style={newsletterAnchorStyle}>
@@ -38,7 +96,7 @@ export function NewsletterSection() {
         <form
           className="flex min-w-0 flex-col gap-3 sm:flex-row"
           noValidate
-          onSubmit={(event) => event.preventDefault()}
+          onSubmit={handleSubmit}
         >
           <label className="sr-only" htmlFor="newsletter-email">
             Email address
@@ -47,7 +105,7 @@ export function NewsletterSection() {
             id="newsletter-email"
             type="email"
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={(event) => handleEmailChange(event.target.value)}
             placeholder="Enter your email"
             className="min-h-12 min-w-0 flex-1 border border-atf-gray-200 bg-white px-4 text-atf-ink outline-none placeholder:text-atf-gray-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
           />
@@ -56,10 +114,64 @@ export function NewsletterSection() {
             variant="inverse"
             size="lg"
             className="w-full sm:w-auto"
+            disabled={isSubmitting}
           >
-            Subscribe
+            {isSubmitting ? "Subscribing…" : "Subscribe"}
           </OpportunityButton>
         </form>
+        <div
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          data-newsletter-status={submission.status}
+          className={
+            submission.status === "idle"
+              ? undefined
+              : `mt-4 flex items-start gap-3 border px-4 py-3 ${
+                  submission.status === "success"
+                    ? "border-[var(--color-success)] bg-white text-atf-ink"
+                    : submission.status === "error"
+                      ? "border-[var(--color-error)] bg-white text-atf-ink"
+                      : "border-white bg-atf-black text-white"
+                }`
+          }
+        >
+          {submission.status !== "idle" && (
+            <>
+              {submission.status === "success" ? (
+                <CircleCheck
+                  className="mt-0.5 size-5 shrink-0 text-[var(--color-success)]"
+                  aria-hidden="true"
+                />
+              ) : submission.status === "error" ? (
+                <TriangleAlert
+                  className="mt-0.5 size-5 shrink-0 text-[var(--color-error)]"
+                  aria-hidden="true"
+                />
+              ) : (
+                <LoaderCircle
+                  className="mt-0.5 size-5 shrink-0 animate-spin"
+                  aria-hidden="true"
+                />
+              )}
+              <p className="text-sm leading-6">
+                {submission.status === "success" ? (
+                  <>
+                    <strong className="font-display uppercase">Success</strong>
+                    <span className="ml-2">{submission.message}</span>
+                  </>
+                ) : submission.status === "error" ? (
+                  <>
+                    <strong className="font-display uppercase">Error</strong>
+                    <span className="ml-2">{submission.message}</span>
+                  </>
+                ) : (
+                  "Subscribing…"
+                )}
+              </p>
+            </>
+          )}
+        </div>
       </div>
     </DiagonalAccentSection>
   );
