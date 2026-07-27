@@ -13,6 +13,7 @@ import {
 import { RouterProvider, createMemoryHistory } from "@tanstack/react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { setAnalyticsCapture } from "@/lib/analytics";
 import { createAppRouter, resolveHomepageOnlyMode } from "@/router";
 import { subscribeToNewsletter } from "@/services/newsletter";
 
@@ -21,6 +22,7 @@ vi.mock("@/services/newsletter", () => ({
 }));
 
 const subscribeToNewsletterMock = vi.mocked(subscribeToNewsletter);
+const analyticsCaptureMock = vi.fn();
 
 function createDeferred<T>() {
   let resolve!: (value: T | PromiseLike<T>) => void;
@@ -57,6 +59,8 @@ async function renderHomepageNewsletter() {
 }
 
 beforeEach(() => {
+  analyticsCaptureMock.mockReset();
+  setAnalyticsCapture(analyticsCaptureMock);
   subscribeToNewsletterMock.mockReset();
   subscribeToNewsletterMock.mockResolvedValue({ success: true });
   Object.defineProperty(Element.prototype, "scrollIntoView", {
@@ -66,6 +70,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  setAnalyticsCapture();
   vi.useRealTimers();
   cleanup();
   vi.restoreAllMocks();
@@ -259,6 +264,7 @@ describe("application router homepage-only mode", () => {
       expect(status.getAttribute("data-newsletter-status")).toBe("error");
       expect(email.value).toBe(value);
       expect(subscribeToNewsletterMock).not.toHaveBeenCalled();
+      expect(analyticsCaptureMock).not.toHaveBeenCalled();
       expect(router.state.location.href).toBe("/");
     },
   );
@@ -292,6 +298,7 @@ describe("application router homepage-only mode", () => {
     );
     expect(fireEvent.submit(form)).toBe(false);
     expect(subscribeToNewsletterMock).toHaveBeenCalledTimes(1);
+    expect(analyticsCaptureMock).not.toHaveBeenCalled();
     fireEvent.change(email, { target: { value: "replacement@example.com" } });
     expect(email.value).toBe("\u00a0Visitor+tag@Example.COM\u00a0");
     expect(screen.queryByText(/prototype review/i)).toBeNull();
@@ -311,6 +318,21 @@ describe("application router homepage-only mode", () => {
     expect(
       screen.getByRole("button", { name: "Subscribe" }),
     ).toHaveProperty("disabled", false);
+    expect(analyticsCaptureMock).toHaveBeenCalledTimes(1);
+    expect(analyticsCaptureMock).toHaveBeenCalledWith(
+      "newsletter_subscribed",
+      {
+        page: "home",
+        form_type: "newsletter",
+        email_domain: "example.com",
+      },
+    );
+    expect(analyticsCaptureMock.mock.calls[0]).not.toContain(
+      "Visitor+tag@Example.COM",
+    );
+    expect(JSON.stringify(analyticsCaptureMock.mock.calls[0])).not.toContain(
+      "Visitor+tag@Example.COM",
+    );
 
     fireEvent.change(email, { target: { value: "next@example.com" } });
     expect(status.textContent).toBe("");
@@ -330,16 +352,53 @@ describe("application router homepage-only mode", () => {
     });
     expect(email.value).toBe("");
     expect(screen.getByRole("status").textContent).toContain("Success");
+    expect(analyticsCaptureMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the successful outcome unchanged when analytics is not configured", async () => {
+    setAnalyticsCapture();
+    subscribeToNewsletterMock.mockResolvedValue({
+      success: true,
+      message: "Welcome to ATF!",
+    });
+    const { email, form } = await renderHomepageNewsletter();
+    fireEvent.change(email, { target: { value: "person@example.com" } });
+    fireEvent.submit(form);
+
+    await waitFor(() => {
+      expect(screen.getByRole("status").textContent).toContain("Welcome to ATF!");
+    });
+    expect(screen.getByRole("status").textContent).toContain("Success");
+    expect(email.value).toBe("");
+  });
+
+  it("keeps the successful outcome unchanged when analytics throws", async () => {
+    setAnalyticsCapture(() => {
+      throw new Error("Analytics unavailable");
+    });
+    subscribeToNewsletterMock.mockResolvedValue({
+      success: true,
+      message: "Welcome to ATF!",
+    });
+    const { email, form } = await renderHomepageNewsletter();
+    fireEvent.change(email, { target: { value: "person@example.com" } });
+    fireEvent.submit(form);
+
+    await waitFor(() => {
+      expect(screen.getByRole("status").textContent).toContain("Welcome to ATF!");
+    });
+    expect(screen.getByRole("status").textContent).toContain("Success");
+    expect(email.value).toBe("");
   });
 
   it.each([
     [
-      "the service explanation",
+      "a success: false service explanation",
       { success: false, message: "This address is already subscribed." },
       "This address is already subscribed.",
     ],
     [
-      "stable fallback copy",
+      "an HTTP failure with stable fallback copy",
       { success: false },
       "Failed to subscribe. Please try again.",
     ],
@@ -356,6 +415,7 @@ describe("application router homepage-only mode", () => {
       });
       expect(email.value).toBe("person@example.com");
       expect(screen.getByRole("status").textContent).toContain("Error");
+      expect(analyticsCaptureMock).not.toHaveBeenCalled();
       expect(
         screen.getByRole<HTMLButtonElement>("button", { name: "Subscribe" })
           .disabled,
@@ -391,6 +451,7 @@ describe("application router homepage-only mode", () => {
         /connection|host|transport/i,
       );
       expect(email.value).toBe("person@example.com");
+      expect(analyticsCaptureMock).not.toHaveBeenCalled();
       expect(
         screen.getByRole<HTMLButtonElement>("button", { name: "Subscribe" })
           .disabled,

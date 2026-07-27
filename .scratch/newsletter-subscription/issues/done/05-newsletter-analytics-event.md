@@ -1,10 +1,10 @@
-Status: ready-for-agent
+Status: completed
 
 # Record newsletter subscriptions through an application-owned analytics boundary
 
 ## Parent
 
-[Newsletter Subscription PRD](../PRD.md)
+[Newsletter Subscription PRD](../../PRD.md)
 
 ## What to build
 
@@ -22,22 +22,22 @@ Analytics is strictly downstream of the subscription. Capture happens after back
 
 ## Acceptance criteria
 
-- [ ] An application-owned analytics boundary exposes a typed event capture function and defaults to a safe no-op when no implementation is configured.
-- [ ] `posthog-js` is not added as a dependency, no PostHog root provider is added, and the application sends no analytics network traffic.
-- [ ] The newsletter form calls the boundary rather than any vendor client directly.
-- [ ] A confirmed backend success emits exactly one `newsletter_subscribed` event.
-- [ ] The event carries `page` set to `home`, `form_type` set to `newsletter`, and `email_domain` containing only the lowercased portion of the trimmed address following its single `@`.
-- [ ] The event payload does not contain the complete email address.
-- [ ] No event is emitted for a validation error, an HTTP failure, `success: false`, malformed JSON, an unexpected response shape, a network failure, or a timeout.
-- [ ] Capture occurs after backend success, never before or instead of it.
-- [ ] A missing analytics implementation leaves the success message, the cleared field, and the visible outcome unchanged.
-- [ ] An analytics call that throws leaves the success message, the cleared field, and the visible outcome unchanged, and surfaces no error to the visitor.
-- [ ] Tests verify exactly one event with the approved properties on confirmed success.
-- [ ] Tests inspect the event payload to establish that the complete email address is absent.
-- [ ] Tests verify that every failure path and every invalid submission emits no newsletter success event.
-- [ ] Tests verify that a missing analytics implementation and a throwing analytics call each leave the successful visitor outcome unchanged.
-- [ ] Tests assert the application's own analytics contract rather than any vendor SDK internals.
-- [ ] Typechecking, the focused tests, the full test suite, and `$review` complete successfully.
+- [x] An application-owned analytics boundary exposes a typed event capture function and defaults to a safe no-op when no implementation is configured.
+- [x] `posthog-js` is not added as a dependency, no PostHog root provider is added, and the application sends no analytics network traffic.
+- [x] The newsletter form calls the boundary rather than any vendor client directly.
+- [x] A confirmed backend success emits exactly one `newsletter_subscribed` event.
+- [x] The event carries `page` set to `home`, `form_type` set to `newsletter`, and `email_domain` containing only the lowercased portion of the trimmed address following its single `@`.
+- [x] The event payload does not contain the complete email address.
+- [x] No event is emitted for a validation error, an HTTP failure, `success: false`, malformed JSON, an unexpected response shape, a network failure, or a timeout.
+- [x] Capture occurs after backend success, never before or instead of it.
+- [x] A missing analytics implementation leaves the success message, the cleared field, and the visible outcome unchanged.
+- [x] An analytics call that throws leaves the success message, the cleared field, and the visible outcome unchanged, and surfaces no error to the visitor.
+- [x] Tests verify exactly one event with the approved properties on confirmed success.
+- [x] Tests inspect the event payload to establish that the complete email address is absent.
+- [x] Tests verify that every failure path and every invalid submission emits no newsletter success event.
+- [x] Tests verify that a missing analytics implementation and a throwing analytics call each leave the successful visitor outcome unchanged.
+- [x] Tests assert the application's own analytics contract rather than any vendor SDK internals.
+- [x] Typechecking, the focused tests, the full test suite, and `$review` complete successfully.
 
 ## Implementation workflow
 
@@ -64,4 +64,14 @@ Do not run the server or restart commands on the user's behalf. If the user is s
 
 ## Blocked by
 
-- [Issue 04: Wire the newsletter form to the live ATF email service](./done/04-live-email-service-integration.md)
+- [Issue 04: Wire the newsletter form to the live ATF email service](./04-live-email-service-integration.md)
+
+## Comments
+
+### 2026-07-27 — Completed
+
+Implemented a typed, application-owned analytics boundary with a safe no-op default and failure containment, then emitted exactly one `newsletter_subscribed` event after confirmed backend success. The payload contains only `page: home`, `form_type: newsletter`, and the lowercased domain from the trimmed address; the complete email address is never captured. Missing or throwing analytics implementations cannot change the cleared field, success message, or visible visitor outcome.
+
+Independent review completed with zero findings on both standards and specification axes. The review confirmed success-only ordering, payload privacy, exact-once capture, no events across validation and service failure paths, and strict failure isolation. Package and lock files are unchanged; `posthog-js`, a root provider, analytics network calls, and vendor dependencies were not introduced.
+
+Final verification passed: `git diff --check`, `npx tsc --noEmit`, `npm test -- src/lib/analytics.test.ts src/router.test.tsx` (80 tests), `npm test` (122 tests), and `npm run build`. Verification used mocks only and made no live request or development-server change.

@@ -6,6 +6,7 @@ import {
   DiagonalAccentSection,
   Eyebrow,
 } from "@/components/site/Page";
+import { captureAnalyticsEvent } from "@/lib/analytics";
 import { subscribeToNewsletter } from "@/services/newsletter";
 
 const newsletterAnchorStyle = {
@@ -64,6 +65,11 @@ export function NewsletterSection() {
           status: "success",
           message:
             result.message ?? "Successfully subscribed to our newsletter!",
+        });
+        captureAnalyticsEvent("newsletter_subscribed", {
+          page: "home",
+          form_type: "newsletter",
+          email_domain: trimmedEmail.split("@")[1].toLowerCase(),
         });
       } else {
         setSubmission({
