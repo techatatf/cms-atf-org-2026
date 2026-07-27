@@ -76,4 +76,4 @@ Do not run the server or restart commands on the user's behalf. If the user is s
 
 ## Blocked by
 
-- [Issue 03: ATF prototype review and approval gate](./03-prototype-approval-gate.md)
+- [Issue 03: ATF prototype review and approval gate](./done/03-prototype-approval-gate.md)

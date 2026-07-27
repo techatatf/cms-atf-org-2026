@@ -118,7 +118,7 @@ function opportunityButtonClass({
   const geometry = opportunityButtonGeometries[density][size];
 
   return cn(
-    "atf-opportunity-button inline-flex items-center justify-center gap-2 whitespace-nowrap font-display font-bold uppercase transition-colors focus-visible:ring-0 focus-visible:ring-offset-0",
+    "atf-opportunity-button inline-flex items-center justify-center gap-2 whitespace-nowrap font-display font-bold uppercase transition-colors",
     opportunityButtonVariants[variant],
     geometry.className,
     disabled && "pointer-events-none cursor-not-allowed opacity-55",

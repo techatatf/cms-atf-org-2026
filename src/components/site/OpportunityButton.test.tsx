@@ -41,6 +41,15 @@ describe("OpportunityButton", () => {
     expect(button.getAttribute("data-density")).toBe("default");
   });
 
+  it("does not suppress its stylesheet-owned focus-visible treatment", () => {
+    render(<OpportunityButton>Focus target</OpportunityButton>);
+
+    const button = screen.getByRole("button", { name: "Focus target" });
+
+    expect(button.classList.contains("focus-visible:ring-0")).toBe(false);
+    expect(button.classList.contains("focus-visible:ring-offset-0")).toBe(false);
+  });
+
   it("supports compact density without changing the small size contract", () => {
     render(
       <OpportunityButton href="#challenge" size="sm" density="compact">
