@@ -1,5 +1,11 @@
 import { useRef, useState, type FormEvent } from "react";
-import { CircleCheck, LoaderCircle, Mail, TriangleAlert } from "lucide-react";
+import {
+  CircleCheck,
+  LoaderCircle,
+  Mail,
+  TriangleAlert,
+  type LucideIcon,
+} from "lucide-react";
 
 import { OpportunityButton } from "@/components/site/OpportunityButton";
 import {
@@ -21,6 +27,46 @@ type SubmissionState =
   | { status: "success"; message: string }
   | { status: "error"; message: string };
 
+type FeedbackPresentation = {
+  className: string;
+  icon: LucideIcon;
+  iconClassName: string;
+  label?: string;
+  message: string;
+};
+
+function getFeedbackPresentation(
+  submission: SubmissionState,
+): FeedbackPresentation | undefined {
+  switch (submission.status) {
+    case "idle":
+      return undefined;
+    case "submitting":
+      return {
+        className: "border-white bg-atf-black text-white",
+        icon: LoaderCircle,
+        iconClassName: "animate-spin",
+        message: "Subscribing…",
+      };
+    case "success":
+      return {
+        className: "border-[var(--color-success)] bg-white text-atf-ink",
+        icon: CircleCheck,
+        iconClassName: "text-[var(--color-success)]",
+        label: "Success",
+        message: submission.message,
+      };
+    case "error":
+      return {
+        className: "border-[var(--color-error)] bg-white text-atf-ink",
+        icon: TriangleAlert,
+        iconClassName: "text-[var(--color-error)]",
+        label: "Error",
+        message: submission.message,
+      };
+  }
+}
+
 export function NewsletterSection() {
   const [email, setEmail] = useState("");
   const [submission, setSubmission] = useState<SubmissionState>({
@@ -29,6 +75,7 @@ export function NewsletterSection() {
   const requestPending = useRef(false);
 
   const isSubmitting = submission.status === "submitting";
+  const feedback = getFeedbackPresentation(submission);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -144,48 +191,27 @@ export function NewsletterSection() {
           aria-atomic="true"
           data-newsletter-status={submission.status}
           className={
-            submission.status === "idle"
-              ? undefined
-              : `mt-4 flex items-start gap-3 border px-4 py-3 ${
-                  submission.status === "success"
-                    ? "border-[var(--color-success)] bg-white text-atf-ink"
-                    : submission.status === "error"
-                      ? "border-[var(--color-error)] bg-white text-atf-ink"
-                      : "border-white bg-atf-black text-white"
-                }`
+            feedback
+              ? `mt-4 flex items-start gap-3 border px-4 py-3 ${feedback.className}`
+              : undefined
           }
         >
-          {submission.status !== "idle" && (
+          {feedback && (
             <>
-              {submission.status === "success" ? (
-                <CircleCheck
-                  className="mt-0.5 size-5 shrink-0 text-[var(--color-success)]"
-                  aria-hidden="true"
-                />
-              ) : submission.status === "error" ? (
-                <TriangleAlert
-                  className="mt-0.5 size-5 shrink-0 text-[var(--color-error)]"
-                  aria-hidden="true"
-                />
-              ) : (
-                <LoaderCircle
-                  className="mt-0.5 size-5 shrink-0 animate-spin"
-                  aria-hidden="true"
-                />
-              )}
+              <feedback.icon
+                className={`mt-0.5 size-5 shrink-0 ${feedback.iconClassName}`}
+                aria-hidden="true"
+              />
               <p className="text-sm leading-6">
-                {submission.status === "success" ? (
+                {feedback.label ? (
                   <>
-                    <strong className="font-display uppercase">Success</strong>
-                    <span className="ml-2">{submission.message}</span>
-                  </>
-                ) : submission.status === "error" ? (
-                  <>
-                    <strong className="font-display uppercase">Error</strong>
-                    <span className="ml-2">{submission.message}</span>
+                    <strong className="font-display uppercase">
+                      {feedback.label}
+                    </strong>
+                    <span className="ml-2">{feedback.message}</span>
                   </>
                 ) : (
-                  "Subscribing…"
+                  feedback.message
                 )}
               </p>
             </>
