@@ -64,4 +64,4 @@ Do not run the server or restart commands on the user's behalf. If the user is s
 
 ## Blocked by
 
-- [Issue 04: Wire the newsletter form to the live ATF email service](./04-live-email-service-integration.md)
+- [Issue 04: Wire the newsletter form to the live ATF email service](./done/04-live-email-service-integration.md)

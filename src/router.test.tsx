@@ -14,8 +14,51 @@ import { RouterProvider, createMemoryHistory } from "@tanstack/react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createAppRouter, resolveHomepageOnlyMode } from "@/router";
+import { subscribeToNewsletter } from "@/services/newsletter";
+
+vi.mock("@/services/newsletter", () => ({
+  subscribeToNewsletter: vi.fn(),
+}));
+
+const subscribeToNewsletterMock = vi.mocked(subscribeToNewsletter);
+
+function createDeferred<T>() {
+  let resolve!: (value: T | PromiseLike<T>) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+
+  return { promise, resolve, reject };
+}
+
+async function renderHomepageNewsletter() {
+  vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+  const router = createAppRouter({
+    homepageOnlyMode: true,
+    history: createMemoryHistory({ initialEntries: ["/"] }),
+  });
+
+  render(<RouterProvider router={router} />);
+
+  const email = await screen.findByRole<HTMLInputElement>("textbox", {
+    name: "Email address",
+  });
+  const form = email.closest("form");
+  if (!form) throw new Error("Newsletter form is missing");
+
+  return {
+    email,
+    form,
+    router,
+    status: screen.getByRole("status"),
+  };
+}
 
 beforeEach(() => {
+  subscribeToNewsletterMock.mockReset();
+  subscribeToNewsletterMock.mockResolvedValue({ success: true });
   Object.defineProperty(Element.prototype, "scrollIntoView", {
     configurable: true,
     value: vi.fn(),
@@ -188,9 +231,10 @@ describe("application router homepage-only mode", () => {
       expect(
         newsletterQueries.getByRole("button", { name: "Subscribe" }),
       ).toHaveProperty("type", "submit");
+      expect(newsletterQueries.queryByText(/prototype review/i)).toBeNull();
       expect(
-        newsletterQueries.getByText(/prototype review/i),
-      ).toBeTruthy();
+        newsletter.querySelector("[data-newsletter-review-marker]"),
+      ).toBeNull();
     },
   );
 
@@ -200,23 +244,8 @@ describe("application router homepage-only mode", () => {
   ])(
     "shows application validation for %j before any service call",
     async (value, expectedMessage) => {
-      vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
-      const fetchSpy = vi
-        .spyOn(globalThis, "fetch")
-        .mockRejectedValue(new Error("Validation must happen before transport"));
-      const router = createAppRouter({
-        homepageOnlyMode: true,
-        history: createMemoryHistory({ initialEntries: ["/"] }),
-      });
-
-      render(<RouterProvider router={router} />);
-
-      const email = await screen.findByRole<HTMLInputElement>("textbox", {
-        name: "Email address",
-      });
-      const form = email.closest("form");
-      if (!form) throw new Error("Newsletter form is missing");
-      const status = screen.getByRole("status");
+      const { email, form, router, status } =
+        await renderHomepageNewsletter();
 
       expect(status.textContent).toBe("");
       expect(status.getAttribute("data-newsletter-status")).toBe("idle");
@@ -228,28 +257,19 @@ describe("application router homepage-only mode", () => {
       expect(status.textContent).toContain("Error");
       expect(status.textContent).toContain(expectedMessage);
       expect(status.getAttribute("data-newsletter-status")).toBe("error");
-      expect(fetchSpy).not.toHaveBeenCalled();
+      expect(email.value).toBe(value);
+      expect(subscribeToNewsletterMock).not.toHaveBeenCalled();
       expect(router.state.location.href).toBe("/");
     },
   );
 
-  it("shows prototype pending and success treatments without a service call", async () => {
-    vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
-    const fetchSpy = vi
-      .spyOn(globalThis, "fetch")
-      .mockRejectedValue(new Error("The prototype must not request a service"));
-    const router = createAppRouter({
-      homepageOnlyMode: true,
-      history: createMemoryHistory({ initialEntries: ["/"] }),
-    });
-
-    render(<RouterProvider router={router} />);
-
-    const email = await screen.findByRole<HTMLInputElement>("textbox", {
-      name: "Email address",
-    });
-    const form = email.closest("form");
-    if (!form) throw new Error("Newsletter form is missing");
+  it("submits one trimmed address, prevents duplicates, and renders confirmed success", async () => {
+    const subscription = createDeferred<{
+      success: boolean;
+      message?: string;
+    }>();
+    subscribeToNewsletterMock.mockReturnValue(subscription.promise);
+    const { email, form, router } = await renderHomepageNewsletter();
 
     fireEvent.change(email, {
       target: { value: "\u00a0Visitor+tag@Example.COM\u00a0" },
@@ -258,61 +278,128 @@ describe("application router homepage-only mode", () => {
     expect(email.value).toBe("\u00a0Visitor+tag@Example.COM\u00a0");
     expect(form.noValidate).toBe(true);
 
-    vi.useFakeTimers();
     expect(fireEvent.submit(form)).toBe(false);
 
     const action = screen.getByRole<HTMLButtonElement>("button", {
       name: "Subscribing…",
     });
     expect(action.disabled).toBe(true);
+    expect(email.readOnly).toBe(true);
     expect(screen.getByRole("status").textContent).toContain("Subscribing…");
-    expect(
-      screen.getByText(/prototype review/i).hasAttribute(
-        "data-newsletter-review-marker",
-      ),
-    ).toBe(true);
-    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(subscribeToNewsletterMock).toHaveBeenCalledTimes(1);
+    expect(subscribeToNewsletterMock).toHaveBeenCalledWith(
+      "Visitor+tag@Example.COM",
+    );
+    expect(fireEvent.submit(form)).toBe(false);
+    expect(subscribeToNewsletterMock).toHaveBeenCalledTimes(1);
+    fireEvent.change(email, { target: { value: "replacement@example.com" } });
+    expect(email.value).toBe("\u00a0Visitor+tag@Example.COM\u00a0");
+    expect(screen.queryByText(/prototype review/i)).toBeNull();
     expect(router.state.location.href).toBe("/");
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(749);
-    });
-    expect(action.disabled).toBe(true);
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(1);
+      subscription.resolve({ success: true, message: "Welcome to ATF!" });
+      await subscription.promise;
     });
 
     const status = screen.getByRole("status");
     expect(status.getAttribute("data-newsletter-status")).toBe("success");
     expect(status.textContent).toContain("Success");
-    expect(status.textContent).toContain(
-      "Successfully subscribed to our newsletter!",
-    );
+    expect(status.textContent).toContain("Welcome to ATF!");
+    expect(email.value).toBe("");
+    expect(email.readOnly).toBe(false);
     expect(
       screen.getByRole("button", { name: "Subscribe" }),
     ).toHaveProperty("disabled", false);
-    expect(fetchSpy).not.toHaveBeenCalled();
 
     fireEvent.change(email, { target: { value: "next@example.com" } });
     expect(status.textContent).toBe("");
     expect(status.getAttribute("data-newsletter-status")).toBe("idle");
   });
 
+  it("uses stable success copy when the service confirms without a message", async () => {
+    subscribeToNewsletterMock.mockResolvedValue({ success: true });
+    const { email, form } = await renderHomepageNewsletter();
+    fireEvent.change(email, { target: { value: "person@example.com" } });
+    fireEvent.submit(form);
+
+    await waitFor(() => {
+      expect(screen.getByRole("status").textContent).toContain(
+        "Successfully subscribed to our newsletter!",
+      );
+    });
+    expect(email.value).toBe("");
+    expect(screen.getByRole("status").textContent).toContain("Success");
+  });
+
+  it.each([
+    [
+      "the service explanation",
+      { success: false, message: "This address is already subscribed." },
+      "This address is already subscribed.",
+    ],
+    [
+      "stable fallback copy",
+      { success: false },
+      "Failed to subscribe. Please try again.",
+    ],
+  ])(
+    "retains the address and shows %s after a backend rejection",
+    async (_name, result, expectedMessage) => {
+      subscribeToNewsletterMock.mockResolvedValue(result);
+      const { email, form } = await renderHomepageNewsletter();
+      fireEvent.change(email, { target: { value: "person@example.com" } });
+      fireEvent.submit(form);
+
+      await waitFor(() => {
+        expect(screen.getByRole("status").textContent).toContain(expectedMessage);
+      });
+      expect(email.value).toBe("person@example.com");
+      expect(screen.getByRole("status").textContent).toContain("Error");
+      expect(
+        screen.getByRole<HTMLButtonElement>("button", { name: "Subscribe" })
+          .disabled,
+      ).toBe(false);
+
+      fireEvent.change(email, { target: { value: "person2@example.com" } });
+      expect(screen.getByRole("status").textContent).toBe("");
+      expect(
+        screen.getByRole("status").getAttribute("data-newsletter-status"),
+      ).toBe("idle");
+    },
+  );
+
+  it.each([
+    ["malformed JSON", new SyntaxError("Unexpected token")],
+    ["unexpected response data", new Error("Unexpected response")],
+    ["a rejected request", new TypeError("offline")],
+    ["a timeout", new DOMException("Timed out", "AbortError")],
+  ])(
+    "uses one generic failure outcome for %s",
+    async (_name, failure) => {
+      subscribeToNewsletterMock.mockRejectedValue(failure);
+      const { email, form } = await renderHomepageNewsletter();
+      fireEvent.change(email, { target: { value: "person@example.com" } });
+      fireEvent.submit(form);
+
+      await waitFor(() => {
+        expect(screen.getByRole("status").textContent).toContain(
+          "Failed to subscribe. Please try again.",
+        );
+      });
+      expect(screen.getByRole("status").textContent).not.toMatch(
+        /connection|host|transport/i,
+      );
+      expect(email.value).toBe("person@example.com");
+      expect(
+        screen.getByRole<HTMLButtonElement>("button", { name: "Subscribe" })
+          .disabled,
+      ).toBe(false);
+    },
+  );
+
   it("clears stale newsletter feedback on the first field change", async () => {
-    vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
-    const router = createAppRouter({
-      homepageOnlyMode: true,
-      history: createMemoryHistory({ initialEntries: ["/"] }),
-    });
-
-    render(<RouterProvider router={router} />);
-
-    const email = await screen.findByRole<HTMLInputElement>("textbox", {
-      name: "Email address",
-    });
-    const form = email.closest("form");
-    if (!form) throw new Error("Newsletter form is missing");
+    const { email, form } = await renderHomepageNewsletter();
 
     fireEvent.submit(form);
     expect(screen.getByRole("status").textContent).toContain(

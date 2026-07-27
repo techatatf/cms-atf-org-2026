@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { CircleCheck, LoaderCircle, Mail, TriangleAlert } from "lucide-react";
 
 import { OpportunityButton } from "@/components/site/OpportunityButton";
@@ -6,6 +6,7 @@ import {
   DiagonalAccentSection,
   Eyebrow,
 } from "@/components/site/Page";
+import { subscribeToNewsletter } from "@/services/newsletter";
 
 const newsletterAnchorStyle = {
   scrollMarginTop: "var(--atf-header-height, 76px)",
@@ -19,25 +20,19 @@ type SubmissionState =
   | { status: "success"; message: string }
   | { status: "error"; message: string };
 
-// Prototype-only transport substitute. Live integration replaces this function.
-function completePrototypeSubscription() {
-  return new Promise<void>((resolve) => {
-    setTimeout(resolve, 750);
-  });
-}
-
 export function NewsletterSection() {
   const [email, setEmail] = useState("");
   const [submission, setSubmission] = useState<SubmissionState>({
     status: "idle",
   });
+  const requestPending = useRef(false);
 
   const isSubmitting = submission.status === "submitting";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (isSubmitting) return;
+    if (requestPending.current) return;
 
     const trimmedEmail = email.trim();
 
@@ -57,15 +52,38 @@ export function NewsletterSection() {
       return;
     }
 
+    requestPending.current = true;
     setSubmission({ status: "submitting" });
-    await completePrototypeSubscription();
-    setSubmission({
-      status: "success",
-      message: "Successfully subscribed to our newsletter!",
-    });
+
+    try {
+      const result = await subscribeToNewsletter(trimmedEmail);
+
+      if (result.success) {
+        setEmail("");
+        setSubmission({
+          status: "success",
+          message:
+            result.message ?? "Successfully subscribed to our newsletter!",
+        });
+      } else {
+        setSubmission({
+          status: "error",
+          message: result.message ?? "Failed to subscribe. Please try again.",
+        });
+      }
+    } catch {
+      setSubmission({
+        status: "error",
+        message: "Failed to subscribe. Please try again.",
+      });
+    } finally {
+      requestPending.current = false;
+    }
   }
 
   function handleEmailChange(value: string) {
+    if (requestPending.current) return;
+
     setEmail(value);
     if (submission.status === "success" || submission.status === "error") {
       setSubmission({ status: "idle" });
@@ -87,12 +105,6 @@ export function NewsletterSection() {
       </div>
 
       <div className="bg-primary p-6 sm:p-8 lg:bg-transparent lg:pl-16 lg:pr-0">
-        <p
-          className="mb-5 border border-white/50 bg-atf-black px-4 py-3 font-display text-xs font-bold uppercase text-white"
-          data-newsletter-review-marker
-        >
-          Prototype review — subscription is not live
-        </p>
         <form
           className="flex min-w-0 flex-col gap-3 sm:flex-row"
           noValidate
@@ -105,6 +117,7 @@ export function NewsletterSection() {
             id="newsletter-email"
             type="email"
             value={email}
+            readOnly={isSubmitting}
             onChange={(event) => handleEmailChange(event.target.value)}
             placeholder="Enter your email"
             className="min-h-12 min-w-0 flex-1 border border-atf-gray-200 bg-white px-4 text-atf-ink outline-none placeholder:text-atf-gray-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
