@@ -71,4 +71,4 @@ Do not run the server or restart commands on the user's behalf. If the user is s
 
 ## Blocked by
 
-- [Issue 01: Place the newsletter CTA section on the homepage in the ATF design language](./01-newsletter-cta-section.md)
+- [Issue 01: Place the newsletter CTA section on the homepage in the ATF design language](./done/01-newsletter-cta-section.md)

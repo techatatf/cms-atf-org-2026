@@ -154,14 +154,19 @@ type PageHeroProps = {
   icon?: LucideIcon;
 };
 
-export function PageHero({
-  eyebrow,
-  title,
-  description,
-  icon: Icon,
-}: PageHeroProps) {
+export function DiagonalAccentSection({
+  children,
+  className,
+  ...props
+}: ComponentProps<"section">) {
   return (
-    <section className="relative isolate overflow-hidden bg-atf-black text-white">
+    <section
+      className={cn(
+        "relative isolate overflow-hidden bg-atf-black text-white",
+        className,
+      )}
+      {...props}
+    >
       <div
         className="absolute inset-y-0 right-0 hidden w-[64%] bg-primary lg:block"
         style={{ clipPath: "polygon(36% 0, 100% 0, 100% 100%, 12% 100%)" }}
@@ -173,25 +178,38 @@ export function PageHero({
       />
       <div className="atf-container relative z-10 py-16 lg:py-24">
         <div className="grid gap-10 lg:grid-cols-[0.72fr_1fr] lg:items-center">
-          <div>
-            <Eyebrow light>{eyebrow}</Eyebrow>
-            {Icon ? (
-              <div className="mb-6 inline-flex size-14 items-center justify-center bg-primary text-white">
-                <Icon className="size-7" aria-hidden="true" />
-              </div>
-            ) : null}
-          </div>
-          <div className="max-w-4xl lg:pl-10">
-            <h1 className="font-display text-4xl font-black uppercase leading-tight md:text-6xl">
-              {title}
-            </h1>
-            <p className="mt-6 max-w-3xl text-lg leading-8 text-white/70">
-              {description}
-            </p>
-          </div>
+          {children}
         </div>
       </div>
     </section>
+  );
+}
+
+export function PageHero({
+  eyebrow,
+  title,
+  description,
+  icon: Icon,
+}: PageHeroProps) {
+  return (
+    <DiagonalAccentSection>
+      <div>
+        <Eyebrow light>{eyebrow}</Eyebrow>
+        {Icon ? (
+          <div className="mb-6 inline-flex size-14 items-center justify-center bg-primary text-white">
+            <Icon className="size-7" aria-hidden="true" />
+          </div>
+        ) : null}
+      </div>
+      <div className="max-w-4xl lg:pl-10">
+        <h1 className="font-display text-4xl font-black uppercase leading-tight md:text-6xl">
+          {title}
+        </h1>
+        <p className="mt-6 max-w-3xl text-lg leading-8 text-white/70">
+          {description}
+        </p>
+      </div>
+    </DiagonalAccentSection>
   );
 }
 

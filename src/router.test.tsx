@@ -134,6 +134,96 @@ describe("application router homepage-only mode", () => {
     );
   });
 
+  it.each([true, false])(
+    "renders the newsletter CTA between News and Partners when homepage-only mode is %s",
+    async (homepageOnlyMode) => {
+      vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+      const router = createAppRouter({
+        homepageOnlyMode,
+        history: createMemoryHistory({ initialEntries: ["/"] }),
+      });
+
+      const { container } = render(<RouterProvider router={router} />);
+
+      const heading = await screen.findByRole("heading", {
+        name: "Stay Connected",
+      });
+      const newsletter = container.querySelector<HTMLElement>("#newsletter");
+      const news = container.querySelector<HTMLElement>("#news");
+      const partners = screen
+        .getByText("Trusted by leading organizations across Africa and beyond")
+        .closest("section");
+
+      expect(newsletter).not.toBeNull();
+      expect(news).not.toBeNull();
+      expect(partners).not.toBeNull();
+      if (!newsletter || !news || !partners) {
+        throw new Error("Expected homepage sections are missing");
+      }
+
+      expect(news.compareDocumentPosition(newsletter)).toBe(
+        Node.DOCUMENT_POSITION_FOLLOWING,
+      );
+      expect(newsletter.compareDocumentPosition(partners)).toBe(
+        Node.DOCUMENT_POSITION_FOLLOWING,
+      );
+      expect(newsletter.contains(heading)).toBe(true);
+      expect(newsletter.classList.contains("hidden")).toBe(false);
+      expect(newsletter.style.scrollMarginTop).toBe(
+        "var(--atf-header-height, 76px)",
+      );
+
+      const newsletterQueries = within(newsletter);
+      expect(newsletterQueries.getByText("Newsletter")).toBeTruthy();
+      expect(
+        newsletterQueries.getByText(
+          "Subscribe for the latest research highlights, event invitations, and ecosystem news delivered straight to your inbox.",
+        ),
+      ).toBeTruthy();
+      expect(
+        newsletterQueries.getByRole("textbox", { name: "Email address" }),
+      ).toHaveProperty("type", "email");
+      expect(
+        newsletterQueries.getByRole("button", { name: "Subscribe" }),
+      ).toHaveProperty("type", "submit");
+      expect(
+        newsletterQueries.getByText(/prototype review/i),
+      ).toBeTruthy();
+    },
+  );
+
+  it("keeps the visitor's exact input and prevents prototype submission", async () => {
+    vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockRejectedValue(new Error("The prototype must not request a service"));
+    const router = createAppRouter({
+      homepageOnlyMode: true,
+      history: createMemoryHistory({ initialEntries: ["/"] }),
+    });
+
+    render(<RouterProvider router={router} />);
+
+    const email = await screen.findByRole<HTMLInputElement>("textbox", {
+      name: "Email address",
+    });
+    const form = email.closest("form");
+    if (!form) throw new Error("Newsletter form is missing");
+
+    fireEvent.change(email, {
+      target: { value: "Visitor+tag@Example.COM" },
+    });
+
+    expect(email.value).toBe("Visitor+tag@Example.COM");
+    expect(form.noValidate).toBe(true);
+    expect(fireEvent.submit(form)).toBe(false);
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(router.state.location.href).toBe("/");
+    expect(
+      screen.queryByRole("status"),
+    ).toBeNull();
+  });
+
   it("links visible organization content directly to the homepage About section when enabled", async () => {
     vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
     const router = createAppRouter({

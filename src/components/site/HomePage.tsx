@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import { AppLink } from "@/components/site/AppLink";
+import { NewsletterSection } from "@/components/site/NewsletterSection";
 import {
   OpportunityButton,
   type OpportunityButtonProps,
@@ -134,6 +135,7 @@ export function HomePage({
         filteredNews={filteredNews}
         onCategoryChange={setActiveCategory}
       />
+      <NewsletterSection />
       <PartnersSection />
     </HomepageOnlyModeContext.Provider>
   );

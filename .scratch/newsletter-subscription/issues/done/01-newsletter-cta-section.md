@@ -1,10 +1,10 @@
-Status: ready-for-agent
+Status: completed
 
 # Place the newsletter CTA section on the homepage in the ATF design language
 
 ## Parent
 
-[Newsletter Subscription PRD](../PRD.md)
+[Newsletter Subscription PRD](../../PRD.md)
 
 ## What to build
 
@@ -22,27 +22,27 @@ The section treatment reuses the geometry `PageHero` already establishes rather 
 
 ## Acceptance criteria
 
-- [ ] The newsletter CTA renders on the homepage after the main editorial content and immediately before the partners section.
-- [ ] The section appears in both the normal application shell and homepage-only mode, and does not inherit the news section's homepage-only `hidden` treatment.
-- [ ] The section exposes its own `newsletter` anchor and settles below the fixed header using the established homepage anchor treatment.
-- [ ] The band is black with white text, carries a red diagonal accent panel following the established page-hero clip-path treatment, and carries a red corner triangle at the lower left.
-- [ ] The eyebrow, icon plate, and heading sit on the black side; the field, action, and future feedback area sit over the red panel.
-- [ ] The eyebrow reads `Newsletter` and uses the established triangle eyebrow treatment.
-- [ ] The mail icon sits in a solid red square plate with a white glyph, matching the established page-hero icon treatment. It is not a circle and not gold.
-- [ ] The heading is exposed as a heading whose accessible name is `Stay Connected`.
-- [ ] The supporting copy reads exactly: `Subscribe for the latest research highlights, event invitations, and ecosystem news delivered straight to your inbox.`
-- [ ] The email field has an accessible name that does not depend on its placeholder, while the placeholder remains visually present.
-- [ ] The field uses `type="email"`, and the form uses `noValidate` so activating Subscribe cannot trigger native browser validation feedback.
-- [ ] The Subscribe action is the existing opportunity button rendered as a submit control, not a bespoke button.
-- [ ] The field and action are inline from the small breakpoint upward and stacked below it, with neither control overflowing a narrow viewport.
-- [ ] The field value is controlled and is never transformed while the visitor types.
-- [ ] Both controls show a visible focus treatment. Controls over the red panel use a white focus ring rather than the global red ring.
-- [ ] The section is square-cornered throughout: no rounded field, action, or plate.
-- [ ] A persistent review marker identifies the section as non-live, and is a single self-contained element that can later be deleted wholesale.
-- [ ] Activating Subscribe does not navigate, reload, or issue any network request. Producing feedback is out of scope for this ticket.
-- [ ] No typeface is added and no webfont is loaded over the network.
-- [ ] Rendered-application tests cover the section's position relative to the news and partners sections, its presence in both application shells, and the semantic exposure of the heading, copy, field, and action.
-- [ ] Typechecking, the focused tests, the full test suite, and `$review` complete successfully.
+- [x] The newsletter CTA renders on the homepage after the main editorial content and immediately before the partners section.
+- [x] The section appears in both the normal application shell and homepage-only mode, and does not inherit the news section's homepage-only `hidden` treatment.
+- [x] The section exposes its own `newsletter` anchor and settles below the fixed header using the established homepage anchor treatment.
+- [x] The band is black with white text, carries a red diagonal accent panel following the established page-hero clip-path treatment, and carries a red corner triangle at the lower left.
+- [x] The eyebrow, icon plate, and heading sit on the black side; the field, action, and future feedback area sit over the red panel.
+- [x] The eyebrow reads `Newsletter` and uses the established triangle eyebrow treatment.
+- [x] The mail icon sits in a solid red square plate with a white glyph, matching the established page-hero icon treatment. It is not a circle and not gold.
+- [x] The heading is exposed as a heading whose accessible name is `Stay Connected`.
+- [x] The supporting copy reads exactly: `Subscribe for the latest research highlights, event invitations, and ecosystem news delivered straight to your inbox.`
+- [x] The email field has an accessible name that does not depend on its placeholder, while the placeholder remains visually present.
+- [x] The field uses `type="email"`, and the form uses `noValidate` so activating Subscribe cannot trigger native browser validation feedback.
+- [x] The Subscribe action is the existing opportunity button rendered as a submit control, not a bespoke button.
+- [x] The field and action are inline from the small breakpoint upward and stacked below it, with neither control overflowing a narrow viewport.
+- [x] The field value is controlled and is never transformed while the visitor types.
+- [x] Both controls show a visible focus treatment. Controls over the red panel use a white focus ring rather than the global red ring.
+- [x] The section is square-cornered throughout: no rounded field, action, or plate.
+- [x] A persistent review marker identifies the section as non-live, and is a single self-contained element that can later be deleted wholesale.
+- [x] Activating Subscribe does not navigate, reload, or issue any network request. Producing feedback is out of scope for this ticket.
+- [x] No typeface is added and no webfont is loaded over the network.
+- [x] Rendered-application tests cover the section's position relative to the news and partners sections, its presence in both application shells, and the semantic exposure of the heading, copy, field, and action.
+- [x] Typechecking, the focused tests, the full test suite, and `$review` complete successfully.
 
 ## Implementation workflow
 
@@ -72,3 +72,9 @@ Do not run the server or restart commands on the user's behalf. If the user is s
 ## Blocked by
 
 None - can start immediately.
+
+## Comments
+
+### 2026-07-27 — Completed
+
+Implemented the homepage newsletter CTA, extracted the shared page-hero geometry, and added rendered-router coverage for placement, both shell modes, semantics, controlled input, and inert submission. The implementation and independent review/fix passes found no remaining completion blocker. Final verification passed: `git diff --check`, `npx tsc --noEmit`, `npm test -- src/router.test.tsx` (65 tests), `npm test` (88 tests), and `npm run build`.
