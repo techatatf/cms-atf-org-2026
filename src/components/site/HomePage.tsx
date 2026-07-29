@@ -617,17 +617,18 @@ function FunderSection() {
             {
               title: "Submit a Partnership Inquiry",
               body: "Tell us about your organization and goals.",
-              href: "/consulting",
+              href: "/#newsletter",
             },
-            {
-              title: "Download Our Impact Report",
-              body: "Three decades of data, case studies, and results.",
-              href: "/research",
-            },
+            // Restore this action when published impact reports are available.
+            // {
+            //   title: "Download Our Impact Report",
+            //   body: "Three decades of data, case studies, and results.",
+            //   href: "/research",
+            // },
             {
               title: "Book a Meeting",
               body: "Speak with our partnerships team in Accra, Ghana.",
-              href: "/consulting",
+              href: "/#newsletter",
             },
           ].map((item) => (
             <HomepageLink

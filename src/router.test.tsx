@@ -496,7 +496,6 @@ describe("application router homepage-only mode", () => {
     ["ATF Consulting", "/#funder"],
     ["02 / 03 ATF Challenge", "/#student"],
     ["ATF Chapters", "/#chapters"],
-    ["Download Our Impact Report", "/#about"],
     ["Nigeria", "/#chapters"],
   ])(
     "links visible homepage content for %s directly to %s when enabled",
@@ -559,7 +558,6 @@ describe("application router homepage-only mode", () => {
   it.each([
     ["Explore our story", "/about"],
     ["02 / 03 ATF Challenge", "/challenge"],
-    ["Download Our Impact Report", "/research"],
     ["Nigeria", "/countries/nigeria"],
     ["View all news", "/news"],
   ])(
@@ -581,6 +579,43 @@ describe("application router homepage-only mode", () => {
       ).toBe(true);
     },
   );
+
+  it.each(["Submit a Partnership Inquiry", "Book a Meeting"])(
+    "connects the %s funder action to the newsletter form",
+    async (name) => {
+      vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+      const router = createAppRouter({
+        homepageOnlyMode: false,
+        history: createMemoryHistory({ initialEntries: ["/"] }),
+      });
+
+      render(<RouterProvider router={router} />);
+
+      expect(
+        (await screen.findByRole("link", { name: new RegExp(name, "i") })).getAttribute(
+          "href",
+        ),
+      ).toBe("/#newsletter");
+    },
+  );
+
+  it("does not expose the impact report action until a report is available", async () => {
+    vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+    const router = createAppRouter({
+      homepageOnlyMode: false,
+      history: createMemoryHistory({ initialEntries: ["/"] }),
+    });
+
+    render(<RouterProvider router={router} />);
+
+    await screen.findByRole("heading", {
+      name: /Invest in Africa's digital future with us/i,
+    });
+
+    expect(
+      screen.queryByRole("link", { name: /Download Our Impact Report/i }),
+    ).toBeNull();
+  });
 
   it("exposes the homepage destinations through a predictable mobile menu", async () => {
     vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
