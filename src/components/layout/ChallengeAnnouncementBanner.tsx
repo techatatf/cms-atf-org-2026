@@ -5,10 +5,10 @@ import { OpportunityButton } from "@/components/site/OpportunityButton";
 
 const announcement = {
   label: "New",
-  title: "ATF Challenge 2026 is open",
-  body: "free AI training and mentorship for young Africans. Applications close June 30.",
+  title: "ATF Challenge 2026",
+  body: "AI School registration is now closed. The build phase begins this September.",
   href: "https://bit.ly/atf-wf",
-  action: "Apply now",
+  action: "Follow the journey",
 };
 
 export function ChallengeAnnouncementBanner() {
@@ -35,7 +35,7 @@ export function ChallengeAnnouncementBanner() {
             {announcement.title}
           </strong>
           <span className="hidden min-w-0 truncate sm:block">
-            - {announcement.body}
+            — {announcement.body}
           </span>
         </p>
         <a

@@ -135,7 +135,7 @@ describe("application router homepage-only mode", () => {
 
     const header = await screen.findByRole("banner");
     const announcement = within(header).getByText(
-      "ATF Challenge 2026 is open",
+      "ATF Challenge 2026",
     );
     const navigation = within(header).getByRole("navigation", {
       name: "Homepage",
