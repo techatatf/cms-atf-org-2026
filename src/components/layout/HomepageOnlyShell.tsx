@@ -11,6 +11,7 @@ import {
   Youtube,
 } from "lucide-react";
 
+import { ChallengeAnnouncementBanner } from "@/components/layout/ChallengeAnnouncementBanner";
 import { useHeaderHeight } from "@/components/layout/useHeaderHeight";
 import { OpportunityButton } from "@/components/site/OpportunityButton";
 import { IconButton, SiteLogo } from "@/components/site/Page";
@@ -59,6 +60,7 @@ export function HomepageOnlyShell({ children }: { children: ReactNode }) {
         ref={headerRef}
         className="sticky top-0 z-50 border-b border-atf-gray-200 bg-white shadow-sm"
       >
+        <ChallengeAnnouncementBanner />
         <div className="atf-container flex h-[76px] items-center justify-between gap-6">
           <Link to="/" className="inline-flex items-center">
             <SiteLogo variant="fullColor" className="h-[38px] max-w-[220px]" />

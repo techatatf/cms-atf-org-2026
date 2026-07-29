@@ -124,6 +124,29 @@ describe("application router homepage-only mode", () => {
     expect(screen.queryByText(/Applications open/i)).toBeNull();
   });
 
+  it("shows the challenge announcement above the homepage navigation", async () => {
+    vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+    const router = createAppRouter({
+      homepageOnlyMode: true,
+      history: createMemoryHistory({ initialEntries: ["/"] }),
+    });
+
+    render(<RouterProvider router={router} />);
+
+    const header = await screen.findByRole("banner");
+    const announcement = within(header).getByText(
+      "ATF Challenge 2026 is open",
+    );
+    const navigation = within(header).getByRole("navigation", {
+      name: "Homepage",
+    });
+
+    expect(
+      announcement.compareDocumentPosition(navigation) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
   it("exposes stable header-aware destinations on the homepage", async () => {
     vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
     const router = createAppRouter({
