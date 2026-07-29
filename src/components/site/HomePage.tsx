@@ -84,19 +84,19 @@ function HomepageLink(props: Parameters<typeof AppLink>[0]) {
 }
 
 const heroContent = {
-  eyebrow: "Established 1987 • Pan-African Science & Technology Network",
+  eyebrow: "Established 1988 • Pan-African Science & Technology Network",
   headlinePrefixLines: ["Promoting the", "development of"],
   headlineEmphasis: "science & technology",
   headlineTail: "across Africa.",
-  body: "For over three decades, the African Technology Forum has partnered with governments, institutions, and enterprises to build Africa's scientific and technological capacity.",
+  body: "For over three decades, the African Technology Forum has partnered with governments, institutions, and enterprises to build Africa's scientific and technological capacity - driving development from the ground up.",
   ctas: [
     { href: "/consulting", label: "Partner With ATF" },
     { href: "/about", label: "Our Impact" },
   ],
   stats: [
-    { value: "54", label: "Countries" },
-    { value: "200+", label: "Programs" },
-    { value: "10K+", label: "Members" },
+    { value: "5", label: "Countries" },
+    { value: "35+", label: "Functional MVPs delivered" },
+    { value: "23K", label: "Participants empowered" },
   ],
 } as const;
 
@@ -222,17 +222,20 @@ function DesktopHero({
               >
                 {heroContent.ctas[0].label}
               </HomepageOpportunityButton>
-              <HomepageOpportunityButton
+              {/* <HomepageOpportunityButton
                 href={heroContent.ctas[1].href}
                 variant="inverseOutline"
                 size="lg"
               >
                 {heroContent.ctas[1].label}
-              </HomepageOpportunityButton>
+              </HomepageOpportunityButton> */}
             </div>
-            <div className="mt-9 flex flex-wrap gap-x-10 gap-y-4 border-t border-white/20 pt-6">
+            <div className="mt-9 flex flex-wrap gap-y-4 border-t border-white/20 pt-6">
               {heroContent.stats.map((stat) => (
-                <div key={stat.label}>
+                <div
+                  className="w-1/3 px-2 first:pl-0 last:pr-0"
+                  key={stat.label}
+                >
                   <div className="font-display text-3xl font-black">
                     {stat.value}
                   </div>
@@ -330,13 +333,13 @@ function CompactHero({
             >
               {heroContent.ctas[0].label}
             </HomepageOpportunityButton>
-            <HomepageOpportunityButton
+            {/* <HomepageOpportunityButton
               href={heroContent.ctas[1].href}
               variant="outline"
               size="lg"
             >
               {heroContent.ctas[1].label}
-            </HomepageOpportunityButton>
+            </HomepageOpportunityButton> */}
           </div>
           <div className="mt-7 flex flex-wrap gap-x-10 gap-y-4 border-t border-atf-gray-200 pt-5">
             {heroContent.stats.map((stat) => (
@@ -435,7 +438,7 @@ function HeroPlayButton({
           Watch the film
         </span>
         <span className="mt-1 block font-display text-[10px] font-semibold uppercase text-white/70">
-          Our work, 2026
+          Our work, 2026 · 2:14
         </span>
       </span>
     </button>
@@ -485,10 +488,7 @@ function ImpactSection() {
 
 function AboutSection() {
   return (
-    <ContentBand
-      id="about"
-      style={homepageAnchorStyle}
-    >
+    <ContentBand id="about" style={homepageAnchorStyle}>
       <div className="grid gap-12 lg:grid-cols-[1fr_0.9fr] lg:items-start">
         <div>
           <Eyebrow>Who We Are</Eyebrow>
