@@ -282,7 +282,7 @@ export function StatGrid({
   return (
     <div
       className={cn(
-        "grid gap-px overflow-hidden border sm:grid-cols-2 lg:grid-cols-4",
+        "grid gap-px overflow-hidden border sm:grid-cols-1 lg:grid-cols-3",
         dark
           ? "border-white/10 bg-white/10"
           : "border-atf-gray-200 bg-atf-gray-200",

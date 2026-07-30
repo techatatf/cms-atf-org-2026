@@ -5,7 +5,7 @@ export const programs = [
     index: "01 / 03",
     href: "/consulting",
     summary:
-      "Strategic technology advisory for governments, NGOs, and enterprises designing digital transformation programs that create lasting impact.",
+      "Strategic technology advisory for governments, NGOs, and enterprises. We design and implement digital transformation programs that create lasting impact across Africa.",
   },
   {
     slug: "challenge",
@@ -13,7 +13,7 @@ export const programs = [
     index: "02 / 03",
     href: "/challenge",
     summary:
-      "An annual innovation competition empowering young Africans to build technology solutions for local problems with training and mentorship.",
+      "Our flagship programme: a pan-African innovation initiative training 20,000+ young people across four countries to build AI solutions for real-world problems. Backed by Google.org, with free AI training and mentorship.",
   },
   {
     slug: "chapters",
@@ -21,7 +21,7 @@ export const programs = [
     index: "03 / 03",
     href: "/chapters",
     summary:
-      "A growing pan-African network of local chapters fostering technology communities, professional development, and grassroots innovation.",
+      "A growing pan-African network of 30 local chapters fostering technology communities, professional development, and grassroots innovation from the ground up.",
   },
 ] as const;
 
@@ -62,21 +62,21 @@ export const chapters = [
 
 export const impactStats = [
   {
-    value: "30K+",
-    label: "Participants empowered through ATF programs",
+    value: `${new Date().getFullYear() - 1988}`,
+    label: "Years of dedicated service since 1988",
   },
   {
-    value: "37+",
+    value: "30",
     label: "Active chapters across the continent",
   },
   {
-    value: "200+",
-    label: "Programs and partnerships delivered",
+    value: "23K",
+    label: "Participants empowered through our programs",
   },
-  {
-    value: "1K+",
-    label: "Research articles and insights published",
-  },
+  // {
+  //   value: "1K+",
+  //   label: "Research articles and insights published",
+  // },
 ] as const;
 
 export const newsItems = [

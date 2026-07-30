@@ -87,7 +87,7 @@ const heroContent = {
   eyebrow: "Established 1988 • Pan-African Science & Technology Network",
   headlinePrefixLines: ["Promoting the", "development of"],
   headlineEmphasis: "science & technology",
-  headlineTail: "across Africa.",
+  headlineTail: "across Africa",
   body: "For over three decades, the African Technology Forum has partnered with governments, institutions, and enterprises to build Africa's scientific and technological capacity - driving development from the ground up.",
   ctas: [
     { href: "/consulting", label: "Partner With ATF" },
@@ -454,10 +454,7 @@ function TrustBar() {
         </p>
         <div className="flex flex-wrap items-center gap-6 font-display text-sm font-bold uppercase text-atf-gray-500/65">
           <span>Google.org</span>
-          <span>UNDP</span>
-          <span>African Union</span>
-          <span>World Bank</span>
-          <span>UNESCO</span>
+          <span>OpenAI Foundation</span>
         </div>
       </div>
     </div>
@@ -467,7 +464,10 @@ function TrustBar() {
 function ImpactSection() {
   return (
     <section className="bg-atf-black text-white">
-      <div className="atf-container grid sm:grid-cols-2 lg:grid-cols-4">
+      <div
+        className="atf-container grid grid-cols-1 max-w-max== md:w-auto== md:max-w-none== sm:grid-cols-3"
+        // className="atf-container grid sm:grid-cols-2 lg:grid-cols-4"
+      >
         {impactStats.map((stat) => (
           <div
             key={stat.label}
@@ -493,19 +493,19 @@ function AboutSection() {
         <div>
           <Eyebrow>Who We Are</Eyebrow>
           <h2 className="atf-section-title">
-            Three decades at the{" "}
-            <span className="text-primary italic">forefront</span> of African
-            technology.
+            At the <span className="text-primary italic">forefront</span>
+            <br />
+            of African technology
           </h2>
           <p className="atf-body mt-7">
             The African Technology Forum is a pan-African institution dedicated
             to harnessing technology for Africa's development challenges. Since
-            1987, ATF has built one of the continent's most trusted networks of
+            1988, ATF has built one of the continent's most trusted networks of
             technology practitioners, policymakers, and innovators.
           </p>
           <p className="atf-body mt-4">
             We work at the intersection of consulting, innovation, and capacity
-            building to create systemic change across sectors and borders.
+            building; creating systemic change across sectors and borders.
           </p>
           <HomepageLink href="/about" className="atf-link mt-8">
             Explore our story
@@ -514,10 +514,14 @@ function AboutSection() {
         </div>
         <div className="grid grid-cols-2 gap-px bg-atf-gray-200 lg:mt-12">
           {[
-            { value: "30+", label: "Years partnering with institutions" },
-            { value: "12", label: "Countries with active programs" },
-            { value: "3", label: "Flagship initiatives" },
-            { value: "1K+", label: "Research publications and briefs" },
+            {
+              value: `${new Date().getFullYear() - 1988}`,
+              label:
+                "Years fostering the development of science and technology",
+            },
+            { value: "5", label: "Countries with active programs" },
+            { value: "3", label: "Core initiatives driving change" },
+            { value: "35+", label: "Functional MVPs delivered" },
           ].map((fact, index) => (
             <div
               key={fact.label}
@@ -552,14 +556,17 @@ function ProgramsSection() {
         eyebrow="What We Do"
         title={
           <>
-            Three flagship{" "}
-            <span className="text-primary italic">initiatives</span> driving
-            technology innovation.
+            Three core <span className="text-primary italic">initiatives</span>{" "}
+            driving technology innovation
           </>
         }
-        // body="Our work spans expert advisory services, grassroots innovation, and community-led capacity building."
       />
-      <div className="grid gap-px bg-atf-gray-200 lg:grid-cols-3">
+      <p className="atf-body   grid gap-6 lg:grid-cols-[1fr_0.75fr] lg:items-start">
+        Our work spans expert advisory services, grassroots innovation, and
+        community-led capacity building; creating a connected ecosystem for
+        Africa's digital transformation.
+      </p>
+      <div className="grid gap-px bg-atf-gray-200 lg:grid-cols-3 mt-8">
         {programs.map((program) => {
           const Icon = programIcons[program.slug];
           return (
@@ -603,7 +610,7 @@ function FunderSection() {
           <Eyebrow light>For Partners & Funders</Eyebrow>
           <h2 className="atf-section-title text-white">
             Invest in Africa's{" "}
-            <span className="text-primary italic">digital future</span> with us.
+            <span className="text-primary italic">digital future</span> with us
           </h2>
           <p className="mt-6 text-base leading-8 text-white/60">
             ATF has a 30+ year track record of delivering measurable technology
@@ -616,7 +623,7 @@ function FunderSection() {
           {[
             {
               title: "Submit a Partnership Inquiry",
-              body: "Tell us about your organization and goals.",
+              body: "Tell us about your organization and goals — we'll respond within 48 hours",
               href: "/#newsletter",
             },
             // Restore this action when published impact reports are available.
@@ -663,12 +670,12 @@ function ChaptersSection() {
         title={
           <>
             Our <span className="text-primary italic">chapters</span> span
-            across Africa.
+            across Africa
           </>
         }
         action={
           <HomepageLink href="/chapters" className="atf-link">
-            View all chapters
+            View all 30 chapters
             <ArrowRight className="size-4" aria-hidden="true" />
           </HomepageLink>
         }
@@ -724,9 +731,13 @@ function StudentSection() {
           For Students & Young Professionals
         </p>
         <h2 className="font-display text-5xl font-black uppercase leading-none md:text-7xl">
-          Don't just watch the AI revolution,{" "}
-          <span className="italic">build it.</span>
+          {/* Don't just watch the AI revolution,{" "} */}
+          Watch the AI revolution, <span className="italic">build it</span>
         </h2>
+        {/* <h2 className="font-display text-5xl font-black uppercase leading-none md:text-7xl">
+          For Students & Young Professionals — watch the AI revolution, Build
+          It.
+        </h2> */}
         <ul className="mt-8 grid gap-3 font-display text-sm font-bold uppercase text-white/90">
           {[
             "Get free AI training",
@@ -889,11 +900,7 @@ function PartnersSection() {
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-8 font-display text-base font-bold uppercase text-atf-gray-500/65">
           <span>Google.org</span>
-          <span>UNDP</span>
-          <span>African Union</span>
-          <span>World Bank</span>
-          <span>ECOWAS</span>
-          <span>UNESCO</span>
+          <span>OpenAI Foundation</span>
         </div>
       </SurfaceCard>
     </ContentBand>

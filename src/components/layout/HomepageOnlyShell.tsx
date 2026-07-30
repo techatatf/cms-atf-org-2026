@@ -137,8 +137,9 @@ export function HomepageOnlyShell({ children }: { children: ReactNode }) {
                 <SiteLogo variant="bright" className="h-10 max-w-[220px]" />
               </Link>
               <p className="mt-5 max-w-sm text-sm leading-7 text-white/50">
-                Promoting the development of science and technology across
-                Africa.
+                The African Technology Forum champions technology-driven
+                solutions for Africa's development challenges through
+                consulting, innovation challenges, and capacity building.
               </p>
             </div>
 
