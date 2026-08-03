@@ -4,9 +4,7 @@ import {
   Briefcase,
   Globe2,
   Network,
-  Play,
   Trophy,
-  X,
 } from "lucide-react";
 
 import { AppLink } from "@/components/site/AppLink";
@@ -19,7 +17,6 @@ import {
   ContentBand,
   Eyebrow,
   FilterChip,
-  IconButton,
   SectionHeader,
   SurfaceCard,
   TriangleBullet,
@@ -105,7 +102,6 @@ export function HomePage({
 }: {
   homepageOnlyMode?: boolean;
 }) {
-  const [videoOpen, setVideoOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
 
   const featuredNews = newsItems.find((item) => item.featured) ?? newsItems[0];
@@ -121,7 +117,7 @@ export function HomePage({
 
   return (
     <HomepageOnlyModeContext.Provider value={homepageOnlyMode}>
-      <HeroSection videoOpen={videoOpen} onVideoOpen={setVideoOpen} />
+      <HeroSection />
       <TrustBar />
       <ImpactSection />
       <AboutSection />
@@ -141,32 +137,16 @@ export function HomePage({
   );
 }
 
-function HeroSection({
-  videoOpen,
-  onVideoOpen,
-}: {
-  videoOpen: boolean;
-  onVideoOpen: (open: boolean) => void;
-}) {
+function HeroSection() {
   return (
     <>
-      <DesktopHero videoOpen={videoOpen} onVideoOpen={onVideoOpen} />
-      <CompactHero
-        videoOpen={videoOpen}
-        onVideoOpen={onVideoOpen}
-        tone="light"
-      />
+      <DesktopHero />
+      <CompactHero tone="light" />
     </>
   );
 }
 
-function DesktopHero({
-  videoOpen,
-  onVideoOpen,
-}: {
-  videoOpen: boolean;
-  onVideoOpen: (open: boolean) => void;
-}) {
+function DesktopHero() {
   return (
     <section
       aria-label="ATF desktop hero"
@@ -190,9 +170,7 @@ function DesktopHero({
       />
 
       <div className="atf-desktop-hero-grid relative z-20 grid lg:grid-cols-[55%_45%]">
-        <div className="relative">
-          <HeroPlayButton onClick={() => onVideoOpen(true)} />
-        </div>
+        <div className="relative" />
 
         <div className="flex items-center bg-transparent py-14 pl-0 pr-20 text-white">
           <div className="max-w-xl">
@@ -248,13 +226,6 @@ function DesktopHero({
           </div>
         </div>
       </div>
-
-      {videoOpen ? (
-        <HeroVideoOverlay
-          className="absolute inset-0 z-40"
-          onClose={() => onVideoOpen(false)}
-        />
-      ) : null}
     </section>
   );
 }
@@ -274,12 +245,8 @@ const compactHeroPanelToneClasses: Record<CompactHeroTone, string> = {
 };
 
 function CompactHero({
-  videoOpen,
-  onVideoOpen,
   tone = "light",
 }: {
-  videoOpen: boolean;
-  onVideoOpen: (open: boolean) => void;
   tone?: CompactHeroTone;
 }) {
   return (
@@ -298,7 +265,6 @@ function CompactHero({
           className="absolute inset-0 size-full object-cover object-[24%_18%]"
         />
         <div className="absolute inset-0 bg-atf-black/15" aria-hidden="true" />
-        <HeroPlayButton compact onClick={() => onVideoOpen(true)} />
       </div>
 
       <div
@@ -355,93 +321,7 @@ function CompactHero({
           </div>
         </div>
       </div>
-
-      {videoOpen ? (
-        <HeroVideoOverlay
-          className="fixed inset-0 z-[80]"
-          onClose={() => onVideoOpen(false)}
-        />
-      ) : null}
     </section>
-  );
-}
-
-function HeroVideoOverlay({
-  className,
-  onClose,
-}: {
-  className?: string;
-  onClose: () => void;
-}) {
-  return (
-    <div
-      className={cn(
-        "flex items-center justify-center bg-atf-black/95 p-6",
-        className,
-      )}
-    >
-      <div className="relative w-full max-w-3xl border border-white/15 bg-white/5 p-10 text-center text-white">
-        <IconButton
-          variant="dark"
-          className="absolute right-4 top-4"
-          aria-label="Close video"
-          onClick={onClose}
-        >
-          <X className="size-5" aria-hidden="true" />
-        </IconButton>
-        <div className="mx-auto mb-5 inline-flex size-16 items-center justify-center rounded-full border border-white/30">
-          <Play className="ml-1 size-7 fill-current" aria-hidden="true" />
-        </div>
-        <h2 className="font-display text-xl font-black uppercase">
-          Feature Video
-        </h2>
-        <p className="mt-3 text-sm leading-7 text-white/60">
-          ATF's feature film is being prepared for publication.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function HeroPlayButton({
-  compact = false,
-  onClick,
-}: {
-  compact?: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      className={cn(
-        "group absolute z-30 flex items-center text-left text-white transition-transform hover:translate-y-[-2px]",
-        compact
-          ? "bottom-6 left-5 gap-3 p-2 pr-4 sm:left-6"
-          : "bottom-12 left-14 gap-4 p-3 pr-5",
-      )}
-      aria-label="Play ATF feature video"
-      onClick={onClick}
-    >
-      <span
-        className={cn(
-          "atf-hero-play-disc inline-flex items-center justify-center rounded-full bg-primary text-white shadow-[0_12px_40px_rgba(249,0,54,0.4)] transition-transform group-hover:scale-[1.06]",
-          compact ? "size-16" : "size-[72px]",
-        )}
-        aria-hidden="true"
-      >
-        <Play
-          className={cn("ml-1 fill-current", compact ? "size-6" : "size-7")}
-        />
-      </span>
-      <span className="relative">
-        <span className="block font-display text-xs font-black uppercase">
-          Watch the film
-        </span>
-        <span className="mt-1 block font-display text-[10px] font-semibold uppercase text-white/70">
-          Our work, 2026 · 2:14
-        </span>
-      </span>
-    </button>
   );
 }
 
@@ -507,10 +387,6 @@ function AboutSection() {
             We work at the intersection of consulting, innovation, and capacity
             building; creating systemic change across sectors and borders.
           </p>
-          <HomepageLink href="/about" className="atf-link mt-8">
-            Explore our story
-            <ArrowRight className="size-4" aria-hidden="true" />
-          </HomepageLink>
         </div>
         <div className="grid grid-cols-2 gap-px bg-atf-gray-200 lg:mt-12">
           {[
@@ -570,12 +446,11 @@ function ProgramsSection() {
         {programs.map((program) => {
           const Icon = programIcons[program.slug];
           return (
-            <HomepageLink
+            <div
               key={program.slug}
-              href={program.href}
-              className="group relative overflow-hidden bg-white p-8 transition-colors hover:bg-atf-gray-50"
+              className="relative overflow-hidden bg-white p-8"
             >
-              <div className="absolute inset-x-0 top-0 h-[3px] bg-atf-gray-200 transition-colors group-hover:bg-primary" />
+              <div className="absolute inset-x-0 top-0 h-[3px] bg-atf-gray-200" />
               <div className="font-display text-xs font-bold text-atf-gray-500">
                 {program.index}
               </div>
@@ -587,14 +462,7 @@ function ProgramsSection() {
                 {program.title}
               </h3>
               <p className="atf-body mt-4 text-sm">{program.summary}</p>
-              <span className="mt-8 inline-flex items-center gap-2 font-display text-xs font-bold uppercase text-atf-ink group-hover:text-primary">
-                Learn more
-                <ArrowRight
-                  className="size-4 transition-transform group-hover:translate-x-1"
-                  aria-hidden="true"
-                />
-              </span>
-            </HomepageLink>
+            </div>
           );
         })}
       </div>
@@ -619,43 +487,24 @@ function FunderSection() {
             implement programs at scale.
           </p>
         </div>
-        <div className="grid gap-0 mt-12">
-          {[
-            {
-              title: "Submit a Partnership Inquiry",
-              body: "Tell us about your organization and goals — we'll respond within 48 hours",
-              href: "/#newsletter",
-            },
-            // Restore this action when published impact reports are available.
-            // {
-            //   title: "Download Our Impact Report",
-            //   body: "Three decades of data, case studies, and results.",
-            //   href: "/research",
-            // },
-            {
-              title: "Book a Meeting",
-              body: "Speak with our partnerships team in Accra, Ghana.",
-              href: "/#newsletter",
-            },
-          ].map((item) => (
-            <HomepageLink
-              key={item.title}
-              href={item.href}
-              className="group flex items-center justify-between gap-6 border border-white/10 bg-white/5 p-6 transition-colors hover:bg-white/10"
-            >
-              <span>
-                <span className="block font-display text-base font-black uppercase text-white">
-                  {item.title}
-                </span>
-                <span className="mt-2 block text-sm leading-6 text-white/50">
-                  {item.body}
-                </span>
+        <div className="flex h-full items-center lg:pl-10">
+          <HomepageLink
+            href="/#newsletter"
+            className="group flex w-full items-center justify-between gap-6 border border-white/10 bg-white/5 p-6 transition-colors hover:bg-white/10"
+          >
+            <span>
+              <span className="block font-display text-base font-black uppercase text-white">
+                Book a Meeting
               </span>
-              <span className="inline-flex size-11 shrink-0 items-center justify-center border border-white/15 transition-colors group-hover:border-primary group-hover:bg-primary">
-                <ArrowRight className="size-5 text-white" aria-hidden="true" />
+              <span className="mt-2 block text-sm leading-6 text-white/50">
+                Speak with our partnerships team in Accra, Ghana. We'll respond
+                within 48 hours.
               </span>
-            </HomepageLink>
-          ))}
+            </span>
+            <span className="inline-flex size-11 shrink-0 items-center justify-center border border-white/15 transition-colors group-hover:border-primary group-hover:bg-primary">
+              <ArrowRight className="size-5 text-white" aria-hidden="true" />
+            </span>
+          </HomepageLink>
         </div>
       </div>
     </ContentBand>
@@ -673,19 +522,12 @@ function ChaptersSection() {
             across Africa
           </>
         }
-        action={
-          <HomepageLink href="/chapters" className="atf-link">
-            View all 30 chapters
-            <ArrowRight className="size-4" aria-hidden="true" />
-          </HomepageLink>
-        }
       />
       <div className="grid gap-px bg-atf-gray-200 md:grid-cols-2 lg:grid-cols-4">
         {chapters.map((chapter) => (
-          <HomepageLink
+          <div
             key={chapter.slug}
-            href={`/countries/${chapter.slug}`}
-            className="group relative overflow-hidden bg-atf-gray-50 p-7 transition-colors hover:bg-white"
+            className="relative overflow-hidden bg-atf-gray-50 p-7"
           >
             <div className="text-4xl leading-none" aria-hidden="true">
               {chapter.flag}
@@ -699,15 +541,7 @@ function ChaptersSection() {
             <p className="mt-4 text-sm leading-7 text-atf-gray-500">
               {chapter.description}
             </p>
-            <span className="mt-6 inline-flex items-center gap-2 font-display text-xs font-bold uppercase text-atf-ink group-hover:text-primary">
-              View country
-              <ArrowRight
-                className="size-4 transition-transform group-hover:translate-x-1"
-                aria-hidden="true"
-              />
-            </span>
-            <span className="absolute inset-x-0 bottom-0 h-[3px] origin-left scale-x-0 bg-primary transition-transform group-hover:scale-x-100" />
-          </HomepageLink>
+          </div>
         ))}
       </div>
     </ContentBand>
@@ -758,14 +592,7 @@ function StudentSection() {
             target="_blank"
             rel="noreferrer"
           >
-            Apply to ATF Challenge
-          </HomepageOpportunityButton>
-          <HomepageOpportunityButton
-            href="/chapters"
-            variant="inverseOutline"
-            size="lg"
-          >
-            Join a Chapter
+            Follow the Journey
           </HomepageOpportunityButton>
         </div>
       </div>

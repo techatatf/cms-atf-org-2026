@@ -52,7 +52,7 @@ describe("HomePage hero", () => {
     expect(compactHero.getAttribute("data-tone")).toBe("light");
   });
 
-  it("puts compact media before a light content panel with CTAs and stats", () => {
+  it("puts compact media before a light content panel with its CTA and stats", () => {
     render(<HomePage />);
 
     const compactHero = screen.getByRole("region", {
@@ -65,6 +65,7 @@ describe("HomePage hero", () => {
     expect(panel).not.toBeNull();
     if (!media || !panel) throw new Error("Compact hero structure is missing");
 
+    const mediaElement = media as HTMLElement;
     const panelElement = panel as HTMLElement;
 
     expect(
@@ -81,14 +82,16 @@ describe("HomePage hero", () => {
       ),
     ).toBe("/consulting");
     expect(
-      panelQueries.getByRole("link", { name: "Our Impact" }).getAttribute("href"),
-    ).toBe("/about");
+      within(mediaElement).queryByRole("button", {
+        name: /Play ATF feature video/i,
+      }),
+    ).toBeNull();
 
-    expect(panelQueries.getByText("54")).toBeTruthy();
+    expect(panelQueries.getByText("5")).toBeTruthy();
     expect(panelQueries.getByText("Countries")).toBeTruthy();
-    expect(panelQueries.getByText("200+")).toBeTruthy();
-    expect(panelQueries.getByText("Programs")).toBeTruthy();
-    expect(panelQueries.getByText("10K+")).toBeTruthy();
-    expect(panelQueries.getByText("Members")).toBeTruthy();
+    expect(panelQueries.getByText("35+")).toBeTruthy();
+    expect(panelQueries.getByText("Functional MVPs delivered")).toBeTruthy();
+    expect(panelQueries.getByText("23K")).toBeTruthy();
+    expect(panelQueries.getByText("Participants empowered")).toBeTruthy();
   });
 });

@@ -275,34 +275,4 @@
       inset 0 0 0 2px var(--atf-white),
       inset 0 0 0 4px var(--atf-red);
   }
-
-  .atf-hero-play-disc {
-    position: relative;
-  }
-
-  .atf-hero-play-disc::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border: 2px solid var(--atf-red);
-    border-radius: 9999px;
-    animation: atfHeroPulse 2.4s ease-out infinite;
-  }
-}
-
-@keyframes atfHeroPulse {
-  0% {
-    opacity: 0.7;
-    transform: scale(1);
-  }
-
-  70% {
-    opacity: 0;
-    transform: scale(1.55);
-  }
-
-  100% {
-    opacity: 0;
-    transform: scale(1.55);
-  }
 }

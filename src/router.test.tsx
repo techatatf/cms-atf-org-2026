@@ -157,7 +157,7 @@ describe("application router homepage-only mode", () => {
     const { container } = render(<RouterProvider router={router} />);
 
     await screen.findByRole("heading", {
-      name: /Three decades at the forefront of African technology/i,
+      name: /At the forefront\s*of African technology/i,
     });
     for (const id of [
       "about",
@@ -185,7 +185,7 @@ describe("application router homepage-only mode", () => {
     const { container } = render(<RouterProvider router={router} />);
 
     await screen.findByRole("heading", {
-      name: /Three decades at the forefront of African technology/i,
+      name: /At the forefront\s*of African technology/i,
     });
     expect(container.querySelector("#news")?.classList.contains("hidden")).toBe(
       true,
@@ -499,7 +499,7 @@ describe("application router homepage-only mode", () => {
     ).toBe("idle");
   });
 
-  it("links visible organization content directly to the homepage About section when enabled", async () => {
+  it("does not render inactive homepage calls to action as links", async () => {
     vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
     const router = createAppRouter({
       homepageOnlyMode: true,
@@ -508,37 +508,14 @@ describe("application router homepage-only mode", () => {
 
     render(<RouterProvider router={router} />);
 
-    expect(
-      (await screen.findByRole("link", { name: /Explore our story/i })).getAttribute(
-        "href",
-      ),
-    ).toBe("/#about");
+    await screen.findByRole("main");
+    expect(screen.queryByText(/Explore our story/i)).toBeNull();
+    expect(screen.queryByText(/Learn more/i)).toBeNull();
+    expect(screen.queryByText(/View all 30 chapters/i)).toBeNull();
+    expect(screen.queryByText(/View country/i)).toBeNull();
+    expect(screen.getByText("ATF Consulting").closest("a")).toBeNull();
+    expect(screen.getByText("Nigeria").closest("a")).toBeNull();
   });
-
-  it.each([
-    ["ATF Consulting", "/#funder"],
-    ["02 / 03 ATF Challenge", "/#student"],
-    ["ATF Chapters", "/#chapters"],
-    ["Nigeria", "/#chapters"],
-  ])(
-    "links visible homepage content for %s directly to %s when enabled",
-    async (name, expectedHref) => {
-      vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
-      const router = createAppRouter({
-        homepageOnlyMode: true,
-        history: createMemoryHistory({ initialEntries: ["/"] }),
-      });
-
-      render(<RouterProvider router={router} />);
-
-      const links = await screen.findAllByRole("link", {
-        name: new RegExp(name, "i"),
-      });
-      expect(links.map((link) => link.getAttribute("href"))).toEqual(
-        links.map(() => expectedHref),
-      );
-    },
-  );
 
   it("does not expose hidden-route destinations in visible homepage content when enabled", async () => {
     vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
@@ -562,7 +539,7 @@ describe("application router homepage-only mode", () => {
     ).toEqual([]);
   });
 
-  it("keeps the external challenge application unchanged when enabled", async () => {
+  it("links Follow the Journey to the existing challenge destination", async () => {
     vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
     const router = createAppRouter({
       homepageOnlyMode: true,
@@ -572,55 +549,46 @@ describe("application router homepage-only mode", () => {
     render(<RouterProvider router={router} />);
 
     expect(
-      (
-        await screen.findByRole("link", { name: "Apply to ATF Challenge" })
-      ).getAttribute("href"),
+      (await screen.findByRole("link", { name: "Follow the Journey" })).getAttribute(
+        "href",
+      ),
     ).toBe("https://bit.ly/atf-wf");
+    expect(screen.queryByRole("link", { name: "Join a Chapter" })).toBeNull();
   });
 
-  it.each([
-    ["Explore our story", "/about"],
-    ["02 / 03 ATF Challenge", "/challenge"],
-    ["Nigeria", "/countries/nigeria"],
-    ["View all news", "/news"],
-  ])(
-    "restores the original homepage destination for %s when disabled",
-    async (name, expectedHref) => {
-      vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
-      const router = createAppRouter({
-        homepageOnlyMode: false,
-        history: createMemoryHistory({ initialEntries: ["/"] }),
-      });
+  it("restores the original news destination when homepage-only mode is disabled", async () => {
+    vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+    const router = createAppRouter({
+      homepageOnlyMode: false,
+      history: createMemoryHistory({ initialEntries: ["/"] }),
+    });
 
-      render(<RouterProvider router={router} />);
+    render(<RouterProvider router={router} />);
 
-      const links = await screen.findAllByRole("link", {
-        name: new RegExp(name, "i"),
-      });
-      expect(
-        links.some((link) => link.getAttribute("href") === expectedHref),
-      ).toBe(true);
-    },
-  );
+    expect(
+      (await screen.findByRole("link", { name: /View all news/i })).getAttribute(
+        "href",
+      ),
+    ).toBe("/news");
+  });
 
-  it.each(["Submit a Partnership Inquiry", "Book a Meeting"])(
-    "connects the %s funder action to the newsletter form",
-    async (name) => {
-      vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
-      const router = createAppRouter({
-        homepageOnlyMode: false,
-        history: createMemoryHistory({ initialEntries: ["/"] }),
-      });
+  it("keeps one booking action with the response-time copy", async () => {
+    vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+    const router = createAppRouter({
+      homepageOnlyMode: false,
+      history: createMemoryHistory({ initialEntries: ["/"] }),
+    });
 
-      render(<RouterProvider router={router} />);
+    render(<RouterProvider router={router} />);
 
-      expect(
-        (await screen.findByRole("link", { name: new RegExp(name, "i") })).getAttribute(
-          "href",
-        ),
-      ).toBe("/#newsletter");
-    },
-  );
+    expect(
+      (await screen.findByRole("link", { name: /Book a Meeting/i })).getAttribute(
+        "href",
+      ),
+    ).toBe("/#newsletter");
+    expect(screen.getByText(/We'll respond within 48 hours/i)).toBeTruthy();
+    expect(screen.queryByText("Submit a Partnership Inquiry")).toBeNull();
+  });
 
   it("does not expose the impact report action until a report is available", async () => {
     vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
@@ -743,7 +711,7 @@ describe("application router homepage-only mode", () => {
     ).toBeNull();
     expect(
       screen.getByRole("heading", {
-        name: /Three decades at the forefront of African technology/i,
+        name: /At the forefront\s*of African technology/i,
       }),
     ).toBeTruthy();
   });
@@ -865,7 +833,7 @@ describe("application router homepage-only mode", () => {
       });
       expect(
         screen.getByRole("heading", {
-          name: /Three decades at the forefront of African technology/i,
+          name: /At the forefront\s*of African technology/i,
         }),
       ).toBeTruthy();
     },
