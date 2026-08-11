@@ -34,8 +34,12 @@ function ChaptersPage() {
               href={`/countries/${chapter.slug}`}
               className="group bg-white p-7 transition-colors hover:bg-atf-gray-50"
             >
-              <div className="text-4xl leading-none" aria-hidden="true">
-                {chapter.flag}
+              <div aria-hidden="true">
+                <img
+                  src={`/country-flags/${chapter.flag}.png`}
+                  alt=""
+                  className="size-12 object-contain"
+                />
               </div>
               <h2 className="mt-6 font-display text-xl font-black uppercase text-atf-black">
                 {chapter.country}
@@ -72,7 +76,9 @@ function ChaptersPage() {
       <ContentBand dark>
         <div className="grid gap-8 lg:grid-cols-[1fr_0.5fr] lg:items-center">
           <div>
-            <h2 className="atf-section-title text-white">Start a chapter in your community.</h2>
+            <h2 className="atf-section-title text-white">
+              Start a chapter in your community.
+            </h2>
             <p className="mt-5 max-w-2xl text-base leading-8 text-white/60">
               ATF is expanding its chapter network with organizers who can host
               practical technical programming and connect local builders to a

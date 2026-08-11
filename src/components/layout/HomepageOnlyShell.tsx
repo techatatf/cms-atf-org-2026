@@ -137,9 +137,9 @@ export function HomepageOnlyShell({ children }: { children: ReactNode }) {
                 <SiteLogo variant="bright" className="h-10 max-w-[220px]" />
               </Link>
               <p className="mt-5 max-w-sm text-sm leading-7 text-white/50">
-                The African Technology Forum champions technology-driven
-                solutions for Africa's development challenges through
-                consulting, innovation challenges, and capacity building.
+                African Technology Forum champions technology-driven solutions
+                for Africa's development challenges through consulting,
+                innovation challenges, and capacity building.
               </p>
             </div>
 
@@ -196,7 +196,7 @@ export function HomepageOnlyShell({ children }: { children: ReactNode }) {
               &copy; {new Date().getFullYear()} African Technology Forum. All
               rights reserved.
             </p>
-            <div className="flex flex-wrap gap-6">
+            <div className="flex flex-wrap gap-6 hidden">
               <Link to="/privacy-policy" className="hover:text-white/70">
                 Privacy Policy
               </Link>

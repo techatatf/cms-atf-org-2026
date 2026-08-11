@@ -101,7 +101,7 @@ export function WhoWeAreLandingPage() {
         title: "A pan-African technology forum built for systemic change.",
         icon: Heart,
         description:
-          "The African Technology Forum is a trusted network of technology practitioners, policymakers, researchers, institutions, and young builders working across Africa's development priorities.",
+          "African Technology Forum is a trusted network of technology practitioners, policymakers, researchers, institutions, and young builders working across Africa's development priorities.",
       }}
     >
       <ContentBand>
@@ -300,8 +300,12 @@ export function WhereWeWorkLandingPage() {
               href={`/countries/${chapter.slug}`}
               className="group bg-white p-7 transition-colors hover:bg-atf-gray-50"
             >
-              <div className="text-4xl leading-none" aria-hidden="true">
-                {chapter.flag}
+              <div aria-hidden="true">
+                <img
+                  src={`/country-flags/${chapter.flag}.png`}
+                  alt=""
+                  className="size-12 object-contain"
+                />
               </div>
               <h2 className="mt-6 font-display text-xl font-black uppercase text-atf-black">
                 {chapter.country}

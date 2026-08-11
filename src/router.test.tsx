@@ -118,9 +118,7 @@ describe("application router homepage-only mode", () => {
       ["Chapters", "/#chapters"],
       ["Partner with Us", "/#funder"],
     ]);
-    expect(
-      screen.queryByRole("button", { name: /Who We Are/i }),
-    ).toBeNull();
+    expect(screen.queryByRole("button", { name: /Who We Are/i })).toBeNull();
     expect(screen.queryByText(/Applications open/i)).toBeNull();
   });
 
@@ -134,9 +132,7 @@ describe("application router homepage-only mode", () => {
     render(<RouterProvider router={router} />);
 
     const header = await screen.findByRole("banner");
-    const announcement = within(header).getByText(
-      "ATF Challenge 2026",
-    );
+    const announcement = within(header).getByText("ATF Challenge 2026");
     const navigation = within(header).getByRole("navigation", {
       name: "Homepage",
     });
@@ -224,7 +220,7 @@ describe("application router homepage-only mode", () => {
       const newsletter = container.querySelector<HTMLElement>("#newsletter");
       const news = container.querySelector<HTMLElement>("#news");
       const partners = screen
-        .getByText("Trusted by leading organizations across Africa and beyond")
+        .getByText("Trusted by leading organizations")
         .closest("section");
 
       expect(newsletter).not.toBeNull();
@@ -272,8 +268,7 @@ describe("application router homepage-only mode", () => {
   ])(
     "shows application validation for %j before any service call",
     async (value, expectedMessage) => {
-      const { email, form, router, status } =
-        await renderHomepageNewsletter();
+      const { email, form, router, status } = await renderHomepageNewsletter();
 
       expect(status.textContent).toBe("");
       expect(status.getAttribute("data-newsletter-status")).toBe("idle");
@@ -338,18 +333,16 @@ describe("application router homepage-only mode", () => {
     expect(status.textContent).toContain("Welcome to ATF!");
     expect(email.value).toBe("");
     expect(email.readOnly).toBe(false);
-    expect(
-      screen.getByRole("button", { name: "Subscribe" }),
-    ).toHaveProperty("disabled", false);
-    expect(analyticsCaptureMock).toHaveBeenCalledTimes(1);
-    expect(analyticsCaptureMock).toHaveBeenCalledWith(
-      "newsletter_subscribed",
-      {
-        page: "home",
-        form_type: "newsletter",
-        email_domain: "example.com",
-      },
+    expect(screen.getByRole("button", { name: "Subscribe" })).toHaveProperty(
+      "disabled",
+      false,
     );
+    expect(analyticsCaptureMock).toHaveBeenCalledTimes(1);
+    expect(analyticsCaptureMock).toHaveBeenCalledWith("newsletter_subscribed", {
+      page: "home",
+      form_type: "newsletter",
+      email_domain: "example.com",
+    });
     expect(analyticsCaptureMock.mock.calls[0]).not.toContain(
       "Visitor+tag@Example.COM",
     );
@@ -389,7 +382,9 @@ describe("application router homepage-only mode", () => {
     fireEvent.submit(form);
 
     await waitFor(() => {
-      expect(screen.getByRole("status").textContent).toContain("Welcome to ATF!");
+      expect(screen.getByRole("status").textContent).toContain(
+        "Welcome to ATF!",
+      );
     });
     expect(screen.getByRole("status").textContent).toContain("Success");
     expect(email.value).toBe("");
@@ -408,7 +403,9 @@ describe("application router homepage-only mode", () => {
     fireEvent.submit(form);
 
     await waitFor(() => {
-      expect(screen.getByRole("status").textContent).toContain("Welcome to ATF!");
+      expect(screen.getByRole("status").textContent).toContain(
+        "Welcome to ATF!",
+      );
     });
     expect(screen.getByRole("status").textContent).toContain("Success");
     expect(email.value).toBe("");
@@ -434,7 +431,9 @@ describe("application router homepage-only mode", () => {
       fireEvent.submit(form);
 
       await waitFor(() => {
-        expect(screen.getByRole("status").textContent).toContain(expectedMessage);
+        expect(screen.getByRole("status").textContent).toContain(
+          expectedMessage,
+        );
       });
       expect(email.value).toBe("person@example.com");
       expect(screen.getByRole("status").textContent).toContain("Error");
@@ -457,30 +456,27 @@ describe("application router homepage-only mode", () => {
     ["unexpected response data", new Error("Unexpected response")],
     ["a rejected request", new TypeError("offline")],
     ["a timeout", new DOMException("Timed out", "AbortError")],
-  ])(
-    "uses one generic failure outcome for %s",
-    async (_name, failure) => {
-      subscribeToNewsletterMock.mockRejectedValue(failure);
-      const { email, form } = await renderHomepageNewsletter();
-      fireEvent.change(email, { target: { value: "person@example.com" } });
-      fireEvent.submit(form);
+  ])("uses one generic failure outcome for %s", async (_name, failure) => {
+    subscribeToNewsletterMock.mockRejectedValue(failure);
+    const { email, form } = await renderHomepageNewsletter();
+    fireEvent.change(email, { target: { value: "person@example.com" } });
+    fireEvent.submit(form);
 
-      await waitFor(() => {
-        expect(screen.getByRole("status").textContent).toContain(
-          "Failed to subscribe. Please try again.",
-        );
-      });
-      expect(screen.getByRole("status").textContent).not.toMatch(
-        /connection|host|transport/i,
+    await waitFor(() => {
+      expect(screen.getByRole("status").textContent).toContain(
+        "Failed to subscribe. Please try again.",
       );
-      expect(email.value).toBe("person@example.com");
-      expect(analyticsCaptureMock).not.toHaveBeenCalled();
-      expect(
-        screen.getByRole<HTMLButtonElement>("button", { name: "Subscribe" })
-          .disabled,
-      ).toBe(false);
-    },
-  );
+    });
+    expect(screen.getByRole("status").textContent).not.toMatch(
+      /connection|host|transport/i,
+    );
+    expect(email.value).toBe("person@example.com");
+    expect(analyticsCaptureMock).not.toHaveBeenCalled();
+    expect(
+      screen.getByRole<HTMLButtonElement>("button", { name: "Subscribe" })
+        .disabled,
+    ).toBe(false);
+  });
 
   it("clears stale newsletter feedback on the first field change", async () => {
     const { email, form } = await renderHomepageNewsletter();
@@ -549,9 +545,9 @@ describe("application router homepage-only mode", () => {
     render(<RouterProvider router={router} />);
 
     expect(
-      (await screen.findByRole("link", { name: "Follow the Journey" })).getAttribute(
-        "href",
-      ),
+      (
+        await screen.findByRole("link", { name: "Follow the Journey" })
+      ).getAttribute("href"),
     ).toBe("https://bit.ly/atf-wf");
     expect(screen.queryByRole("link", { name: "Join a Chapter" })).toBeNull();
   });
@@ -566,9 +562,9 @@ describe("application router homepage-only mode", () => {
     render(<RouterProvider router={router} />);
 
     expect(
-      (await screen.findByRole("link", { name: /View all news/i })).getAttribute(
-        "href",
-      ),
+      (
+        await screen.findByRole("link", { name: /View all news/i })
+      ).getAttribute("href"),
     ).toBe("/news");
   });
 
@@ -582,9 +578,9 @@ describe("application router homepage-only mode", () => {
     render(<RouterProvider router={router} />);
 
     expect(
-      (await screen.findByRole("link", { name: /Book a Meeting/i })).getAttribute(
-        "href",
-      ),
+      (
+        await screen.findByRole("link", { name: /Book a Meeting/i })
+      ).getAttribute("href"),
     ).toBe("/#newsletter");
     expect(screen.getByText(/We'll respond within 48 hours/i)).toBeTruthy();
     expect(screen.queryByText("Submit a Partnership Inquiry")).toBeNull();
@@ -749,19 +745,22 @@ describe("application router homepage-only mode", () => {
     ["/news", "/#about"],
     ["/news/manual-check", "/#about"],
     ["/news/%malformed?source=bookmark", "/#about"],
-  ])("redirects %s to %s while homepage-only mode is enabled", async (path, expectedHref) => {
-    vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
-    const router = createAppRouter({
-      homepageOnlyMode: true,
-      history: createMemoryHistory({ initialEntries: [path] }),
-    });
+  ])(
+    "redirects %s to %s while homepage-only mode is enabled",
+    async (path, expectedHref) => {
+      vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+      const router = createAppRouter({
+        homepageOnlyMode: true,
+        history: createMemoryHistory({ initialEntries: [path] }),
+      });
 
-    render(<RouterProvider router={router} />);
+      render(<RouterProvider router={router} />);
 
-    await waitFor(() => {
-      expect(router.state.location.href).toBe(expectedHref);
-    });
-  });
+      await waitFor(() => {
+        expect(router.state.location.href).toBe(expectedHref);
+      });
+    },
+  );
 
   it("redirects an unrecognized non-legal route to the homepage", async () => {
     vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
@@ -783,21 +782,24 @@ describe("application router homepage-only mode", () => {
   it.each([
     { path: "/privacy-policy", heading: "Privacy Policy" },
     { path: "/terms-of-service", heading: "Terms of Service" },
-  ])("keeps $path accessible inside the temporary shell", async ({ path, heading }) => {
-    vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
-    const router = createAppRouter({
-      homepageOnlyMode: true,
-      history: createMemoryHistory({ initialEntries: [path] }),
-    });
+  ])(
+    "keeps $path accessible inside the temporary shell",
+    async ({ path, heading }) => {
+      vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+      const router = createAppRouter({
+        homepageOnlyMode: true,
+        history: createMemoryHistory({ initialEntries: [path] }),
+      });
 
-    render(<RouterProvider router={router} />);
+      render(<RouterProvider router={router} />);
 
-    expect(
-      await screen.findByRole("heading", { level: 1, name: heading }),
-    ).toBeTruthy();
-    expect(screen.getByRole("navigation", { name: "Homepage" })).toBeTruthy();
-    expect(router.state.location.pathname).toBe(path);
-  });
+      expect(
+        await screen.findByRole("heading", { level: 1, name: heading }),
+      ).toBeTruthy();
+      expect(screen.getByRole("navigation", { name: "Homepage" })).toBeTruthy();
+      expect(router.state.location.pathname).toBe(path);
+    },
+  );
 
   it.each([
     {

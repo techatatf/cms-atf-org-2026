@@ -4,9 +4,9 @@ import { ArrowRight, X } from "lucide-react";
 import { OpportunityButton } from "@/components/site/OpportunityButton";
 
 const announcement = {
-  label: "New",
+  label: "Alert",
   title: "ATF Challenge 2026",
-  body: "AI School registration is now closed. The build phase begins this September.",
+  body: "Registration for the 2026 AI School is now closed. The build phase begins this September.",
   href: "https://bit.ly/atf-wf",
   action: "Follow the journey",
 };

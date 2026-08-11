@@ -1,11 +1,5 @@
 import { createContext, useContext, useMemo, useState } from "react";
-import {
-  ArrowRight,
-  Briefcase,
-  Globe2,
-  Network,
-  Trophy,
-} from "lucide-react";
+import { ArrowRight, Briefcase, Globe2, Network, Trophy } from "lucide-react";
 
 import { AppLink } from "@/components/site/AppLink";
 import { NewsletterSection } from "@/components/site/NewsletterSection";
@@ -85,7 +79,7 @@ const heroContent = {
   headlinePrefixLines: ["Promoting the", "development of"],
   headlineEmphasis: "science & technology",
   headlineTail: "across Africa",
-  body: "For over three decades, the African Technology Forum has partnered with governments, institutions, and enterprises to build Africa's scientific and technological capacity - driving development from the ground up.",
+  body: "For over three decades, African Technology Forum has partnered with governments, institutions, and enterprises to build Africa's scientific and technological capacity - driving development from the ground up.",
   ctas: [
     { href: "/consulting", label: "Partner With ATF" },
     { href: "/about", label: "Our Impact" },
@@ -244,11 +238,7 @@ const compactHeroPanelToneClasses: Record<CompactHeroTone, string> = {
   brand: "bg-white text-atf-ink",
 };
 
-function CompactHero({
-  tone = "light",
-}: {
-  tone?: CompactHeroTone;
-}) {
+function CompactHero({ tone = "light" }: { tone?: CompactHeroTone }) {
   return (
     <section
       aria-label="ATF compact hero"
@@ -378,8 +368,8 @@ function AboutSection() {
             of African technology
           </h2>
           <p className="atf-body mt-7">
-            The African Technology Forum is a pan-African institution dedicated
-            to harnessing technology for Africa's development challenges. Since
+            African Technology Forum is a pan-African institution dedicated to
+            harnessing technology for Africa's development challenges. Since
             1988, ATF has built one of the continent's most trusted networks of
             technology practitioners, policymakers, and innovators.
           </p>
@@ -529,8 +519,12 @@ function ChaptersSection() {
             key={chapter.slug}
             className="relative overflow-hidden bg-atf-gray-50 p-7"
           >
-            <div className="text-4xl leading-none" aria-hidden="true">
-              {chapter.flag}
+            <div aria-hidden="true">
+              <img
+                src={`/country-flags/${chapter.flag}.png`}
+                alt=""
+                className="size-12 object-contain"
+              />
             </div>
             <h3 className="mt-6 font-display text-xl font-black uppercase text-atf-black">
               {chapter.country}
@@ -565,8 +559,8 @@ function StudentSection() {
           For Students & Young Professionals
         </p>
         <h2 className="font-display text-5xl font-black uppercase leading-none md:text-7xl">
-          {/* Don't just watch the AI revolution,{" "} */}
-          Watch the AI revolution, <span className="italic">build it</span>
+          Don't just watch the AI revolution,{" "}
+          <span className="italic">build it</span>
         </h2>
         {/* <h2 className="font-display text-5xl font-black uppercase leading-none md:text-7xl">
           For Students & Young Professionals — watch the AI revolution, Build
@@ -598,7 +592,8 @@ function StudentSection() {
       </div>
       <div className="relative min-h-[340px] bg-atf-black">
         <img
-          src="/atf-assets/v2/billboard-1.jpg"
+          // src="/atf-assets/v2/billboard-1.jpg"
+          src="/atf-assets/atf-challenge-hero-placeholder.jpg"
           alt="ATF AI Challenge billboard"
           className="absolute inset-0 size-full object-cover opacity-75"
         />
@@ -723,7 +718,7 @@ function PartnersSection() {
           aria-hidden="true"
         />
         <p className="font-display text-xs font-bold uppercase text-atf-gray-500">
-          Trusted by leading organizations across Africa and beyond
+          Trusted by leading organizations
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-8 font-display text-base font-bold uppercase text-atf-gray-500/65">
           <span>Google.org</span>

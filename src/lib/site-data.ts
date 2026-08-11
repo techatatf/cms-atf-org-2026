@@ -1,16 +1,8 @@
 export const programs = [
   {
-    slug: "consulting",
-    title: "ATF Consulting",
-    index: "01 / 03",
-    href: "/consulting",
-    summary:
-      "Strategic technology advisory for governments, NGOs, and enterprises. We design and implement digital transformation programs that create lasting impact across Africa.",
-  },
-  {
     slug: "challenge",
     title: "ATF Challenge",
-    index: "02 / 03",
+    index: "01 / 03",
     href: "/challenge",
     summary:
       "Our flagship programme: a pan-African innovation initiative training 20,000+ young people across four countries to build AI solutions for real-world problems. Backed by Google.org, with free AI training and mentorship.",
@@ -18,10 +10,18 @@ export const programs = [
   {
     slug: "chapters",
     title: "ATF Chapters",
-    index: "03 / 03",
+    index: "02 / 03",
     href: "/chapters",
     summary:
       "A growing pan-African network of 30 local chapters fostering technology communities, professional development, and grassroots innovation from the ground up.",
+  },
+  {
+    slug: "consulting",
+    title: "ATF Consulting",
+    index: "03 / 03",
+    href: "/consulting",
+    summary:
+      "Strategic technology advisory for governments, NGOs, and enterprises. We design and implement digital transformation programs that create lasting impact across Africa.",
   },
 ] as const;
 
@@ -29,7 +29,7 @@ export const chapters = [
   {
     country: "Nigeria",
     slug: "nigeria",
-    flag: "🇳🇬",
+    flag: "nigeria-flag",
     count: 12,
     description:
       "Rapidly growing tech ecosystem with strong university partnerships and an emerging startup culture.",
@@ -37,7 +37,7 @@ export const chapters = [
   {
     country: "Ghana",
     slug: "ghana",
-    flag: "🇬🇭",
+    flag: "ghana-flag",
     count: 8,
     description:
       "Our founding nation with the largest concentration of chapters, programs, and our headquarters in Accra.",
@@ -45,7 +45,7 @@ export const chapters = [
   {
     country: "Kenya",
     slug: "kenya",
-    flag: "🇰🇪",
+    flag: "kenya-flag",
     count: 6,
     description:
       "East Africa's leading tech hub, driving mobile-first innovation and fintech solutions at scale.",
@@ -53,7 +53,7 @@ export const chapters = [
   {
     country: "South Africa",
     slug: "south-africa",
-    flag: "🇿🇦",
+    flag: "south-africa-flag",
     count: 4,
     description:
       "Connecting established tech industry with emerging innovation ecosystems across Southern Africa.",
@@ -90,7 +90,7 @@ export const newsItems = [
     category: "Press",
     featured: true,
     content: [
-      "The African Technology Forum is expanding the ATF Challenge into a continent-wide AI training and mentorship program for students and young professionals.",
+      "African Technology Forum is expanding the ATF Challenge into a continent-wide AI training and mentorship program for students and young professionals.",
       "The 2026 edition brings together local chapters, university partners, and industry mentors to help participants build real-world solutions in healthcare, agriculture, education, climate, and financial inclusion.",
       "ATF chapters in Lagos, Nairobi, Accra, and Johannesburg will host build weekends and project reviews throughout the application cycle.",
     ],

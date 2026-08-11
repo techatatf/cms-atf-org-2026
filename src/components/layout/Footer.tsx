@@ -43,8 +43,8 @@ export function Footer() {
               <SiteLogo variant="bright" className="h-10 max-w-[220px]" />
             </Link>
             <p className="mt-7 max-w-sm text-sm leading-7 text-white/45">
-              The African Technology Forum champions technology-driven solutions
-              for Africa's development challenges through consulting, innovation
+              African Technology Forum champions technology-driven solutions for
+              Africa's development challenges through consulting, innovation
               challenges, and capacity building.
             </p>
             <div className="mt-8 flex gap-3">
