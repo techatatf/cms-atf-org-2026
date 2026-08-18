@@ -21,7 +21,7 @@ export const programs = [
     index: "03 / 03",
     href: "/consulting",
     summary:
-      "Strategic technology advisory for governments, NGOs, and enterprises. We design and implement digital transformation programs that create lasting impact across Africa.",
+      "Strategic technology advisory for governments, NGOs, and enterprises. We design and implement transformation programs that create lasting impact across Africa.",
   },
 ] as const;
 

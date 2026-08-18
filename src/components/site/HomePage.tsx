@@ -592,14 +592,10 @@ function StudentSection() {
       </div>
       <div className="relative min-h-[340px] bg-atf-black">
         <img
-          // src="/atf-assets/v2/billboard-1.jpg"
           src="/atf-assets/atf-challenge-hero-placeholder.jpg"
           alt="ATF AI Challenge billboard"
           className="absolute inset-0 size-full object-cover opacity-75"
         />
-        <div className="absolute bottom-10 left-8 font-display text-6xl font-black uppercase leading-none text-white/10 md:text-8xl">
-          Build it.
-        </div>
       </div>
     </section>
   );
