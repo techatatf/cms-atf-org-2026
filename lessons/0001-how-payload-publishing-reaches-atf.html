@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>How Payload publishing reaches ATF.org</title>
+    <link rel="stylesheet" href="../assets/learning.css" />
+    <script src="../assets/quiz.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <nav aria-label="Lesson navigation">
+        <a href="../MISSION.md">Mission</a>
+        <a href="../reference/payload-publishing-model.html">Publishing reference</a>
+        <a href="../RESOURCES.md">Sources</a>
+      </nav>
+
+      <p class="eyebrow">Lesson 1 · About five minutes</p>
+      <h1>How Payload publishing reaches ATF.org</h1>
+      <p class="lede">
+        Your original picture was right: Payload exposes content and the public
+        site consumes it. The missing decision is <em>when</em> that consumption
+        happens.
+      </p>
+
+      <section aria-labelledby="publish-heading">
+        <h2 id="publish-heading">Publish changes data, not website files</h2>
+        <div class="flow" aria-label="Payload publishing flow">
+          <div>Editor uses Payload Admin</div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div>Payload stores a published document</div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div>ATF.org requests that document</div>
+        </div>
+
+        <p>
+          With Payload drafts enabled, documents have a status such as
+          <code>draft</code> or <code>published</code>. Clicking Publish updates
+          the document's published state in PostgreSQL. Proper access control
+          allows unauthenticated visitors to read published documents while
+          keeping drafts private.
+        </p>
+
+        <div class="callout">
+          <strong>Payload does not automatically rebuild or push pages into the
+          Vite application.</strong> It makes the published document available.
+          ATF.org decides when to ask for it.
+        </div>
+
+        <p>
+          The generated REST endpoint can look like
+          <code>GET https://cms.atf.org/api/news</code>. The CMS origin is a
+          configuration value, so local development can instead use
+          <code>http://localhost:3001/api/news</code>. See Payload's
+          <a href="https://payloadcms.com/docs/rest-api/overview">REST API</a>
+          and <a href="https://payloadcms.com/docs/versions/drafts">Drafts</a>
+          documentation.
+        </p>
+      </section>
+
+      <section aria-labelledby="options-heading">
+        <h2 id="options-heading">Four moments when ATF.org can read</h2>
+        <div class="cards">
+          <article class="card">
+            <span class="tag">Simplest live model</span>
+            <h3>1. Browser runtime</h3>
+            <p>
+              A visitor opens ATF.org; the React app fetches Payload's public
+              REST API. Published changes appear immediately without rebuilding
+              the site.
+            </p>
+            <p><strong>Cost:</strong> news needs the CMS network request. The app
+              must handle timeouts, CORS, and unavailable data gracefully.</p>
+          </article>
+
+          <article class="card">
+            <span class="tag">Static snapshot</span>
+            <h3>2. Build time</h3>
+            <p>
+              The site build fetches Payload and bakes the result into static
+              files. Publishing commonly triggers a CI build through a Payload
+              hook. That CI need not be Vercel.
+            </p>
+            <p><strong>Cost:</strong> content appears only after a successful
+              rebuild, but the published site survives a CMS outage.</p>
+          </article>
+
+          <article class="card">
+            <span class="tag">Needs a web server</span>
+            <h3>3. Server runtime</h3>
+            <p>
+              A server fetches Payload for each request or through a shared
+              cache, then returns rendered content to the visitor.
+            </p>
+            <p><strong>Cost:</strong> this adds a server runtime that the current
+              static Vite application does not have.</p>
+          </article>
+
+          <article class="card">
+            <span class="tag">More resilient, more logic</span>
+            <h3>4. Hybrid</h3>
+            <p>
+              Ship a static snapshot, then ask Payload for fresher content in
+              the browser. If the request fails, retain the snapshot.
+            </p>
+            <p><strong>Cost:</strong> two content paths must agree about schema,
+              freshness, loading, and failures.</p>
+          </article>
+        </div>
+
+        <div class="callout warning">
+          <strong>For ATF's current simplicity goal:</strong> browser-runtime
+          REST is the natural first option to evaluate. It matches your mental
+          model and works with any static host. The next question is whether a
+          neutral “news unavailable” state is enough during a CMS outage. If
+          stale news must remain visible, build-time or hybrid delivery earns
+          its extra machinery.
+        </div>
+      </section>
+
+      <section aria-labelledby="preview-heading">
+        <h2 id="preview-heading">Preview is a separate path</h2>
+        <p>
+          Public delivery should expose only published documents. Editorial
+          preview deliberately reads draft data with authentication. Payload's
+          Live Preview loads the frontend in an iframe inside the Admin Panel
+          and sends edits to it using browser messages. A React frontend is
+          supported, so the Vite site can gain preview behavior later without
+          becoming part of the Payload application.
+        </p>
+        <p>
+          Primary source:
+          <a href="https://payloadcms.com/docs/live-preview">Payload Live Preview</a>.
+        </p>
+      </section>
+
+      <section aria-labelledby="repo-heading">
+        <h2 id="repo-heading">One repository, two applications</h2>
+        <pre><code>ATF repository/
+├── package.json          # Vite public site; bun run dev → :3000
+└── backend-cms/
+    └── package.json      # Payload app; npm run dev → :3001</code></pre>
+        <p>
+          Neither application needs Vercel or Nginx Proxy Manager to run. Those
+          are deployment adapters. In production, the public site's CMS origin
+          can be <code>https://cms.atf.org</code>; locally it can be
+          <code>http://localhost:3001</code>.
+        </p>
+        <p>
+          Vercel supports selecting a project root in a repository, so the
+          nested Payload app does not force a second repository or become part
+          of the root site's build. See
+          <a href="https://vercel.com/docs/monorepos">Vercel's monorepo documentation</a>.
+        </p>
+      </section>
+
+      <section aria-labelledby="check-heading">
+        <h2 id="check-heading">Quick retrieval check</h2>
+
+        <form class="quiz" data-quiz>
+          <h3>What is the essential result of clicking Publish?</h3>
+          <label><input type="radio" name="q1" /> Payload pushes finished website pages.</label>
+          <label><input type="radio" name="q1" data-correct="true"
+            data-success="Correct. Published documents become readable; the site chooses when to request them."
+            data-retry="Try again: separate changing content state from delivering website files." />
+            The website requests published documents.</label>
+          <label><input type="radio" name="q1" /> PostgreSQL rebuilds all website pages.</label>
+          <button type="submit">Check answer</button>
+          <p class="quiz-feedback" data-feedback aria-live="polite"></p>
+        </form>
+
+        <form class="quiz" data-quiz>
+          <h3>Which option shows changes without rebuilding ATF.org?</h3>
+          <label><input type="radio" name="q2" data-correct="true"
+            data-success="Correct. The browser asks Payload each time the page needs content."
+            data-retry="Try again: identify which request happens while the visitor is present." />
+            Browser fetches REST during runtime.</label>
+          <label><input type="radio" name="q2" /> Build captures content before deployment.</label>
+          <label><input type="radio" name="q2" /> Static files query PostgreSQL directly.</label>
+          <button type="submit">Check answer</button>
+          <p class="quiz-feedback" data-feedback aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section aria-labelledby="next-heading">
+        <h2 id="next-heading">Your next decision</h2>
+        <p>
+          Decide what a visitor should see when Payload cannot answer. That one
+          answer will narrow the publishing choices more than any hosting
+          preference.
+        </p>
+        <p>
+          Keep the
+          <a href="../reference/payload-publishing-model.html">publishing model reference</a>
+          nearby, and ask your teaching agent about anything that remains
+          unclear before resuming the architecture ticket.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

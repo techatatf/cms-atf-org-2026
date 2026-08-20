@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Payload publishing model — quick reference</title>
+    <link rel="stylesheet" href="../assets/learning.css" />
+  </head>
+  <body>
+    <main>
+      <nav aria-label="Reference navigation">
+        <a href="../lessons/0001-how-payload-publishing-reaches-atf.html">Lesson 1</a>
+        <a href="../MISSION.md">Mission</a>
+        <a href="../RESOURCES.md">Sources</a>
+      </nav>
+
+      <p class="eyebrow">Quick reference · Print friendly</p>
+      <h1>Payload publishing model</h1>
+      <p class="lede">
+        Payload changes document state. The public application chooses the
+        delivery moment.
+      </p>
+
+      <h2>Document states</h2>
+      <table>
+        <thead>
+          <tr><th>State</th><th>Meaning</th><th>Public behavior</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Draft</td><td>Editorial work not approved for readers.</td><td>Require authenticated preview access.</td></tr>
+          <tr><td>Published</td><td>The current public version of a document.</td><td>Readable through public REST access.</td></tr>
+          <tr><td>Changed</td><td>A published version exists with a newer draft.</td><td>Readers keep seeing the published version.</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Delivery choices</h2>
+      <table>
+        <thead>
+          <tr><th>Read moment</th><th>Freshness</th><th>CMS outage</th><th>Added machinery</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Browser runtime</td><td>Immediate</td><td>Show fallback unless separately cached</td><td>CORS, loading, timeout, error UI</td></tr>
+          <tr><td>Static build</td><td>After rebuild</td><td>Last deployment remains available</td><td>Build fetch plus publish-triggered CI</td></tr>
+          <tr><td>Server runtime</td><td>Immediate or cached</td><td>Depends on server cache/fallback</td><td>Persistent or edge server runtime</td></tr>
+          <tr><td>Hybrid</td><td>Snapshot then fresh</td><td>Snapshot remains available</td><td>Two synchronized content paths</td></tr>
+        </tbody>
+      </table>
+
+      <h2>ATF application boundary</h2>
+      <pre><code>Development
+ATF.org       http://localhost:3000
+Backend CMS   http://localhost:3001
+REST example  http://localhost:3001/api/news
+
+Production shape
+ATF.org       https://atf.org
+Backend CMS   https://cms.atf.org
+REST example  https://cms.atf.org/api/news</code></pre>
+
+      <div class="callout">
+        <strong>Keep separate:</strong> public delivery reads only published
+        content; editorial preview reads drafts through an authenticated path.
+      </div>
+
+      <h2>Decision shortcut</h2>
+      <ul>
+        <li>If “news unavailable” is acceptable during an outage, evaluate browser-runtime REST first.</li>
+        <li>If old news must remain visible, evaluate static-build or hybrid delivery.</li>
+        <li>If per-request server logic is needed for other reasons, then evaluate server runtime.</li>
+      </ul>
+
+      <p class="small">
+        Sources:
+        <a href="https://payloadcms.com/docs/versions/drafts">Drafts</a>,
+        <a href="https://payloadcms.com/docs/rest-api/overview">REST API</a>,
+        <a href="https://payloadcms.com/docs/access-control/overview">Access Control</a>, and
+        <a href="https://payloadcms.com/docs/live-preview">Live Preview</a>.
+      </p>
+    </main>
+  </body>
+</html>
