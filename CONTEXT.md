@@ -4,6 +4,32 @@ This context describes the public African Technology Forum website language used
 
 ## Language
 
+**Content Management System (CMS)**:
+The editorial system used to create and publish ATF website content. It may
+provide its own administration interface and does not need to serve as ATF's
+general-purpose backend.
+_Avoid_: ATF Org Backend when referring only to editorial content management
+
+**Backend CMS**:
+The independently runnable editorial application that manages content for the
+ATF website and provides its own administration interface and content API.
+_Avoid_: ATF Org Backend, custom CMS frontend
+
+**Production Launch**:
+The first live Payload deployment used by the public ATF website as its content
+source. It is not preceded by a separate demo-to-production promotion stage.
+_Avoid_: Demo Deployment, pre-production CMS
+
+**Fetched-CMS**:
+The first CMS delivery phase. Public news uses optional browser-time REST reads,
+while editors receive immediate private preview of draft changes.
+_Avoid_: separate CMS product, final SEO architecture
+
+**SEO-CMS**:
+The target CMS delivery phase. Indexable public routes include published
+content and metadata in their initial HTML while editors retain private preview.
+_Avoid_: separate CMS product, server-only CMS
+
 **Opportunity Triangle**:
 ATF's core graphic device: a polygonal, diagonal brand shape that creates zones for emphasis, motion, or contrast.
 _Avoid_: decorative triangle, generic triangle motif
