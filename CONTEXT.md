@@ -25,6 +25,21 @@ The first CMS delivery phase. Public news uses optional browser-time REST reads,
 while editors receive immediate private preview of draft changes.
 _Avoid_: separate CMS product, final SEO architecture
 
+**News Article**:
+Newsroom content managed by the Backend CMS and published under `/news`. A News
+Article is distinct from the site's long-form Article content under `/articles`.
+_Avoid_: Article when the distinction from long-form content matters
+
+**Public News Slug**:
+The unique URL segment that identifies a News Article at `/news/<slug>`. It is
+not the Payload document ID and is locked for Editors after first publication.
+_Avoid_: article ID, Payload ID
+
+**Previous News Slug**:
+A retired Public News Slug retained after an Admin changes a published slug. It
+continues to resolve to the News Article's current URL.
+_Avoid_: deleted slug, reusable slug
+
 **SEO-CMS**:
 The target CMS delivery phase. Indexable public routes include published
 content and metadata in their initial HTML while editors retain private preview.
