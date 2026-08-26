@@ -18,6 +18,11 @@ Open `http://localhost:3001/admin`. The default development configuration
 publishes Payload on port `3001` and keeps PostgreSQL private to the Compose
 network.
 
+To use a LAN address, copy `.env.example` to `.env`. Set
+`PAYLOAD_PUBLIC_SERVER_URL` to the URL that you open in the browser. Compose
+passes the value to both Next and Payload. List any other allowed browser
+origins in `PAYLOAD_ALLOWED_ORIGINS`, separated by commas.
+
 Run the same Make targets from either the repository root or `backend-cms/`:
 
 ```bash
@@ -51,7 +56,8 @@ not available on a host port.
    ```
 
 2. Set `DATABASE_URI` in `.env` to a PostgreSQL database that your host can
-   reach. Replace the example `PAYLOAD_SECRET` with a long development secret.
+   reach. Set `PAYLOAD_PUBLIC_SERVER_URL` to the URL that you open in the
+   browser. Replace the example `PAYLOAD_SECRET` with a long development secret.
 
 3. Install the locked dependencies and start Payload:
 

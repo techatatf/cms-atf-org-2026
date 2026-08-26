@@ -5,8 +5,17 @@ import { fileURLToPath } from 'node:url'
 
 const filename = fileURLToPath(import.meta.url)
 const directory = path.dirname(filename)
+const publicServerURL = process.env.PAYLOAD_PUBLIC_SERVER_URL
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: publicServerURL ? [new URL(publicServerURL).hostname] : [],
+  redirects: async () => [
+    {
+      destination: '/admin',
+      permanent: false,
+      source: '/',
+    },
+  ],
   turbopack: {
     root: path.resolve(directory),
   },

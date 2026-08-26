@@ -8,6 +8,14 @@ import { Users } from './collections/Users'
 
 const filename = fileURLToPath(import.meta.url)
 const directory = path.dirname(filename)
+const publicServerURL = process.env.PAYLOAD_PUBLIC_SERVER_URL
+const allowedOrigins = Array.from(
+  new Set(
+    [publicServerURL, ...(process.env.PAYLOAD_ALLOWED_ORIGINS || '').split(',')]
+      .map((origin) => origin?.trim())
+      .filter((origin): origin is string => Boolean(origin)),
+  ),
+)
 
 export default buildConfig({
   admin: {
@@ -17,6 +25,8 @@ export default buildConfig({
     user: Users.slug,
   },
   collections: [Users],
+  cors: allowedOrigins,
+  csrf: allowedOrigins,
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URI || '',
@@ -24,7 +34,7 @@ export default buildConfig({
   }),
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
-  serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL,
+  serverURL: publicServerURL,
   typescript: {
     outputFile: path.resolve(directory, 'payload-types.ts'),
   },

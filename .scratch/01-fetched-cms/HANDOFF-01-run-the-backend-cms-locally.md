@@ -1,105 +1,136 @@
-# Completion record: Run the Backend CMS locally
+# Handoff: debug Payload login over the LAN
 
-[Run the Backend CMS locally](issues/01-run-the-backend-cms-locally.md) was
-completed on 2026-08-26. The approved scope and acceptance criteria remain in
-that issue and the [Fetched-CMS PRD](PRD.md).
+Continue diagnosing why Payload Admin does not retain an authenticated user when
+opened over the LAN. The local CMS ticket is implemented at commit `8c68628`,
+and the current worktree contains uncommitted follow-up fixes. Do not discard or
+rewrite those changes before inspecting them.
 
-## Agreed decisions
+## Read first
 
-- Complete the implementation in this effort. Do not create another planning
-  map.
-- Stop at the minimum native Payload Admin and `Users` authentication
-  collection. Later tickets own News Articles, roles, seed data, and the Media
-  collection.
-- Use port `3001` for the Backend CMS.
-- Keep PostgreSQL private in the default Compose configuration.
-- Require developers who run `npm run dev` outside Compose to supply an
-  external PostgreSQL `DATABASE_URI`.
-- Require scripted checks and live Docker smoke checks before completion.
+- Original ticket: [Run the Backend CMS locally](issues/01-run-the-backend-cms-locally.md)
+- Product requirements: [Fetched-CMS PRD](PRD.md)
+- Local usage notes: [`backend-cms/README.md`](../../backend-cms/README.md)
+- Current implementation: `git diff` from commit `8c68628`
 
-## Implementation
+## Unresolved symptom
 
-The fixed point was commit `dd3af47`. The current branch was `main`, which was
-already two commits ahead of `origin/main` when work began.
+The user can create an account and submit the login form. Payload logs a
+successful `POST /api/users/login` with HTTP 200, then the browser requests
+`/admin` and returns to `/admin/login`. In both a normal window and a private
+window, `GET /api/users/me` returns HTTP 200 with:
 
-The worktree has a Payload 3.88.0 and Next 16.3.0 application under
-`backend-cms/`. Inspect the diff for the full file list. The main additions are
-the shared and development Compose files, the development Dockerfile, the
-minimum native Admin routes, the PostgreSQL adapter, generated Payload types,
-and `tests/local-development.test.mjs`.
+```json
+{"user":null,"message":"Account"}
+```
 
-## Completion evidence
+The browser reports that it stores and sends a cookie, but Payload still treats
+the request as anonymous. The user reports the same result after the latest
+origin changes and a Payload container recreation.
 
-These checks passed:
+Do not request, display, or record the user's email, password, JWT, cookie
+value, Payload secret, database credentials, or session identifiers.
+
+## Fixes already present in the worktree
+
+Seven application files are modified but not committed:
+
+- `backend-cms/next.config.ts` redirects `/` to `/admin` and derives
+  `allowedDevOrigins` from `PAYLOAD_PUBLIC_SERVER_URL`.
+- `backend-cms/compose.dev.yml` passes through `PAYLOAD_PUBLIC_SERVER_URL` and
+  `PAYLOAD_ALLOWED_ORIGINS` instead of hard-coding the localhost URL.
+- `backend-cms/src/payload.config.ts` derives `serverURL`, `cors`, and `csrf`
+  from those environment variables.
+- `backend-cms/.env.example` and `backend-cms/README.md` document the allowed
+  origins and LAN setup.
+- `backend-cms/tests/local-development.test.mjs` verifies Compose receives the
+  configured LAN URL and allowed origins.
+- `backend-cms/package.json` has a user-owned newline-only change. Preserve it
+  unless the user explicitly asks to change it.
+
+The ignored `backend-cms/.env` currently sets the safe-to-record public value
+`PAYLOAD_PUBLIC_SERVER_URL=http://192.168.1.99:3001`. Do not inspect or expose
+its secret values.
+
+The root 404 and LAN white page are resolved by the current changes. `/` now
+redirects to `/admin`, and Next serves the development chunks to the LAN host.
+The authentication problem remains.
+
+## Evidence collected
+
+The original Compose file overrode the user's `.env` LAN URL with
+`http://localhost:3001`. That mismatch mattered because Payload's installed
+source handles cookie authentication as follows:
+
+- `backend-cms/node_modules/payload/dist/auth/extractJWT.js` accepts a cookie
+  on a request with an `Origin` header only when that origin is present in
+  `config.csrf` or the CSRF list is empty.
+- `backend-cms/node_modules/payload/dist/config/sanitize.js` adds a non-empty
+  `config.serverURL` to `config.csrf`.
+- `backend-cms/node_modules/payload/dist/auth/strategies/jwt.js` catches JWT,
+  user lookup, and session lookup failures without surfacing their cause to the
+  browser.
+
+After the follow-up changes and container recreation, the running container
+reported these public values:
+
+```text
+PAYLOAD_PUBLIC_SERVER_URL=http://192.168.1.99:3001
+PAYLOAD_ALLOWED_ORIGINS=http://localhost:3001
+```
+
+The code adds both values to Payload's CORS and CSRF origin lists. Even so,
+`/api/users/me` still reports a null user, so the initial origin mismatch was
+real but did not fully explain the failure.
+
+These checks passed after the follow-up changes:
 
 ```text
 cd backend-cms && npm test
 cd backend-cms && npm run typecheck
 cd backend-cms && npm run build
-make build
-make start
 ```
 
-The build produced the native Admin and Payload API routes. A request to
-`http://localhost:3001/admin` returned HTTP 200 with the Payload dashboard.
-Docker reported PostgreSQL as healthy with port `5432` available only inside
-the Compose network. Docker created distinct `postgres_data` and
-`payload_media` volumes.
+The live root route returns a temporary redirect to `/admin`, `/admin` returns
+HTTP 200, and the LAN JavaScript chunks return HTTP 200. At handoff time,
+`make start` had PostgreSQL healthy and Payload ready. Verify current container
+state instead of assuming it is unchanged.
 
-The live persistence check inserted one marker row in PostgreSQL and one marker
-file in the media volume. Both markers survived `make stop` followed by
-`make start`. They also survived `make down` followed by `make start`. The
-smoke-test table and file were removed after the check so Payload would not
-pause at a schema data-loss prompt.
+## Resume here
 
-The direct-development check used a separate PostgreSQL 17 container published
-only on `127.0.0.1:55432`. `npm run dev` used that database through
-`DATABASE_URI`, and `http://localhost:3001/admin` returned HTTP 200. The direct
-server and the temporary database container were stopped after the check.
+1. Inspect `git status`, `git diff`, and the current Compose service state.
+   Preserve all user-owned and uncommitted changes.
+2. Reproduce one login with the user in a tight human-in-the-loop cycle. In the
+   browser request for `/api/users/me`, establish whether the `Cookie` header
+   specifically includes a `payload-token` cookie and record only the presence
+   or absence of that cookie. Record the exact `Origin`, `Host`, and
+   `Sec-Fetch-Site` header values; never record the cookie value.
+3. Compare the observed origin with Payload's runtime `config.csrf` and
+   `config.serverURL`, not only the process environment. Use temporary,
+   explicitly tagged debug output if runtime inspection is required, and
+   redact all authentication material.
+4. If the cookie reaches `extractJWT`, isolate whether failure occurs during
+   JWT verification, user lookup, or session lookup in the JWT strategy. Its
+   broad catch currently hides those distinctions. Prefer a narrow regression
+   test before changing behavior.
+5. Remove any temporary instrumentation. Prove the fix by showing that
+   `/api/users/me` returns a non-null user and that `/admin` stays logged in
+   over `http://192.168.1.99:3001`.
+6. Run the local tests, type check, build, and focused live LAN checks. Review
+   the final diff before asking whether the user wants it committed.
 
-`npm audit fix` replaced `monaco-editor@0.56.0` with `0.53.0`. This removed the
-low finding and one moderate finding associated with DOMPurify. Five moderate
-entries remain in Payload's `drizzle-kit` dependency chain. All five lead to
-the same nested `esbuild@0.18.20` advisory, and npm reports no compatible fix.
+## Completion criteria
 
-These final checks passed:
-
-```text
-cd backend-cms && npm test
-cd backend-cms && npm run typecheck
-cd backend-cms && npm run build
-make build
-```
-
-The repository-wide Vitest run completed with 113 passing tests and three
-pre-existing public-site failures. Two failures assert older announcement
-banner copy. One failure asserts an older What We Do link order. This ticket
-does not change the affected files under `src/`.
-
-The Compose services are stopped. The PostgreSQL and media volumes remain.
-
-## Environment notes
-
-The saved Docker Hub credential on this machine is expired. This session built
-and pulled images anonymously with `DOCKER_CONFIG=/tmp/atf-docker-anonymous`.
-The temporary config contains no saved credential.
-
-The managed sandbox blocks child processes that Next starts during a build.
-Inside the sandbox, Next reports an empty TypeScript `--showConfig` result.
-Running the same `npm run build` with the approved elevated command succeeds.
-Do not change the build script to work around that sandbox behavior.
-
-The official blank scaffold used for reference remains at
-`/tmp/atf-payload-scaffold-template-388`. It is not part of the worktree.
+- Login persists over the configured LAN URL.
+- `/api/users/me` returns the authenticated user without exposing credentials
+  or tokens during diagnosis.
+- The root redirect and LAN Admin asset loading continue to work.
+- Automated checks cover the final configuration or code fix.
+- Temporary logging is removed, the user's newline-only `package.json` change
+  is preserved, and no unrelated files are modified.
 
 ## Suggested skills
 
-Call these skills in the next session:
-
-- `implement` to finish the ticket and commit it.
-- `tdd` for any additional checks at the approved Make, Compose, HTTP, or
-  direct-development seams.
-- `technical-writing` for the two README updates and the final issue note.
-- `code-review` after all checks pass.
-- `diagnosing-bugs` only if a new failure remains reproducible outside the
-  known child-process sandbox restriction.
+- `diagnosing-bugs` for the evidence-driven authentication diagnosis.
+- `tdd` if a code or configuration fix is needed.
+- `code-review` before committing the completed fix.
+- `technical-writing` if the LAN instructions or this handoff change.

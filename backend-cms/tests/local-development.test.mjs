@@ -79,6 +79,11 @@ test('development Compose exposes Payload on port 3001 and keeps PostgreSQL priv
     {
       cwd: backendDirectory,
       encoding: 'utf8',
+      env: {
+        ...process.env,
+        PAYLOAD_ALLOWED_ORIGINS: 'http://localhost:3001',
+        PAYLOAD_PUBLIC_SERVER_URL: 'http://192.168.1.99:3001',
+      },
     },
   )
 
@@ -98,6 +103,8 @@ test('development Compose exposes Payload on port 3001 and keeps PostgreSQL priv
   )
   assert.equal(payload.depends_on.postgres.condition, 'service_healthy')
   assert.match(payload.environment.DATABASE_URI, /@postgres:5432\//)
+  assert.equal(payload.environment.PAYLOAD_ALLOWED_ORIGINS, 'http://localhost:3001')
+  assert.equal(payload.environment.PAYLOAD_PUBLIC_SERVER_URL, 'http://192.168.1.99:3001')
 
   const mediaVolume = payload.volumes.find((volume) => volume.target === '/app/media')
   const databaseVolume = postgres.volumes.find(
