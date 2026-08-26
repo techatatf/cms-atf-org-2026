@@ -55,6 +55,23 @@ The npm scripts are also standard package scripts, so `npm run build` and
 `npm run test` invoke the same project commands if npm is the active package
 manager.
 
+## Backend CMS
+
+The Payload Backend CMS runs independently from the public site on port `3001`.
+Docker Compose starts Payload and its private PostgreSQL service:
+
+```bash
+make build
+make start
+make logs
+make stop
+make down
+```
+
+`stop` and `down` preserve the PostgreSQL and media volumes. Read the
+[Backend CMS guide](backend-cms/README.md) for direct npm development and the
+confirmed command required to delete local data.
+
 ## Running with pm2
 
 To keep the dev server running in the background, manage it with
