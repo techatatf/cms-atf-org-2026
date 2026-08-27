@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import {
-  Facebook,
+  Instagram,
   Linkedin,
   Mail,
   MapPin,
@@ -27,10 +27,22 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { icon: Twitter, href: "#social-twitter", label: "Twitter" },
-  { icon: Linkedin, href: "#social-linkedin", label: "LinkedIn" },
-  { icon: Facebook, href: "#social-facebook", label: "Facebook" },
-  { icon: Youtube, href: "#social-youtube", label: "YouTube" },
+  { icon: Twitter, href: "https://x.com/AfTechForum", label: "Twitter" },
+  {
+    icon: Instagram,
+    href: "https://www.instagram.com/africantech/",
+    label: "Instagram",
+  },
+  {
+    icon: Linkedin,
+    href: "https://www.linkedin.com/company/africantechnologyforum/",
+    label: "LinkedIn",
+  },
+  {
+    icon: Youtube,
+    href: "https://www.youtube.com/@africantechnologyforum",
+    label: "YouTube",
+  },
 ];
 
 export function Footer() {
