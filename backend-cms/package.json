@@ -10,6 +10,7 @@
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
+    "postinstall": "patch-package",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start --hostname 0.0.0.0 --port 3001",
     "test": "node tests/local-development.test.mjs",
     "typecheck": "tsc --noEmit"
@@ -30,6 +31,7 @@
     "@types/node": "22.19.9",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
+    "patch-package": "8.0.1",
     "typescript": "5.7.3"
   },
   "engines": {

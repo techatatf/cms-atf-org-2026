@@ -1,0 +1,21 @@
+diff --git a/node_modules/payload/dist/auth/extractJWT.js b/node_modules/payload/dist/auth/extractJWT.js
+index b32e9a7..d469c70 100644
+--- a/node_modules/payload/dist/auth/extractJWT.js
++++ b/node_modules/payload/dist/auth/extractJWT.js
+@@ -33,6 +33,16 @@ const extractionMethods = {
+         if (secFetchSite === 'same-origin' || secFetchSite === 'same-site' || secFetchSite === 'none') {
+             return cookieToken;
+         }
++        if (!secFetchSite) {
++            const referer = headers.get('Referer');
++            if (referer) {
++                try {
++                    if (payload.config.csrf.includes(new URL(referer).origin)) {
++                        return cookieToken;
++                    }
++                } catch {}
++            }
++        }
+         // Reject cross-site requests and missing header (non-browser clients)
+         return null;
+     },

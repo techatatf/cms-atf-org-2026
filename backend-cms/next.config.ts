@@ -9,6 +9,9 @@ const publicServerURL = process.env.PAYLOAD_PUBLIC_SERVER_URL
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: publicServerURL ? [new URL(publicServerURL).hostname] : [],
+  experimental: {
+    useTypeScriptCli: false,
+  },
   redirects: async () => [
     {
       destination: '/admin',

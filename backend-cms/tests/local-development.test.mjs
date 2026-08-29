@@ -9,7 +9,7 @@ import {
 } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { spawnSync } from 'node:child_process'
 import test from 'node:test'
 
@@ -144,4 +144,78 @@ test('destroy refuses to remove persistent volumes without explicit confirmation
       recorder.cleanup()
     }
   }
+})
+
+async function loadPayloadJWTExtractor() {
+  const moduleURL = pathToFileURL(
+    path.join(backendDirectory, 'node_modules/payload/dist/auth/extractJWT.js'),
+  )
+  const { extractJWT } = await import(moduleURL.href)
+
+  return extractJWT
+}
+
+function createPayloadAuthContext(csrf) {
+  return {
+    config: {
+      auth: {
+        jwtOrder: ['cookie'],
+      },
+      cookiePrefix: 'payload',
+      csrf,
+    },
+  }
+}
+
+test('Payload accepts LAN cookie authentication from an allowed referrer without fetch metadata', async () => {
+  const extractJWT = await loadPayloadJWTExtractor()
+  const lanOrigin = 'http://192.168.1.99:3001'
+  const token = 'synthetic-test-token'
+  const headers = new Headers({
+    Cookie: `payload-token=${token}`,
+    Host: '192.168.1.99:3001',
+    Referer: `${lanOrigin}/admin/login`,
+  })
+
+  assert.equal(
+    extractJWT({
+      headers,
+      payload: createPayloadAuthContext([lanOrigin]),
+    }),
+    token,
+  )
+})
+
+test('Payload rejects missing, mismatched, and cross-site LAN cookie authentication evidence', async () => {
+  const extractJWT = await loadPayloadJWTExtractor()
+  const lanOrigin = 'http://192.168.1.99:3001'
+  const token = 'synthetic-test-token'
+  const payload = createPayloadAuthContext([lanOrigin])
+  const baseHeaders = {
+    Cookie: `payload-token=${token}`,
+    Host: '192.168.1.99:3001',
+  }
+
+  assert.equal(extractJWT({ headers: new Headers(baseHeaders), payload }), null)
+  assert.equal(
+    extractJWT({
+      headers: new Headers({
+        ...baseHeaders,
+        Referer: 'http://untrusted.example/admin/login',
+      }),
+      payload,
+    }),
+    null,
+  )
+  assert.equal(
+    extractJWT({
+      headers: new Headers({
+        ...baseHeaders,
+        Referer: `${lanOrigin}/admin/login`,
+        'Sec-Fetch-Site': 'cross-site',
+      }),
+      payload,
+    }),
+    null,
+  )
 })
