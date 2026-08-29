@@ -4,6 +4,8 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildConfig } from 'payload'
 
+import { Media } from './collections/Media'
+import { NewsArticles } from './collections/NewsArticles'
 import { Users } from './collections/Users'
 
 const filename = fileURLToPath(import.meta.url)
@@ -24,7 +26,7 @@ export default buildConfig({
     },
     user: Users.slug,
   },
-  collections: [Users],
+  collections: [Users, Media, NewsArticles],
   cors: allowedOrigins,
   csrf: allowedOrigins,
   db: postgresAdapter({

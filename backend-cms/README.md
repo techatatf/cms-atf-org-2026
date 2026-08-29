@@ -16,7 +16,8 @@ make start
 
 Open `http://localhost:3001/admin`. The default development configuration
 publishes Payload on port `3001` and keeps PostgreSQL private to the Compose
-network.
+network. It allows browser requests from the public Vite site on
+`http://localhost:3000` and the Backend CMS on `http://localhost:3001`.
 
 To use a LAN address, copy `.env.example` to `.env`. Set
 `PAYLOAD_PUBLIC_SERVER_URL` to the URL that you open in the browser. Compose

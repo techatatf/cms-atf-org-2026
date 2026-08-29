@@ -72,6 +72,16 @@ make down
 [Backend CMS guide](backend-cms/README.md) for direct npm development and the
 confirmed command required to delete local data.
 
+To read published News Articles from the local Backend CMS, create the public
+site environment file before you start Vite:
+
+```bash
+cp .env.example .env
+```
+
+The example enables the multi-page routes and sets `VITE_BACKEND_CMS_ORIGIN`
+to `http://localhost:3001`.
+
 ## Running with pm2
 
 To keep the dev server running in the background, manage it with

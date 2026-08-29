@@ -13,6 +13,7 @@
     "postinstall": "patch-package",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start --hostname 0.0.0.0 --port 3001",
     "test": "node tests/local-development.test.mjs",
+    "test:integration": "tsx --test --test-force-exit tests/news-articles.integration.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -32,6 +33,7 @@
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "patch-package": "8.0.1",
+    "tsx": "4.22.4",
     "typescript": "5.7.3"
   },
   "engines": {

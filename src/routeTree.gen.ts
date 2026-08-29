@@ -25,7 +25,7 @@ import { Route as ChallengeRouteImport } from './routes/challenge'
 import { Route as ArticlesRouteImport } from './routes/articles'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as NewsArticleIdRouteImport } from './routes/news.$articleId'
+import { Route as NewsSlugRouteImport } from './routes/news_.$slug'
 import { Route as CountriesCountryRouteImport } from './routes/countries.$country'
 
 const WhoWeAreRoute = WhoWeAreRouteImport.update({
@@ -108,10 +108,10 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const NewsArticleIdRoute = NewsArticleIdRouteImport.update({
-  id: '/$articleId',
-  path: '/$articleId',
-  getParentRoute: () => NewsRoute,
+const NewsSlugRoute = NewsSlugRouteImport.update({
+  id: '/news_/$slug',
+  path: '/news/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const CountriesCountryRoute = CountriesCountryRouteImport.update({
   id: '/countries/$country',
@@ -127,7 +127,7 @@ export interface FileRoutesByFullPath {
   '/chapters': typeof ChaptersRoute
   '/consulting': typeof ConsultingRoute
   '/library': typeof LibraryRoute
-  '/news': typeof NewsRouteWithChildren
+  '/news': typeof NewsRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/publications': typeof PublicationsRoute
   '/research': typeof ResearchRoute
@@ -137,7 +137,7 @@ export interface FileRoutesByFullPath {
   '/where-we-work': typeof WhereWeWorkRoute
   '/who-we-are': typeof WhoWeAreRoute
   '/countries/$country': typeof CountriesCountryRoute
-  '/news/$articleId': typeof NewsArticleIdRoute
+  '/news/$slug': typeof NewsSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -147,7 +147,7 @@ export interface FileRoutesByTo {
   '/chapters': typeof ChaptersRoute
   '/consulting': typeof ConsultingRoute
   '/library': typeof LibraryRoute
-  '/news': typeof NewsRouteWithChildren
+  '/news': typeof NewsRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/publications': typeof PublicationsRoute
   '/research': typeof ResearchRoute
@@ -157,7 +157,7 @@ export interface FileRoutesByTo {
   '/where-we-work': typeof WhereWeWorkRoute
   '/who-we-are': typeof WhoWeAreRoute
   '/countries/$country': typeof CountriesCountryRoute
-  '/news/$articleId': typeof NewsArticleIdRoute
+  '/news/$slug': typeof NewsSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -168,7 +168,7 @@ export interface FileRoutesById {
   '/chapters': typeof ChaptersRoute
   '/consulting': typeof ConsultingRoute
   '/library': typeof LibraryRoute
-  '/news': typeof NewsRouteWithChildren
+  '/news': typeof NewsRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/publications': typeof PublicationsRoute
   '/research': typeof ResearchRoute
@@ -178,7 +178,7 @@ export interface FileRoutesById {
   '/where-we-work': typeof WhereWeWorkRoute
   '/who-we-are': typeof WhoWeAreRoute
   '/countries/$country': typeof CountriesCountryRoute
-  '/news/$articleId': typeof NewsArticleIdRoute
+  '/news_/$slug': typeof NewsSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -200,7 +200,7 @@ export interface FileRouteTypes {
     | '/where-we-work'
     | '/who-we-are'
     | '/countries/$country'
-    | '/news/$articleId'
+    | '/news/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -220,7 +220,7 @@ export interface FileRouteTypes {
     | '/where-we-work'
     | '/who-we-are'
     | '/countries/$country'
-    | '/news/$articleId'
+    | '/news/$slug'
   id:
     | '__root__'
     | '/'
@@ -240,7 +240,7 @@ export interface FileRouteTypes {
     | '/where-we-work'
     | '/who-we-are'
     | '/countries/$country'
-    | '/news/$articleId'
+    | '/news_/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -251,7 +251,7 @@ export interface RootRouteChildren {
   ChaptersRoute: typeof ChaptersRoute
   ConsultingRoute: typeof ConsultingRoute
   LibraryRoute: typeof LibraryRoute
-  NewsRoute: typeof NewsRouteWithChildren
+  NewsRoute: typeof NewsRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   PublicationsRoute: typeof PublicationsRoute
   ResearchRoute: typeof ResearchRoute
@@ -261,6 +261,7 @@ export interface RootRouteChildren {
   WhereWeWorkRoute: typeof WhereWeWorkRoute
   WhoWeAreRoute: typeof WhoWeAreRoute
   CountriesCountryRoute: typeof CountriesCountryRoute
+  NewsSlugRoute: typeof NewsSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -377,12 +378,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/news/$articleId': {
-      id: '/news/$articleId'
-      path: '/$articleId'
-      fullPath: '/news/$articleId'
-      preLoaderRoute: typeof NewsArticleIdRouteImport
-      parentRoute: typeof NewsRoute
+    '/news_/$slug': {
+      id: '/news_/$slug'
+      path: '/news/$slug'
+      fullPath: '/news/$slug'
+      preLoaderRoute: typeof NewsSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/countries/$country': {
       id: '/countries/$country'
@@ -394,16 +395,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface NewsRouteChildren {
-  NewsArticleIdRoute: typeof NewsArticleIdRoute
-}
-
-const NewsRouteChildren: NewsRouteChildren = {
-  NewsArticleIdRoute: NewsArticleIdRoute,
-}
-
-const NewsRouteWithChildren = NewsRoute._addFileChildren(NewsRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
@@ -412,7 +403,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChaptersRoute: ChaptersRoute,
   ConsultingRoute: ConsultingRoute,
   LibraryRoute: LibraryRoute,
-  NewsRoute: NewsRouteWithChildren,
+  NewsRoute: NewsRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
   PublicationsRoute: PublicationsRoute,
   ResearchRoute: ResearchRoute,
@@ -422,6 +413,7 @@ const rootRouteChildren: RootRouteChildren = {
   WhereWeWorkRoute: WhereWeWorkRoute,
   WhoWeAreRoute: WhoWeAreRoute,
   CountriesCountryRoute: CountriesCountryRoute,
+  NewsSlugRoute: NewsSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
