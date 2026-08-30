@@ -48,7 +48,9 @@ function createDeferred<T>() {
   return { promise, reject, resolve };
 }
 
-function payloadResponse() {
+function payloadResponse(
+  heroImage: null | { alt: string; url: string } = null,
+) {
   return new Response(
     JSON.stringify({
       docs: [
@@ -59,7 +61,7 @@ function payloadResponse() {
           category: "Research",
           excerpt: "The public article excerpt.",
           featured: false,
-          heroImage: null,
+          heroImage,
           publishedAt: "2026-08-29T12:00:00.000Z",
           slug: "fetched-public-article",
           title: "Fetched Public Article",
@@ -123,6 +125,27 @@ describe("published News Article route", () => {
     expect(
       screen.getByText("This body came from Payload rich text."),
     ).toBeTruthy();
+  });
+
+  it("replaces a failed hero image without hiding the News Article text", async () => {
+    const alt = "Editors reviewing a workshop prototype";
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      payloadResponse({
+        alt,
+        url: "/api/media/file/workshop-prototype.jpg",
+      }),
+    );
+
+    renderArticleRoute();
+
+    const image = await screen.findByRole("img", { name: alt });
+    fireEvent.error(image);
+
+    expect(screen.getByText("Image unavailable")).toBeTruthy();
+    expect(
+      screen.getByRole("img", { name: `${alt}. Image unavailable.` }),
+    ).toBeTruthy();
+    expect(screen.getByText("This body came from Payload rich text.")).toBeTruthy();
   });
 
   it("shows Article not found. after a successful empty response", async () => {

@@ -160,9 +160,11 @@ function untrackDocument(id: number | string) {
 }
 
 function uploadMedia({
+  alt = 'Media access test image',
   filename,
   token,
 }: {
+  alt?: string
   filename: string
   token?: string
 }) {
@@ -178,7 +180,7 @@ function uploadMedia({
   )
   formData.append(
     '_payload',
-    JSON.stringify({ alt: 'Media access test image' }),
+    JSON.stringify({ alt }),
   )
   const headers = new Headers()
 
@@ -197,6 +199,37 @@ function uploadMedia({
     },
   )
 }
+
+test('Media rejects blank alt text at the API boundary', async () => {
+  const editor = await createAuthenticatedUser('editor')
+  const response = await uploadMedia({
+    alt: '   ',
+    filename: `blank-alt-${crypto.randomUUID()}.png`,
+    token: editor.token,
+  })
+  const result = await response.json()
+
+  if (response.ok) {
+    createdMediaIDs.push(result.doc.id)
+  }
+
+  assert.equal(response.status, 400)
+  assert.equal(result.errors[0].data.errors[0].path, 'alt')
+})
+
+test('Media stores trimmed alt text at the API boundary', async () => {
+  const editor = await createAuthenticatedUser('editor')
+  const response = await uploadMedia({
+    alt: '  Editors presenting workshop prototypes  ',
+    filename: `trimmed-alt-${crypto.randomUUID()}.png`,
+    token: editor.token,
+  })
+  const result = await response.json()
+
+  assert.equal(response.status, 201)
+  createdMediaIDs.push(result.doc.id)
+  assert.equal(result.doc.alt, 'Editors presenting workshop prototypes')
+})
 
 before(async () => {
   payload = await getPayload({ config })
@@ -267,6 +300,18 @@ test('Payload opens the dedicated public-site News Article Live Preview route', 
 })
 
 test('a visitor reads the published News Article but not its drafts', async () => {
+  const editor = await createAuthenticatedUser('editor')
+  const mediaFilename = `published-hero-${crypto.randomUUID()}.png`
+  const mediaResponse = await uploadMedia({
+    alt: 'Participants presenting their workshop prototypes',
+    filename: mediaFilename,
+    token: editor.token,
+  })
+  const mediaResult = await mediaResponse.json()
+
+  assert.equal(mediaResponse.status, 201)
+  createdMediaIDs.push(mediaResult.doc.id)
+
   const draft = await payload.create({
     collection: 'news-articles',
     data: {
@@ -274,6 +319,7 @@ test('a visitor reads the published News Article but not its drafts', async () =
       category: 'Press',
       excerpt: 'The published excerpt.',
       featured: false,
+      heroImage: mediaResult.doc.id,
       publishedAt: '2026-08-29T12:00:00.000Z',
       title: 'Publication Boundary Test',
     },
@@ -313,7 +359,6 @@ test('a visitor reads the published News Article but not its drafts', async () =
       category: publishedResult.docs[0].category,
       excerpt: publishedResult.docs[0].excerpt,
       featured: publishedResult.docs[0].featured,
-      heroImage: publishedResult.docs[0].heroImage,
       publishedAt: publishedResult.docs[0].publishedAt,
       slug: publishedResult.docs[0].slug,
       status: publishedResult.docs[0]._status,
@@ -324,12 +369,19 @@ test('a visitor reads the published News Article but not its drafts', async () =
       category: 'Press',
       excerpt: 'The published excerpt.',
       featured: false,
-      heroImage: null,
       publishedAt: '2026-08-29T12:00:00.000Z',
       slug: 'publication-boundary-test',
       status: 'published',
       title: 'Publication Boundary Test',
     },
+  )
+  assert.equal(
+    publishedResult.docs[0].heroImage.alt,
+    'Participants presenting their workshop prototypes',
+  )
+  assert.equal(
+    new URL(publishedResult.docs[0].heroImage.url).pathname,
+    `/api/media/file/${mediaFilename}`,
   )
 
   await payload.update({
@@ -362,6 +414,51 @@ test('a visitor reads the published News Article but not its drafts', async () =
   assert.equal(stillPublishedResult.docs[0].title, 'Publication Boundary Test')
   assert.equal(stillPublishedResult.docs[0].excerpt, 'The published excerpt.')
   assert.equal('firstPublishedAt' in stillPublishedResult.docs[0], false)
+})
+
+test('a News Article cannot publish with legacy Media that has no alt text', async () => {
+  const editor = await createAuthenticatedUser('editor')
+  const mediaResponse = await uploadMedia({
+    filename: `publication-alt-${crypto.randomUUID()}.png`,
+    token: editor.token,
+  })
+  const mediaResult = await mediaResponse.json()
+
+  assert.equal(mediaResponse.status, 201)
+  createdMediaIDs.push(mediaResult.doc.id)
+
+  await payload.db.updateOne({
+    collection: 'media',
+    data: { alt: null },
+    id: mediaResult.doc.id,
+  })
+
+  const draft = await payload.create({
+    collection: 'news-articles',
+    data: {
+      body: publishedBody,
+      category: 'Press',
+      excerpt: 'The article text must remain a valid draft.',
+      featured: false,
+      heroImage: mediaResult.doc.id,
+      publishedAt: '2026-08-30T12:00:00.000Z',
+      title: 'Publication Alt Validation',
+    },
+    draft: true,
+    overrideAccess: true,
+  })
+  createdDocumentIDs.push(draft.id)
+
+  const publishResponse = await apiRequest({
+    body: { _status: 'published' },
+    method: 'PATCH',
+    path: `news-articles/${draft.id}?draft=false`,
+    token: editor.token,
+  })
+  const publishResult = await publishResponse.json()
+
+  assert.equal(publishResponse.status, 400)
+  assert.equal(publishResult.errors[0].data.errors[0].path, 'heroImage')
 })
 
 test('an authenticated Admin creates and publishes a News Article through REST', async () => {

@@ -16,7 +16,7 @@ function NewsArticlePreviewRoute() {
   const { id } = Route.useParams();
   const initialData = useMemo(() => ({ id }), [id]);
   const { data, isLoading } = useLivePreview<Record<string, unknown>>({
-    depth: 0,
+    depth: 1,
     initialData,
     serverURL: backendCMSOrigin,
   });

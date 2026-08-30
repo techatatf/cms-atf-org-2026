@@ -50,7 +50,10 @@ describe("published News Article query", () => {
               category: "Programs",
               excerpt: "A typed public excerpt.",
               featured: true,
-              heroImage: null,
+              heroImage: {
+                alt: "Participants presenting their workshop prototypes",
+                url: "/api/media/file/workshop-prototypes.jpg",
+              },
               publishedAt: "2026-08-29T12:00:00.000Z",
               slug: "typed-public-article",
               title: "Typed Public Article",
@@ -72,6 +75,10 @@ describe("published News Article query", () => {
       category: "Programs",
       excerpt: "A typed public excerpt.",
       featured: true,
+      heroImage: {
+        alt: "Participants presenting their workshop prototypes",
+        url: "https://cms.example.test/api/media/file/workshop-prototypes.jpg",
+      },
       publishedAt: "2026-08-29T12:00:00.000Z",
       slug: "typed-public-article",
       title: "Typed Public Article",
@@ -82,7 +89,7 @@ describe("published News Article query", () => {
       "https://cms.example.test/api/news-articles",
     );
     expect(Object.fromEntries(requestURL.searchParams)).toEqual({
-      depth: "0",
+      depth: "1",
       draft: "false",
       limit: "1",
       "where[_status][equals]": "published",

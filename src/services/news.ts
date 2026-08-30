@@ -17,12 +17,18 @@ export type NewsCategory = (typeof NEWS_CATEGORIES)[number];
 
 export type NewsArticleBody = SerializedEditorState;
 
+export type NewsArticleHeroImage = {
+  alt: string;
+  url: string;
+};
+
 export type NewsArticle = {
   id: string;
   body: NewsArticleBody;
   category: NewsCategory;
   excerpt: string;
   featured: boolean;
+  heroImage: NewsArticleHeroImage | null;
   publishedAt: string;
   slug: string;
   title: string;
@@ -41,9 +47,45 @@ function isNewsCategory(value: unknown): value is NewsCategory {
   return NEWS_CATEGORIES.some((category) => category === value);
 }
 
+function mapHeroImage(
+  value: unknown,
+  backendCMSOrigin: string,
+): NewsArticleHeroImage | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const { alt, url } = value;
+
+  if (
+    typeof alt !== "string" ||
+    alt.trim().length === 0 ||
+    typeof url !== "string" ||
+    url.trim().length === 0
+  ) {
+    return null;
+  }
+
+  try {
+    const mediaURL = new URL(url, backendCMSOrigin);
+
+    if (mediaURL.protocol !== "http:" && mediaURL.protocol !== "https:") {
+      return null;
+    }
+
+    return {
+      alt: alt.trim(),
+      url: mediaURL.toString(),
+    };
+  } catch {
+    return null;
+  }
+}
+
 function mapNewsArticle(
   value: unknown,
   acceptedStatuses: ReadonlySet<string>,
+  backendCMSOrigin: string,
 ): NewsArticle {
   if (!isRecord(value)) {
     throw new Error("Unexpected News Article response");
@@ -55,6 +97,7 @@ function mapNewsArticle(
     category,
     excerpt,
     featured,
+    heroImage,
     id,
     publishedAt,
     slug,
@@ -86,6 +129,7 @@ function mapNewsArticle(
     category,
     excerpt,
     featured,
+    heroImage: mapHeroImage(heroImage, backendCMSOrigin),
     publishedAt,
     slug,
     title,
@@ -94,7 +138,11 @@ function mapNewsArticle(
 
 export function mapLivePreviewNewsArticle(value: unknown): NewsArticle | null {
   try {
-    return mapNewsArticle(value, new Set(["draft", "published"]));
+    return mapNewsArticle(
+      value,
+      new Set(["draft", "published"]),
+      DEFAULT_BACKEND_CMS_ORIGIN,
+    );
   } catch {
     return null;
   }
@@ -108,7 +156,7 @@ export async function getPublishedNewsArticle(
   }: NewsArticleQueryOptions = {},
 ): Promise<NewsArticle | null> {
   const requestURL = new URL("/api/news-articles", origin);
-  requestURL.searchParams.set("depth", "0");
+  requestURL.searchParams.set("depth", "1");
   requestURL.searchParams.set("draft", "false");
   requestURL.searchParams.set("limit", "1");
   requestURL.searchParams.set("where[_status][equals]", "published");
@@ -131,7 +179,7 @@ export async function getPublishedNewsArticle(
 
     return result.docs.length === 0
       ? null
-      : mapNewsArticle(result.docs[0], new Set(["published"]));
+      : mapNewsArticle(result.docs[0], new Set(["published"]), origin);
   } finally {
     globalThis.clearTimeout(timeout);
   }

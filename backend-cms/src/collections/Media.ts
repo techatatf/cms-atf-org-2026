@@ -22,6 +22,16 @@ export const Media: CollectionConfig = {
     {
       name: 'alt',
       type: 'text',
+      hooks: {
+        beforeValidate: [
+          ({ value }) =>
+            typeof value === 'string' ? value.trim() : value,
+        ],
+      },
+      validate: (value: unknown) =>
+        typeof value === 'string' && value.trim().length > 0
+          ? true
+          : 'Alt text is required.',
     },
   ],
   upload: {

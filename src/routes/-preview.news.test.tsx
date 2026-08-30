@@ -47,7 +47,10 @@ const draftArticle = {
   category: "Research",
   excerpt: "The private draft excerpt.",
   featured: false,
-  heroImage: null,
+  heroImage: {
+    alt: "Editors reviewing the draft hero image",
+    url: "/api/media/file/draft-hero.jpg",
+  },
   publishedAt: "2026-08-30T12:00:00.000Z",
   slug: "private-draft",
   title: "Private Draft Preview",
@@ -133,6 +136,11 @@ describe("News Article Live Preview route", () => {
     expect(
       screen.getByText("This body came from a Payload Live Preview message."),
     ).toBeTruthy();
+    expect(
+      screen.getByRole("img", {
+        name: "Editors reviewing the draft hero image",
+      }),
+    ).toBeTruthy();
     expect(fetchSpy).toHaveBeenCalledTimes(1);
 
     const [requestURL, requestInit] = fetchSpy.mock.calls[0];
@@ -144,6 +152,7 @@ describe("News Article Live Preview route", () => {
     expect(new Headers(requestInit?.headers).get("X-Payload-HTTP-Method-Override")).toBe(
       "GET",
     );
+    expect(JSON.parse(String(requestInit?.body)).depth).toBe(1);
   });
 
   it("declares the dedicated preview route non-indexable", async () => {
