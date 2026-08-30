@@ -17,12 +17,16 @@ make start
 Open `http://localhost:3001/admin`. The default development configuration
 publishes Payload on port `3001` and keeps PostgreSQL private to the Compose
 network. It allows browser requests from the public Vite site on
-`http://localhost:3000` and the Backend CMS on `http://localhost:3001`.
+`http://localhost:3000` and the Backend CMS on `http://localhost:3001`. The
+Payload Admin loads News Article Live Preview from
+`http://localhost:3000/preview/news/<document-id>`.
 
 To use a LAN address, copy `.env.example` to `.env`. Set
-`PAYLOAD_PUBLIC_SERVER_URL` to the URL that you open in the browser. Compose
-passes the value to both Next and Payload. List any other allowed browser
-origins in `PAYLOAD_ALLOWED_ORIGINS`, separated by commas.
+`PAYLOAD_PUBLIC_SERVER_URL` to the Backend CMS origin that you open in the
+browser. Set `PAYLOAD_PUBLIC_SITE_ORIGIN` to the public Vite site origin.
+Compose passes both values to Payload. List any additional allowed browser
+origins in `PAYLOAD_ALLOWED_ORIGINS`, separated by commas. Use explicit origins.
+Do not use `*`.
 
 Run the same Make targets from either the repository root or `backend-cms/`:
 
@@ -58,7 +62,9 @@ not available on a host port.
 
 2. Set `DATABASE_URI` in `.env` to a PostgreSQL database that your host can
    reach. Set `PAYLOAD_PUBLIC_SERVER_URL` to the URL that you open in the
-   browser. Replace the example `PAYLOAD_SECRET` with a long development secret.
+   browser. Set `PAYLOAD_PUBLIC_SITE_ORIGIN` to the independently running public
+   site origin. Replace the example `PAYLOAD_SECRET` with a long development
+   secret.
 
 3. Install the locked dependencies and start Payload:
 
@@ -69,5 +75,8 @@ not available on a host port.
 
 4. Open `http://localhost:3001/admin`.
 
-Keep these values for local development only. Production deployment owns its
-database credentials, Payload secret, public URL, and Compose configuration.
+Keep these values for local development only. In production, set
+`PAYLOAD_PUBLIC_SERVER_URL` to the public Backend CMS origin and
+`PAYLOAD_PUBLIC_SITE_ORIGIN` to the public-site origin. Set the public site's
+`VITE_BACKEND_CMS_ORIGIN` to the same Backend CMS origin. Production deployment
+also owns its database credentials, Payload secret, and Compose configuration.

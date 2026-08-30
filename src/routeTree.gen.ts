@@ -27,6 +27,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as NewsSlugRouteImport } from './routes/news_.$slug'
 import { Route as CountriesCountryRouteImport } from './routes/countries.$country'
+import { Route as PreviewNewsIdRouteImport } from './routes/preview.news.$id'
 
 const WhoWeAreRoute = WhoWeAreRouteImport.update({
   id: '/who-we-are',
@@ -118,6 +119,11 @@ const CountriesCountryRoute = CountriesCountryRouteImport.update({
   path: '/countries/$country',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PreviewNewsIdRoute = PreviewNewsIdRouteImport.update({
+  id: '/preview/news/$id',
+  path: '/preview/news/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -138,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/who-we-are': typeof WhoWeAreRoute
   '/countries/$country': typeof CountriesCountryRoute
   '/news/$slug': typeof NewsSlugRoute
+  '/preview/news/$id': typeof PreviewNewsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -158,6 +165,7 @@ export interface FileRoutesByTo {
   '/who-we-are': typeof WhoWeAreRoute
   '/countries/$country': typeof CountriesCountryRoute
   '/news/$slug': typeof NewsSlugRoute
+  '/preview/news/$id': typeof PreviewNewsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -179,6 +187,7 @@ export interface FileRoutesById {
   '/who-we-are': typeof WhoWeAreRoute
   '/countries/$country': typeof CountriesCountryRoute
   '/news_/$slug': typeof NewsSlugRoute
+  '/preview/news/$id': typeof PreviewNewsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -201,6 +210,7 @@ export interface FileRouteTypes {
     | '/who-we-are'
     | '/countries/$country'
     | '/news/$slug'
+    | '/preview/news/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -221,6 +231,7 @@ export interface FileRouteTypes {
     | '/who-we-are'
     | '/countries/$country'
     | '/news/$slug'
+    | '/preview/news/$id'
   id:
     | '__root__'
     | '/'
@@ -241,6 +252,7 @@ export interface FileRouteTypes {
     | '/who-we-are'
     | '/countries/$country'
     | '/news_/$slug'
+    | '/preview/news/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -262,6 +274,7 @@ export interface RootRouteChildren {
   WhoWeAreRoute: typeof WhoWeAreRoute
   CountriesCountryRoute: typeof CountriesCountryRoute
   NewsSlugRoute: typeof NewsSlugRoute
+  PreviewNewsIdRoute: typeof PreviewNewsIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -392,6 +405,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CountriesCountryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/preview/news/$id': {
+      id: '/preview/news/$id'
+      path: '/preview/news/$id'
+      fullPath: '/preview/news/$id'
+      preLoaderRoute: typeof PreviewNewsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -414,6 +434,7 @@ const rootRouteChildren: RootRouteChildren = {
   WhoWeAreRoute: WhoWeAreRoute,
   CountriesCountryRoute: CountriesCountryRoute,
   NewsSlugRoute: NewsSlugRoute,
+  PreviewNewsIdRoute: PreviewNewsIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

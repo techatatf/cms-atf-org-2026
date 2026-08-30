@@ -1,15 +1,32 @@
 import type { CollectionConfig } from 'payload'
 import { slugField } from 'payload'
 
-const authenticated = ({ req }: { req: { user: unknown } }) => Boolean(req.user)
+import {
+  hasEditorialRole,
+  isEditorialUser,
+} from '../access/roles'
 
 export const NewsArticles: CollectionConfig = {
   slug: 'news-articles',
   access: {
-    create: authenticated,
-    delete: authenticated,
+    create: isEditorialUser,
+    delete: ({ req }) => {
+      if (hasEditorialRole(req, ['admin'])) {
+        return true
+      }
+
+      if (!hasEditorialRole(req, ['editor'])) {
+        return false
+      }
+
+      return {
+        firstPublishedAt: {
+          exists: false,
+        },
+      }
+    },
     read: ({ req }) => {
-      if (req.user) {
+      if (hasEditorialRole(req, ['admin', 'editor'])) {
         return true
       }
 
@@ -19,7 +36,8 @@ export const NewsArticles: CollectionConfig = {
         },
       }
     },
-    update: authenticated,
+    readVersions: isEditorialUser,
+    update: isEditorialUser,
   },
   admin: {
     defaultColumns: ['title', 'slug', 'category', 'publishedAt', '_status'],
@@ -53,6 +71,30 @@ export const NewsArticles: CollectionConfig = {
         },
       },
       required: true,
+    },
+    {
+      name: 'firstPublishedAt',
+      type: 'date',
+      admin: {
+        hidden: true,
+        readOnly: true,
+      },
+      hidden: true,
+      hooks: {
+        beforeChange: [
+          ({ originalDoc, siblingData }) => {
+            if (originalDoc.firstPublishedAt) {
+              return originalDoc.firstPublishedAt
+            }
+
+            if (siblingData._status === 'published') {
+              return new Date().toISOString()
+            }
+
+            return null
+          },
+        ],
+      },
     },
     {
       name: 'category',

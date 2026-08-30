@@ -125,6 +125,7 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
+  role: 'admin' | 'editor';
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -192,6 +193,7 @@ export interface NewsArticle {
     [k: string]: unknown;
   };
   publishedAt: string;
+  firstPublishedAt?: string | null;
   category: 'Press' | 'Programs' | 'Research' | 'Partnerships' | 'Chapters';
   featured: boolean;
   heroImage?: (number | null) | Media;
@@ -282,6 +284,7 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  role?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -328,6 +331,7 @@ export interface NewsArticlesSelect<T extends boolean = true> {
   excerpt?: T;
   body?: T;
   publishedAt?: T;
+  firstPublishedAt?: T;
   category?: T;
   featured?: T;
   heroImage?: T;

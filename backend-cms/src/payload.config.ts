@@ -11,9 +11,16 @@ import { Users } from './collections/Users'
 const filename = fileURLToPath(import.meta.url)
 const directory = path.dirname(filename)
 const publicServerURL = process.env.PAYLOAD_PUBLIC_SERVER_URL
+const publicSiteOrigin = new URL(
+  process.env.PAYLOAD_PUBLIC_SITE_ORIGIN || 'http://localhost:3000',
+).origin
 const allowedOrigins = Array.from(
   new Set(
-    [publicServerURL, ...(process.env.PAYLOAD_ALLOWED_ORIGINS || '').split(',')]
+    [
+      publicServerURL,
+      publicSiteOrigin,
+      ...(process.env.PAYLOAD_ALLOWED_ORIGINS || '').split(','),
+    ]
       .map((origin) => origin?.trim())
       .filter((origin): origin is string => Boolean(origin)),
   ),
@@ -23,6 +30,13 @@ export default buildConfig({
   admin: {
     importMap: {
       baseDir: path.resolve(directory),
+    },
+    livePreview: {
+      collections: [NewsArticles.slug],
+      url: ({ data }) =>
+        data.id
+          ? `${publicSiteOrigin}/preview/news/${encodeURIComponent(String(data.id))}`
+          : null,
     },
     user: Users.slug,
   },

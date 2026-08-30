@@ -15,6 +15,22 @@ The independently runnable editorial application that manages content for the
 ATF website and provides its own administration interface and content API.
 _Avoid_: ATF Org Backend, custom CMS frontend
 
+**Editorial User**:
+An authenticated Backend CMS user with exactly one role: Admin or Editor. Both
+roles can enter the Payload administration interface.
+_Avoid_: authenticated user when the user's permissions matter
+
+**Admin**:
+The Editorial User role that manages users and performs every Editor operation.
+An Admin can also delete published News Articles and Media.
+_Avoid_: administrator, superuser
+
+**Editor**:
+The Editorial User role that manages News Article content and uploads Media. An
+Editor cannot manage users, delete Media, or delete a News Article after its
+First Publication.
+_Avoid_: author, content manager
+
 **Production Launch**:
 The first live Payload deployment used by the public ATF website as its content
 source. It is not preceded by a separate demo-to-production promotion stage.
@@ -29,6 +45,11 @@ _Avoid_: separate CMS product, final SEO architecture
 Newsroom content managed by the Backend CMS and published under `/news`. A News
 Article is distinct from the site's long-form Article content under `/articles`.
 _Avoid_: Article when the distinction from long-form content matters
+
+**First Publication**:
+The first successful publication of a News Article. First Publication remains
+part of the News Article's history after unpublication or version restoration.
+_Avoid_: current publication status, publication date
 
 **Public News Slug**:
 The unique URL segment that identifies a News Article at `/news/<slug>`. It is

@@ -80,7 +80,10 @@ cp .env.example .env
 ```
 
 The example enables the multi-page routes and sets `VITE_BACKEND_CMS_ORIGIN`
-to `http://localhost:3001`.
+to `http://localhost:3001`. The public preview route accepts Payload Live
+Preview messages only from that exact origin. The Backend CMS loads the matching
+preview route from `PAYLOAD_PUBLIC_SITE_ORIGIN`, which defaults to
+`http://localhost:3000` in the development Compose configuration.
 
 ## Running with pm2
 

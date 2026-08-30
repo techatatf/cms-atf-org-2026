@@ -15,10 +15,15 @@ const homepageOnlyAllowedPaths = new Set([
   "/privacy-policy",
   "/terms-of-service",
 ]);
+const newsArticlePreviewPathPrefix = "/preview/news/";
 
 export const Route = createRootRouteWithContext<AppRouterContext>()({
   beforeLoad: ({ context, location }) => {
     if (!context.homepageOnlyMode) {
+      return;
+    }
+
+    if (location.pathname.startsWith(newsArticlePreviewPathPrefix)) {
       return;
     }
 

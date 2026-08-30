@@ -3,15 +3,17 @@ import { fileURLToPath } from 'node:url'
 
 import type { CollectionConfig } from 'payload'
 
+import { isAdmin, isEditorialUser } from '../access/roles'
+
 const directory = path.dirname(fileURLToPath(import.meta.url))
 
 export const Media: CollectionConfig = {
   slug: 'media',
   access: {
-    create: ({ req }) => Boolean(req.user),
-    delete: ({ req }) => Boolean(req.user),
+    create: isEditorialUser,
+    delete: isAdmin,
     read: () => true,
-    update: ({ req }) => Boolean(req.user),
+    update: isEditorialUser,
   },
   admin: {
     useAsTitle: 'filename',

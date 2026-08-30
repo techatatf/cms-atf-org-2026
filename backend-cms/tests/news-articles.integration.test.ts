@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { after, before, test } from 'node:test'
 
-import { REST_GET, REST_PATCH, REST_POST } from '@payloadcms/next/routes'
+import { REST_DELETE, REST_GET, REST_PATCH, REST_POST } from '@payloadcms/next/routes'
 import { getPayload, type Payload } from 'payload'
 
 import type { NewsArticle } from '../src/payload-types'
@@ -10,7 +10,9 @@ import config from '../src/payload.config'
 const get = REST_GET(config)
 const patch = REST_PATCH(config)
 const post = REST_POST(config)
+const remove = REST_DELETE(config)
 const createdDocumentIDs: Array<number | string> = []
+const createdMediaIDs: Array<number | string> = []
 const createdUserIDs: Array<number | string> = []
 let payload: Payload
 
@@ -85,6 +87,117 @@ function authenticatedRequest({
   )
 }
 
+function apiRequest({
+  body,
+  method,
+  path,
+  token,
+}: {
+  body?: Record<string, unknown>
+  method: 'DELETE' | 'GET' | 'PATCH' | 'POST'
+  path: string
+  token?: string
+}) {
+  const [pathname] = path.split('?')
+  const handler = {
+    DELETE: remove,
+    GET: get,
+    PATCH: patch,
+    POST: post,
+  }[method]
+  const headers = new Headers()
+
+  if (token) {
+    headers.set('Authorization', `JWT ${token}`)
+  }
+
+  if (body) {
+    headers.set('Content-Type', 'application/json')
+  }
+
+  return handler(
+    new Request(`http://localhost:3001/api/${path}`, {
+      body: body ? JSON.stringify(body) : undefined,
+      headers,
+      method,
+    }),
+    {
+      params: Promise.resolve({
+        slug: pathname.split('/').filter(Boolean),
+      }),
+    },
+  )
+}
+
+async function createAuthenticatedUser(role: 'admin' | 'editor') {
+  const email = `${role}-${crypto.randomUUID()}@example.test`
+  const password = 'role-access-test-password'
+  const user = await payload.create({
+    collection: 'users',
+    data: { email, password, role },
+    overrideAccess: true,
+  })
+  createdUserIDs.push(user.id)
+
+  const login = await payload.login({
+    collection: 'users',
+    data: { email, password },
+  })
+  assert.ok(login.token)
+
+  return {
+    token: login.token,
+    user,
+  }
+}
+
+function untrackDocument(id: number | string) {
+  const index = createdDocumentIDs.indexOf(id)
+
+  if (index !== -1) {
+    createdDocumentIDs.splice(index, 1)
+  }
+}
+
+function uploadMedia({
+  filename,
+  token,
+}: {
+  filename: string
+  token?: string
+}) {
+  const formData = new FormData()
+  const onePixelPng = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+    'base64',
+  )
+  formData.append(
+    'file',
+    new Blob([onePixelPng], { type: 'image/png' }),
+    filename,
+  )
+  formData.append(
+    '_payload',
+    JSON.stringify({ alt: 'Media access test image' }),
+  )
+  const headers = new Headers()
+
+  if (token) {
+    headers.set('Authorization', `JWT ${token}`)
+  }
+
+  return post(
+    new Request('http://localhost:3001/api/media', {
+      body: formData,
+      headers,
+      method: 'POST',
+    }),
+    {
+      params: Promise.resolve({ slug: ['media'] }),
+    },
+  )
+}
+
 before(async () => {
   payload = await getPayload({ config })
 })
@@ -99,9 +212,20 @@ after(async () => {
       })
     }
 
+    for (const id of createdMediaIDs) {
+      await payload.delete({
+        collection: 'media',
+        id,
+        overrideAccess: true,
+      })
+    }
+
     for (const id of createdUserIDs) {
       await payload.delete({
         collection: 'users',
+        context: {
+          skipLastAdminProtection: true,
+        },
         id,
         overrideAccess: true,
       })
@@ -109,6 +233,37 @@ after(async () => {
   } finally {
     await payload.destroy()
   }
+})
+
+test('Payload opens the dedicated public-site News Article Live Preview route', async () => {
+  const livePreview = payload.config.admin.livePreview
+  const backendOrigin = new URL(
+    process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3001',
+  ).origin
+  const siteOrigin = new URL(
+    process.env.PAYLOAD_PUBLIC_SITE_ORIGIN || 'http://localhost:3000',
+  ).origin
+  const expectedOrigins = [siteOrigin, backendOrigin]
+  const { cors, csrf } = payload.config
+
+  assert.ok(livePreview)
+  assert.deepEqual(livePreview.collections, ['news-articles'])
+  assert.equal(typeof livePreview.url, 'function')
+  assert.ok(Array.isArray(cors))
+  assert.ok(Array.isArray(csrf))
+  for (const origin of expectedOrigins) {
+    assert.equal(cors.includes(origin), true)
+    assert.equal(csrf.includes(origin), true)
+  }
+  assert.equal(cors.includes('*'), false)
+  assert.equal(csrf.includes('*'), false)
+
+  const generateURL = livePreview.url as (args: {
+    data: Record<string, unknown>
+  }) => Promise<string> | string
+  const previewURL = await generateURL({ data: { id: 42 } })
+
+  assert.equal(previewURL, `${siteOrigin}/preview/news/42`)
 })
 
 test('a visitor reads the published News Article but not its drafts', async () => {
@@ -206,6 +361,7 @@ test('a visitor reads the published News Article but not its drafts', async () =
   assert.equal(stillPublishedResult.totalDocs, 1)
   assert.equal(stillPublishedResult.docs[0].title, 'Publication Boundary Test')
   assert.equal(stillPublishedResult.docs[0].excerpt, 'The published excerpt.')
+  assert.equal('firstPublishedAt' in stillPublishedResult.docs[0], false)
 })
 
 test('an authenticated Admin creates and publishes a News Article through REST', async () => {
@@ -213,7 +369,7 @@ test('an authenticated Admin creates and publishes a News Article through REST',
   const password = 'news-article-test-password'
   const user = await payload.create({
     collection: 'users',
-    data: { email, password },
+    data: { email, password, role: 'admin' },
     overrideAccess: true,
   })
   createdUserIDs.push(user.id)
@@ -265,4 +421,561 @@ test('an authenticated Admin creates and publishes a News Article through REST',
   assert.equal(visitorResult.totalDocs, 1)
   assert.equal(visitorResult.docs[0].title, 'Admin REST Publication')
   assert.equal(visitorResult.docs[0]._status, 'published')
+})
+
+test('an Admin manages users while an Editor and Visitor are denied through REST', async () => {
+  const admin = await createAuthenticatedUser('admin')
+  const editor = await createAuthenticatedUser('editor')
+
+  const adminReadResponse = await apiRequest({
+    method: 'GET',
+    path: 'users?limit=1',
+    token: admin.token,
+  })
+  assert.equal(adminReadResponse.status, 200)
+
+  const editorSelfReadResponse = await apiRequest({
+    method: 'GET',
+    path: `users/${editor.user.id}`,
+    token: editor.token,
+  })
+  assert.equal(editorSelfReadResponse.status, 200)
+
+  const editorAdminReadResponse = await apiRequest({
+    method: 'GET',
+    path: `users/${admin.user.id}`,
+    token: editor.token,
+  })
+  assert.ok(editorAdminReadResponse.status >= 400)
+
+  const visitorCreateResponse = await apiRequest({
+    body: {
+      email: `visitor-created-${crypto.randomUUID()}@example.test`,
+      password: 'visitor-created-password',
+      role: 'editor',
+    },
+    method: 'POST',
+    path: 'users',
+  })
+  assert.equal(visitorCreateResponse.status, 403)
+
+  const editorCreateResponse = await apiRequest({
+    body: {
+      email: `editor-created-${crypto.randomUUID()}@example.test`,
+      password: 'editor-created-password',
+      role: 'editor',
+    },
+    method: 'POST',
+    path: 'users',
+    token: editor.token,
+  })
+  assert.equal(editorCreateResponse.status, 403)
+
+  const adminCreateResponse = await apiRequest({
+    body: {
+      email: `admin-created-${crypto.randomUUID()}@example.test`,
+      password: 'admin-created-password',
+      role: 'editor',
+    },
+    method: 'POST',
+    path: 'users',
+    token: admin.token,
+  })
+  const adminCreateResult = await adminCreateResponse.json()
+
+  assert.equal(adminCreateResponse.status, 201)
+  assert.equal(adminCreateResult.doc.role, 'editor')
+  createdUserIDs.push(adminCreateResult.doc.id)
+
+  const missingRoleResponse = await apiRequest({
+    body: {
+      email: `missing-role-${crypto.randomUUID()}@example.test`,
+      password: 'missing-role-password',
+    },
+    method: 'POST',
+    path: 'users',
+    token: admin.token,
+  })
+  assert.equal(missingRoleResponse.status, 400)
+
+  const invalidRoleResponse = await apiRequest({
+    body: {
+      email: `invalid-role-${crypto.randomUUID()}@example.test`,
+      password: 'invalid-role-password',
+      role: 'owner',
+    },
+    method: 'POST',
+    path: 'users',
+    token: admin.token,
+  })
+  assert.equal(invalidRoleResponse.status, 400)
+
+  const editorUpdateUserResponse = await apiRequest({
+    body: {
+      role: 'admin',
+    },
+    method: 'PATCH',
+    path: `users/${adminCreateResult.doc.id}`,
+    token: editor.token,
+  })
+  assert.ok(editorUpdateUserResponse.status >= 400)
+
+  const adminUpdateUserResponse = await apiRequest({
+    body: {
+      role: 'admin',
+    },
+    method: 'PATCH',
+    path: `users/${adminCreateResult.doc.id}`,
+    token: admin.token,
+  })
+  const adminUpdateUserResult = await adminUpdateUserResponse.json()
+
+  assert.equal(adminUpdateUserResponse.status, 200)
+  assert.equal(adminUpdateUserResult.doc.role, 'admin')
+
+  const editorDeleteUserResponse = await apiRequest({
+    method: 'DELETE',
+    path: `users/${adminCreateResult.doc.id}`,
+    token: editor.token,
+  })
+  assert.ok(editorDeleteUserResponse.status >= 400)
+
+  const adminDeleteUserResponse = await apiRequest({
+    method: 'DELETE',
+    path: `users/${adminCreateResult.doc.id}`,
+    token: admin.token,
+  })
+  assert.equal(adminDeleteUserResponse.status, 200)
+  const createdUserIndex = createdUserIDs.indexOf(adminCreateResult.doc.id)
+  createdUserIDs.splice(createdUserIndex, 1)
+})
+
+test('an Editor deletes only never-published News Articles while an Admin deletes published ones', async () => {
+  const admin = await createAuthenticatedUser('admin')
+  const editor = await createAuthenticatedUser('editor')
+  const articleTitle = `Editorial lifecycle ${crypto.randomUUID()}`
+  const visitorCreateResponse = await apiRequest({
+    body: {
+      _status: 'draft',
+      body: publishedBody,
+      category: 'Programs',
+      excerpt: 'A Visitor must not create this draft.',
+      featured: false,
+      publishedAt: '2026-08-30T11:30:00.000Z',
+      title: `Visitor draft ${crypto.randomUUID()}`,
+    },
+    method: 'POST',
+    path: 'news-articles?draft=true',
+  })
+  assert.ok(visitorCreateResponse.status >= 400)
+
+  const draftResponse = await apiRequest({
+    body: {
+      _status: 'draft',
+      body: publishedBody,
+      category: 'Programs',
+      excerpt: 'This draft exercises the editorial lifecycle.',
+      featured: false,
+      publishedAt: '2026-08-30T12:00:00.000Z',
+      title: articleTitle,
+    },
+    method: 'POST',
+    path: 'news-articles?draft=true',
+    token: editor.token,
+  })
+  const draftResult = await draftResponse.json()
+
+  assert.equal(draftResponse.status, 201)
+  createdDocumentIDs.push(draftResult.doc.id)
+
+  const editorDraftReadResponse = await apiRequest({
+    method: 'GET',
+    path: `news-articles/${draftResult.doc.id}?draft=true`,
+    token: editor.token,
+  })
+  assert.equal(editorDraftReadResponse.status, 200)
+
+  const visitorUpdateResponse = await apiRequest({
+    body: {
+      excerpt: 'A Visitor must not store this update.',
+    },
+    method: 'PATCH',
+    path: `news-articles/${draftResult.doc.id}?draft=true`,
+  })
+  assert.ok(visitorUpdateResponse.status >= 400)
+
+  const visitorDeleteResponse = await apiRequest({
+    method: 'DELETE',
+    path: `news-articles/${draftResult.doc.id}`,
+  })
+  assert.ok(visitorDeleteResponse.status >= 400)
+
+  const publishResponse = await apiRequest({
+    body: {
+      _status: 'published',
+    },
+    method: 'PATCH',
+    path: `news-articles/${draftResult.doc.id}?draft=false`,
+    token: editor.token,
+  })
+  assert.equal(publishResponse.status, 200)
+
+  const unpublishResponse = await apiRequest({
+    body: {
+      _status: 'draft',
+    },
+    method: 'PATCH',
+    path: `news-articles/${draftResult.doc.id}?draft=false`,
+    token: editor.token,
+  })
+  assert.equal(unpublishResponse.status, 200)
+
+  const lifecycleVersionsResponse = await apiRequest({
+    method: 'GET',
+    path: `news-articles/versions?where[parent][equals]=${draftResult.doc.id}&limit=20`,
+    token: editor.token,
+  })
+  const lifecycleVersionsResult = await lifecycleVersionsResponse.json()
+  const prePublicationVersion = lifecycleVersionsResult.docs.find(
+    (version: { version?: { _status?: string } }) =>
+      version.version?._status === 'draft',
+  )
+
+  assert.equal(lifecycleVersionsResponse.status, 200)
+  assert.ok(prePublicationVersion)
+
+  const restorePrePublicationResponse = await apiRequest({
+    method: 'POST',
+    path: `news-articles/versions/${prePublicationVersion.id}?draft=true`,
+    token: editor.token,
+  })
+  assert.equal(restorePrePublicationResponse.status, 200)
+
+  const editorPublishedDeleteResponse = await apiRequest({
+    method: 'DELETE',
+    path: `news-articles/${draftResult.doc.id}`,
+    token: editor.token,
+  })
+
+  if (editorPublishedDeleteResponse.ok) {
+    untrackDocument(draftResult.doc.id)
+  }
+
+  assert.ok(editorPublishedDeleteResponse.status >= 400)
+
+  const adminPublishedDeleteResponse = await apiRequest({
+    method: 'DELETE',
+    path: `news-articles/${draftResult.doc.id}`,
+    token: admin.token,
+  })
+  assert.equal(adminPublishedDeleteResponse.status, 200)
+  untrackDocument(draftResult.doc.id)
+
+  const neverPublishedResponse = await apiRequest({
+    body: {
+      _status: 'draft',
+      body: publishedBody,
+      category: 'Programs',
+      excerpt: 'This draft has never been published.',
+      featured: false,
+      publishedAt: '2026-08-30T12:30:00.000Z',
+      title: `Never published ${crypto.randomUUID()}`,
+    },
+    method: 'POST',
+    path: 'news-articles?draft=true',
+    token: editor.token,
+  })
+  const neverPublishedResult = await neverPublishedResponse.json()
+
+  assert.equal(neverPublishedResponse.status, 201)
+  createdDocumentIDs.push(neverPublishedResult.doc.id)
+
+  const editorDraftDeleteResponse = await apiRequest({
+    method: 'DELETE',
+    path: `news-articles/${neverPublishedResult.doc.id}`,
+    token: editor.token,
+  })
+  assert.equal(editorDraftDeleteResponse.status, 200)
+  untrackDocument(neverPublishedResult.doc.id)
+})
+
+test('an Editor reads and restores News Article versions while a Visitor is denied', async () => {
+  const admin = await createAuthenticatedUser('admin')
+  const editor = await createAuthenticatedUser('editor')
+  const draftResponse = await apiRequest({
+    body: {
+      _status: 'draft',
+      body: publishedBody,
+      category: 'Research',
+      excerpt: 'The original version.',
+      featured: false,
+      publishedAt: '2026-08-30T13:00:00.000Z',
+      title: `Version restore ${crypto.randomUUID()}`,
+    },
+    method: 'POST',
+    path: 'news-articles?draft=true',
+    token: editor.token,
+  })
+  const draftResult = await draftResponse.json()
+
+  assert.equal(draftResponse.status, 201)
+  createdDocumentIDs.push(draftResult.doc.id)
+
+  const updateResponse = await apiRequest({
+    body: {
+      excerpt: 'The changed version.',
+    },
+    method: 'PATCH',
+    path: `news-articles/${draftResult.doc.id}?draft=true`,
+    token: editor.token,
+  })
+  assert.equal(updateResponse.status, 200)
+
+  const visitorVersionsResponse = await apiRequest({
+    method: 'GET',
+    path: `news-articles/versions?where[parent][equals]=${draftResult.doc.id}`,
+  })
+  assert.ok(visitorVersionsResponse.status >= 400)
+
+  const editorVersionsResponse = await apiRequest({
+    method: 'GET',
+    path: `news-articles/versions?where[parent][equals]=${draftResult.doc.id}&limit=10`,
+    token: editor.token,
+  })
+  const editorVersionsResult = await editorVersionsResponse.json()
+
+  assert.equal(editorVersionsResponse.status, 200)
+  const originalVersion = editorVersionsResult.docs.find(
+    (version: { version?: { excerpt?: string } }) =>
+      version.version?.excerpt === 'The original version.',
+  )
+  assert.ok(originalVersion)
+
+  const visitorRestoreResponse = await apiRequest({
+    method: 'POST',
+    path: `news-articles/versions/${originalVersion.id}?draft=true`,
+  })
+  assert.ok(visitorRestoreResponse.status >= 400)
+
+  const editorRestoreResponse = await apiRequest({
+    method: 'POST',
+    path: `news-articles/versions/${originalVersion.id}?draft=true`,
+    token: editor.token,
+  })
+  const editorRestoreResult = await editorRestoreResponse.json()
+
+  assert.equal(editorRestoreResponse.status, 200)
+  assert.equal(editorRestoreResult.excerpt, 'The original version.')
+
+  const changedVersion = editorVersionsResult.docs.find(
+    (version: { version?: { excerpt?: string } }) =>
+      version.version?.excerpt === 'The changed version.',
+  )
+  assert.ok(changedVersion)
+
+  const adminRestoreResponse = await apiRequest({
+    method: 'POST',
+    path: `news-articles/versions/${changedVersion.id}?draft=true`,
+    token: admin.token,
+  })
+  const adminRestoreResult = await adminRestoreResponse.json()
+
+  assert.equal(adminRestoreResponse.status, 200)
+  assert.equal(adminRestoreResult.excerpt, 'The changed version.')
+})
+
+test('restoring an earlier draft leaves the published News Article unchanged for Visitors', async () => {
+  const editor = await createAuthenticatedUser('editor')
+  const title = `Public restore boundary ${crypto.randomUUID()}`
+  const draftResponse = await apiRequest({
+    body: {
+      _status: 'draft',
+      body: publishedBody,
+      category: 'Research',
+      excerpt: 'The earlier private draft.',
+      featured: false,
+      publishedAt: '2026-08-30T14:00:00.000Z',
+      title,
+    },
+    method: 'POST',
+    path: 'news-articles?draft=true',
+    token: editor.token,
+  })
+  const draftResult = await draftResponse.json()
+
+  assert.equal(draftResponse.status, 201)
+  createdDocumentIDs.push(draftResult.doc.id)
+
+  const publishContentResponse = await apiRequest({
+    body: {
+      excerpt: 'The published version.',
+    },
+    method: 'PATCH',
+    path: `news-articles/${draftResult.doc.id}?draft=true`,
+    token: editor.token,
+  })
+  assert.equal(publishContentResponse.status, 200)
+
+  const publishResponse = await apiRequest({
+    body: {
+      _status: 'published',
+    },
+    method: 'PATCH',
+    path: `news-articles/${draftResult.doc.id}?draft=false`,
+    token: editor.token,
+  })
+  assert.equal(publishResponse.status, 200)
+
+  const newerDraftResponse = await apiRequest({
+    body: {
+      excerpt: 'The newest private draft.',
+    },
+    method: 'PATCH',
+    path: `news-articles/${draftResult.doc.id}?draft=true`,
+    token: editor.token,
+  })
+  assert.equal(newerDraftResponse.status, 200)
+
+  const versionsResponse = await apiRequest({
+    method: 'GET',
+    path: `news-articles/versions?where[parent][equals]=${draftResult.doc.id}&limit=20`,
+    token: editor.token,
+  })
+  const versionsResult = await versionsResponse.json()
+  const earlierDraft = versionsResult.docs.find(
+    (version: { version?: { excerpt?: string } }) =>
+      version.version?.excerpt === 'The earlier private draft.',
+  )
+
+  assert.equal(versionsResponse.status, 200)
+  assert.ok(earlierDraft)
+
+  const restoreResponse = await apiRequest({
+    method: 'POST',
+    path: `news-articles/versions/${earlierDraft.id}?draft=true`,
+    token: editor.token,
+  })
+  assert.equal(restoreResponse.status, 200)
+
+  const editorDraftResponse = await apiRequest({
+    method: 'GET',
+    path: `news-articles/${draftResult.doc.id}?draft=true`,
+    token: editor.token,
+  })
+  const editorDraftResult = await editorDraftResponse.json()
+
+  assert.equal(editorDraftResponse.status, 200)
+  assert.equal(editorDraftResult.excerpt, 'The earlier private draft.')
+
+  const visitorDraftResponse = await visitorRequest(
+    `news-articles?where[slug][equals]=${draftResult.doc.slug}&draft=true&limit=1`,
+  )
+  const visitorDraftResult = await visitorDraftResponse.json()
+
+  assert.equal(visitorDraftResponse.status, 200)
+  assert.equal(visitorDraftResult.totalDocs, 0)
+
+  const visitorPublishedResponse = await visitorRequest(
+    `news-articles?where[slug][equals]=${draftResult.doc.slug}&draft=false&limit=1`,
+  )
+  const visitorPublishedResult = await visitorPublishedResponse.json()
+
+  assert.equal(visitorPublishedResponse.status, 200)
+  assert.equal(visitorPublishedResult.totalDocs, 1)
+  assert.equal(visitorPublishedResult.docs[0]._status, 'published')
+  assert.equal(visitorPublishedResult.docs[0].excerpt, 'The published version.')
+})
+
+test('an Editor uploads and updates Media while only an Admin deletes it', async () => {
+  const admin = await createAuthenticatedUser('admin')
+  const editor = await createAuthenticatedUser('editor')
+
+  const visitorUploadResponse = await uploadMedia({
+    filename: `visitor-${crypto.randomUUID()}.png`,
+  })
+  assert.ok(visitorUploadResponse.status >= 400)
+
+  const editorUploadResponse = await uploadMedia({
+    filename: `editor-${crypto.randomUUID()}.png`,
+    token: editor.token,
+  })
+  const editorUploadResult = await editorUploadResponse.json()
+
+  assert.equal(editorUploadResponse.status, 201)
+  createdMediaIDs.push(editorUploadResult.doc.id)
+
+  const visitorReadResponse = await apiRequest({
+    method: 'GET',
+    path: `media/${editorUploadResult.doc.id}`,
+  })
+  assert.equal(visitorReadResponse.status, 200)
+
+  const editorUpdateResponse = await apiRequest({
+    body: {
+      alt: 'Updated by an Editor',
+    },
+    method: 'PATCH',
+    path: `media/${editorUploadResult.doc.id}`,
+    token: editor.token,
+  })
+  assert.equal(editorUpdateResponse.status, 200)
+
+  const visitorUpdateResponse = await apiRequest({
+    body: {
+      alt: 'Visitor update must not be stored',
+    },
+    method: 'PATCH',
+    path: `media/${editorUploadResult.doc.id}`,
+  })
+  assert.ok(visitorUpdateResponse.status >= 400)
+
+  const editorDeleteResponse = await apiRequest({
+    method: 'DELETE',
+    path: `media/${editorUploadResult.doc.id}`,
+    token: editor.token,
+  })
+
+  if (editorDeleteResponse.ok) {
+    const index = createdMediaIDs.indexOf(editorUploadResult.doc.id)
+    createdMediaIDs.splice(index, 1)
+  }
+
+  assert.ok(editorDeleteResponse.status >= 400)
+
+  const adminDeleteResponse = await apiRequest({
+    method: 'DELETE',
+    path: `media/${editorUploadResult.doc.id}`,
+    token: admin.token,
+  })
+  assert.equal(adminDeleteResponse.status, 200)
+  const index = createdMediaIDs.indexOf(editorUploadResult.doc.id)
+  createdMediaIDs.splice(index, 1)
+
+  const adminUploadResponse = await uploadMedia({
+    filename: `admin-${crypto.randomUUID()}.png`,
+    token: admin.token,
+  })
+  const adminUploadResult = await adminUploadResponse.json()
+
+  assert.equal(adminUploadResponse.status, 201)
+  createdMediaIDs.push(adminUploadResult.doc.id)
+
+  const adminUpdateResponse = await apiRequest({
+    body: {
+      alt: 'Updated by an Admin',
+    },
+    method: 'PATCH',
+    path: `media/${adminUploadResult.doc.id}`,
+    token: admin.token,
+  })
+  assert.equal(adminUpdateResponse.status, 200)
+
+  const adminCleanupResponse = await apiRequest({
+    method: 'DELETE',
+    path: `media/${adminUploadResult.doc.id}`,
+    token: admin.token,
+  })
+  assert.equal(adminCleanupResponse.status, 200)
+  const adminMediaIndex = createdMediaIDs.indexOf(adminUploadResult.doc.id)
+  createdMediaIDs.splice(adminMediaIndex, 1)
 })

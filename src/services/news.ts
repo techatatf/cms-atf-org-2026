@@ -41,7 +41,10 @@ function isNewsCategory(value: unknown): value is NewsCategory {
   return NEWS_CATEGORIES.some((category) => category === value);
 }
 
-function mapNewsArticle(value: unknown): NewsArticle {
+function mapNewsArticle(
+  value: unknown,
+  acceptedStatuses: ReadonlySet<string>,
+): NewsArticle {
   if (!isRecord(value)) {
     throw new Error("Unexpected News Article response");
   }
@@ -59,7 +62,8 @@ function mapNewsArticle(value: unknown): NewsArticle {
   } = value;
 
   if (
-    _status !== "published" ||
+    typeof _status !== "string" ||
+    !acceptedStatuses.has(_status) ||
     !isRecord(body) ||
     !isRecord(body.root) ||
     body.root.type !== "root" ||
@@ -86,6 +90,14 @@ function mapNewsArticle(value: unknown): NewsArticle {
     slug,
     title,
   };
+}
+
+export function mapLivePreviewNewsArticle(value: unknown): NewsArticle | null {
+  try {
+    return mapNewsArticle(value, new Set(["draft", "published"]));
+  } catch {
+    return null;
+  }
 }
 
 export async function getPublishedNewsArticle(
@@ -117,7 +129,9 @@ export async function getPublishedNewsArticle(
       throw new Error("Unexpected News Article response");
     }
 
-    return result.docs.length === 0 ? null : mapNewsArticle(result.docs[0]);
+    return result.docs.length === 0
+      ? null
+      : mapNewsArticle(result.docs[0], new Set(["published"]));
   } finally {
     globalThis.clearTimeout(timeout);
   }

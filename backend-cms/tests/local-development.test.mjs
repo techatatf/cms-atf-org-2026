@@ -132,6 +132,8 @@ test('development Compose allows the local public site to read Payload', () => {
       env: {
         ...process.env,
         PAYLOAD_ALLOWED_ORIGINS: '',
+        PAYLOAD_PUBLIC_SERVER_URL: '',
+        PAYLOAD_PUBLIC_SITE_ORIGIN: '',
       },
     },
   )
@@ -142,6 +144,37 @@ test('development Compose allows the local public site to read Payload', () => {
   assert.equal(
     configuration.services.payload.environment.PAYLOAD_ALLOWED_ORIGINS,
     'http://localhost:3000,http://localhost:3001',
+  )
+  assert.equal(
+    configuration.services.payload.environment.PAYLOAD_PUBLIC_SITE_ORIGIN,
+    'http://localhost:3000',
+  )
+})
+
+test('development Compose keeps deployed Backend CMS and public-site origins separate', () => {
+  const result = spawnSync(
+    'docker',
+    ['compose', '-f', 'compose.yml', '-f', 'compose.dev.yml', 'config', '--format', 'json'],
+    {
+      cwd: backendDirectory,
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        PAYLOAD_ALLOWED_ORIGINS: 'https://cms.example.test,https://www.example.test',
+        PAYLOAD_PUBLIC_SERVER_URL: 'https://cms.example.test',
+        PAYLOAD_PUBLIC_SITE_ORIGIN: 'https://www.example.test',
+      },
+    },
+  )
+
+  assert.equal(result.status, 0, result.stderr)
+
+  const environment = JSON.parse(result.stdout).services.payload.environment
+  assert.equal(environment.PAYLOAD_PUBLIC_SERVER_URL, 'https://cms.example.test')
+  assert.equal(environment.PAYLOAD_PUBLIC_SITE_ORIGIN, 'https://www.example.test')
+  assert.equal(
+    environment.PAYLOAD_ALLOWED_ORIGINS,
+    'https://cms.example.test,https://www.example.test',
   )
 })
 
