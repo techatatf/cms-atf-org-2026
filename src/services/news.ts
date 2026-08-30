@@ -39,6 +39,32 @@ type NewsArticleQueryOptions = {
   timeoutMs?: number;
 };
 
+type PublishedNewsPageOptions = NewsArticleQueryOptions & {
+  category?: NewsCategory;
+  limit?: number;
+  page?: number;
+};
+
+type PublishedNewsPageRequestOptions = PublishedNewsPageOptions & {
+  featured?: boolean;
+};
+
+type PublishedNewsHighlightsOptions = NewsArticleQueryOptions & {
+  nonFeaturedLimit: number;
+};
+
+export type PublishedNewsPage = {
+  articles: NewsArticle[];
+  hasNextPage: boolean;
+  page: number;
+  totalDocs: number;
+};
+
+export type PublishedNewsHighlights = {
+  featured: NewsArticle | null;
+  recent: NewsArticle[];
+};
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -183,4 +209,103 @@ export async function getPublishedNewsArticle(
   } finally {
     globalThis.clearTimeout(timeout);
   }
+}
+
+async function requestPublishedNewsPage({
+  category,
+  featured,
+  limit = 12,
+  origin = DEFAULT_BACKEND_CMS_ORIGIN,
+  page = 1,
+  timeoutMs = REQUEST_TIMEOUT_MS,
+}: PublishedNewsPageRequestOptions = {}): Promise<PublishedNewsPage> {
+  const requestURL = new URL("/api/news-articles", origin);
+  requestURL.searchParams.set("depth", "1");
+  requestURL.searchParams.set("draft", "false");
+  requestURL.searchParams.set("limit", String(limit));
+  requestURL.searchParams.set("page", String(page));
+  requestURL.searchParams.set("sort", "-publishedAt,slug");
+  requestURL.searchParams.set("where[_status][equals]", "published");
+
+  if (category) {
+    requestURL.searchParams.set("where[category][equals]", category);
+  }
+
+  if (featured !== undefined) {
+    requestURL.searchParams.set(
+      "where[featured][equals]",
+      featured ? "true" : "false",
+    );
+  }
+
+  const controller = new AbortController();
+  const timeout = globalThis.setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(requestURL, { signal: controller.signal });
+
+    if (!response.ok) {
+      throw new Error(`Backend CMS request failed with ${response.status}`);
+    }
+
+    const result: unknown = await response.json();
+    if (
+      !isRecord(result) ||
+      !Array.isArray(result.docs) ||
+      typeof result.hasNextPage !== "boolean" ||
+      typeof result.page !== "number" ||
+      typeof result.totalDocs !== "number"
+    ) {
+      throw new Error("Unexpected News Article response");
+    }
+
+    return {
+      articles: result.docs.map((article) =>
+        mapNewsArticle(article, new Set(["published"]), origin),
+      ),
+      hasNextPage: result.hasNextPage,
+      page: result.page,
+      totalDocs: result.totalDocs,
+    };
+  } finally {
+    globalThis.clearTimeout(timeout);
+  }
+}
+
+export function getPublishedNewsPage(
+  options: PublishedNewsPageOptions = {},
+): Promise<PublishedNewsPage> {
+  return requestPublishedNewsPage(options);
+}
+
+export async function getPublishedNewsHighlights({
+  nonFeaturedLimit,
+  origin = DEFAULT_BACKEND_CMS_ORIGIN,
+  timeoutMs = REQUEST_TIMEOUT_MS,
+}: PublishedNewsHighlightsOptions): Promise<PublishedNewsHighlights> {
+  const [featuredPage, nonFeaturedPage] = await Promise.all([
+    requestPublishedNewsPage({
+      featured: true,
+      limit: 1,
+      origin,
+      timeoutMs,
+    }),
+    requestPublishedNewsPage({
+      featured: false,
+      limit: nonFeaturedLimit + 1,
+      origin,
+      timeoutMs,
+    }),
+  ]);
+  const featured =
+    featuredPage.articles[0] ?? nonFeaturedPage.articles[0] ?? null;
+  const recentStart = featuredPage.articles.length === 0 ? 1 : 0;
+
+  return {
+    featured,
+    recent: nonFeaturedPage.articles.slice(
+      recentStart,
+      recentStart + nonFeaturedLimit,
+    ),
+  };
 }

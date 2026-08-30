@@ -520,6 +520,104 @@ test('an authenticated Admin creates and publishes a News Article through REST',
   assert.equal(visitorResult.docs[0]._status, 'published')
 })
 
+test('publishing a featured News Article clears the previous published feature', async () => {
+  const editor = await createAuthenticatedUser('editor')
+  const firstTitle = `First featured article ${crypto.randomUUID()}`
+  const secondTitle = `Second featured article ${crypto.randomUUID()}`
+  const createFeaturedDraft = async (title: string, publishedAt: string) => {
+    const response = await apiRequest({
+      body: {
+        _status: 'draft',
+        body: publishedBody,
+        category: 'Programs',
+        excerpt: `${title} excerpt.`,
+        featured: true,
+        publishedAt,
+        title,
+      },
+      method: 'POST',
+      path: 'news-articles?draft=true',
+      token: editor.token,
+    })
+    const result = await response.json()
+
+    assert.equal(response.status, 201)
+    createdDocumentIDs.push(result.doc.id)
+
+    return result.doc
+  }
+  const publish = (id: number | string) =>
+    apiRequest({
+      body: { _status: 'published' },
+      method: 'PATCH',
+      path: `news-articles/${id}?draft=false`,
+      token: editor.token,
+    })
+
+  const firstDraft = await createFeaturedDraft(
+    firstTitle,
+    '2026-08-30T15:00:00.000Z',
+  )
+  const firstPublishResponse = await publish(firstDraft.id)
+  assert.equal(firstPublishResponse.status, 200)
+
+  const firstDraftTitle = `${firstTitle} with unpublished edits`
+  const firstDraftResponse = await apiRequest({
+    body: {
+      _status: 'draft',
+      title: firstDraftTitle,
+    },
+    method: 'PATCH',
+    path: `news-articles/${firstDraft.id}?draft=true`,
+    token: editor.token,
+  })
+  assert.equal(firstDraftResponse.status, 200)
+
+  const secondDraft = await createFeaturedDraft(
+    secondTitle,
+    '2026-08-30T16:00:00.000Z',
+  )
+  const beforeSecondPublishResponse = await visitorRequest(
+    `news-articles?where[slug][equals]=${firstDraft.slug}&limit=1`,
+  )
+  const beforeSecondPublishResult = await beforeSecondPublishResponse.json()
+
+  assert.equal(beforeSecondPublishResult.docs[0].featured, true)
+
+  const secondPublishResponse = await publish(secondDraft.id)
+  assert.equal(secondPublishResponse.status, 200)
+
+  const featuredResponse = await visitorRequest(
+    'news-articles?where[featured][equals]=true&limit=10',
+  )
+  const featuredResult = await featuredResponse.json()
+
+  assert.equal(featuredResponse.status, 200)
+  assert.equal(featuredResult.totalDocs, 1)
+  assert.equal(featuredResult.docs[0].id, secondDraft.id)
+
+  const previousResponse = await visitorRequest(
+    `news-articles?where[slug][equals]=${firstDraft.slug}&limit=1`,
+  )
+  const previousResult = await previousResponse.json()
+
+  assert.equal(previousResponse.status, 200)
+  assert.equal(previousResult.docs[0]._status, 'published')
+  assert.equal(previousResult.docs[0].featured, false)
+  assert.equal(previousResult.docs[0].title, firstTitle)
+
+  const preservedDraftResponse = await apiRequest({
+    method: 'GET',
+    path: `news-articles/${firstDraft.id}?draft=true`,
+    token: editor.token,
+  })
+  const preservedDraftResult = await preservedDraftResponse.json()
+
+  assert.equal(preservedDraftResponse.status, 200)
+  assert.equal(preservedDraftResult.title, firstDraftTitle)
+  assert.equal(preservedDraftResult.featured, true)
+})
+
 test('an Admin manages users while an Editor and Visitor are denied through REST', async () => {
   const admin = await createAuthenticatedUser('admin')
   const editor = await createAuthenticatedUser('editor')

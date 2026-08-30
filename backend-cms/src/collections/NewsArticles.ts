@@ -1,10 +1,11 @@
-import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload'
+import type { CollectionBeforeChangeHook, CollectionConfig, Where } from 'payload'
 import { slugField, ValidationError } from 'payload'
 
 import {
   hasEditorialRole,
   isEditorialUser,
 } from '../access/roles'
+import type { NewsArticle } from '../payload-types'
 
 function relationshipID(value: unknown): number | string | null {
   if (typeof value === 'number' || typeof value === 'string') {
@@ -21,6 +22,23 @@ function relationshipID(value: unknown): number | string | null {
   }
 
   return null
+}
+
+function newsArticleDraftData(article: NewsArticle) {
+  const heroImageID = relationshipID(article.heroImage)
+
+  return {
+    _status: 'draft' as const,
+    body: article.body,
+    category: article.category,
+    excerpt: article.excerpt,
+    featured: article.featured,
+    generateSlug: article.generateSlug,
+    heroImage: typeof heroImageID === 'number' ? heroImageID : null,
+    publishedAt: article.publishedAt,
+    slug: article.slug,
+    title: article.title,
+  }
 }
 
 const validatePublishedHeroImage: CollectionBeforeChangeHook = async ({
@@ -60,6 +78,94 @@ const validatePublishedHeroImage: CollectionBeforeChangeHook = async ({
         },
       ],
       id: originalDoc?.id,
+      req,
+    })
+  }
+
+  return data
+}
+
+const clearPreviousPublishedFeature: CollectionBeforeChangeHook = async ({
+  data,
+  originalDoc,
+  req,
+}) => {
+  const status = data._status ?? originalDoc?._status
+  const featured = data.featured ?? originalDoc?.featured
+
+  if (status !== 'published' || featured !== true) {
+    return data
+  }
+
+  const where: Where = {
+    and: [
+      {
+        _status: {
+          equals: 'published' as const,
+        },
+      },
+      {
+        featured: {
+          equals: true,
+        },
+      },
+      ...(originalDoc?.id === undefined
+        ? []
+        : [
+            {
+              id: {
+                not_equals: originalDoc.id,
+              },
+            },
+          ]),
+    ],
+  }
+
+  const previousPublishedFeatures = await req.payload.find({
+    collection: 'news-articles',
+    depth: 0,
+    draft: false,
+    limit: 0,
+    overrideAccess: true,
+    pagination: false,
+    req,
+    where,
+  })
+  const previousDrafts: NewsArticle[] = []
+
+  for (const { id } of previousPublishedFeatures.docs) {
+    const latestArticle = await req.payload.findByID({
+      collection: 'news-articles',
+      depth: 0,
+      draft: true,
+      id,
+      overrideAccess: true,
+      req,
+    })
+
+    if (latestArticle._status === 'draft') {
+      previousDrafts.push(latestArticle)
+    }
+  }
+
+  await req.payload.update({
+    collection: 'news-articles',
+    data: {
+      featured: false,
+    },
+    draft: false,
+    overrideAccess: true,
+    req,
+    where,
+  })
+
+  for (const previousDraft of previousDrafts) {
+    await req.payload.update({
+      collection: 'news-articles',
+      data: newsArticleDraftData(previousDraft),
+      draft: true,
+      id: previousDraft.id,
+      overrideAccess: true,
       req,
     })
   }
@@ -176,7 +282,7 @@ export const NewsArticles: CollectionConfig = {
     },
   ],
   hooks: {
-    beforeChange: [validatePublishedHeroImage],
+    beforeChange: [validatePublishedHeroImage, clearPreviousPublishedFeature],
   },
   versions: {
     drafts: true,

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 
 import { AppLink } from "@/components/site/AppLink";
+import { usePublishedNewsHighlights } from "@/components/site/usePublishedNewsHighlights";
 import {
   ActionCard,
   ArticleCard,
@@ -29,10 +30,10 @@ import {
   articles,
   chapters,
   impactStats,
-  newsItems,
   programs,
   researchPapers,
 } from "@/lib/site-data";
+import { formatPublishedDate } from "@/lib/format-published-date";
 
 const whoWeAreDestinations = [
   {
@@ -379,10 +380,9 @@ export function WhereWeWorkLandingPage() {
 }
 
 export function PublicationsLandingPage() {
-  const featuredNews = newsItems.find((item) => item.featured) ?? newsItems[0];
-  const latestNews = newsItems
-    .filter((item) => item.id !== featuredNews.id)
-    .slice(0, 3);
+  const { retry, state: news } = usePublishedNewsHighlights({
+    nonFeaturedLimit: 3,
+  });
   const latestArticle = articles[0];
   const latestResearch = researchPapers[0];
 
@@ -426,45 +426,67 @@ export function PublicationsLandingPage() {
             </AppLink>
           }
         />
-        <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-          <ArticleCard
-            href={`/news/${featuredNews.id}`}
-            eyebrow={`${featuredNews.category} - ${featuredNews.date}`}
-            title={featuredNews.title}
-            description={featuredNews.excerpt}
-            className="p-8"
-          >
-            <span className="mt-6 inline-flex items-center gap-2 font-display text-xs font-bold uppercase text-atf-ink group-hover:text-primary">
-              Read the story
-              <ArrowRight
-                className="size-4 transition-transform group-hover:translate-x-1"
-                aria-hidden="true"
-              />
-            </span>
-          </ArticleCard>
-
-          <SurfaceCard hover={false}>
+        {news.status === "loading" ? (
+          <p className="py-10 text-sm text-atf-gray-500" role="status">
+            Loading news...
+          </p>
+        ) : null}
+        {news.status === "failed" ? (
+          <div className="border border-atf-gray-200 bg-white p-6">
             <h2 className="font-display text-xl font-black uppercase text-atf-black">
-              Recent updates
+              News temporarily unavailable
             </h2>
-            <div className="mt-5 divide-y divide-atf-gray-200">
-              {latestNews.map((item) => (
-                <AppLink
-                  key={item.id}
-                  href={`/news/${item.id}`}
-                  className="group block py-4 first:pt-0"
-                >
-                  <p className="font-display text-xs font-bold uppercase text-primary">
-                    {item.category} - {item.date}
-                  </p>
-                  <h3 className="mt-2 font-display text-base font-bold leading-snug text-atf-ink group-hover:text-primary">
-                    {item.title}
-                  </h3>
-                </AppLink>
-              ))}
-            </div>
-          </SurfaceCard>
-        </div>
+            <button className="atf-link mt-4" onClick={retry} type="button">
+              Retry
+            </button>
+          </div>
+        ) : null}
+        {news.status === "ready" && news.featured === null ? (
+          <p className="py-8 text-sm text-atf-gray-500">
+            No news published yet.
+          </p>
+        ) : null}
+        {news.status === "ready" && news.featured ? (
+          <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+            <ArticleCard
+              href={`/news/${news.featured.slug}`}
+              eyebrow={`${news.featured.category} - ${formatPublishedDate(news.featured.publishedAt)}`}
+              title={news.featured.title}
+              description={news.featured.excerpt}
+              className="p-8"
+            >
+              <span className="mt-6 inline-flex items-center gap-2 font-display text-xs font-bold uppercase text-atf-ink group-hover:text-primary">
+                Read the story
+                <ArrowRight
+                  className="size-4 transition-transform group-hover:translate-x-1"
+                  aria-hidden="true"
+                />
+              </span>
+            </ArticleCard>
+
+            <SurfaceCard hover={false}>
+              <h2 className="font-display text-xl font-black uppercase text-atf-black">
+                Recent updates
+              </h2>
+              <div className="mt-5 divide-y divide-atf-gray-200">
+                {news.recent.map((item) => (
+                  <AppLink
+                    key={item.id}
+                    href={`/news/${item.slug}`}
+                    className="group block py-4 first:pt-0"
+                  >
+                    <p className="font-display text-xs font-bold uppercase text-primary">
+                      {item.category} - {formatPublishedDate(item.publishedAt)}
+                    </p>
+                    <h3 className="mt-2 font-display text-base font-bold leading-snug text-atf-ink group-hover:text-primary">
+                      {item.title}
+                    </h3>
+                  </AppLink>
+                ))}
+              </div>
+            </SurfaceCard>
+          </div>
+        ) : null}
       </ContentBand>
 
       <ContentBand>

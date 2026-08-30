@@ -1,7 +1,11 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext } from "react";
 import { ArrowRight, Briefcase, Globe2, Network, Trophy } from "lucide-react";
 
 import { AppLink } from "@/components/site/AppLink";
+import {
+  NewsArticleImage,
+  NewsArticleImagePlaceholder,
+} from "@/components/site/NewsArticleImage";
 import { NewsletterSection } from "@/components/site/NewsletterSection";
 import {
   OpportunityButton,
@@ -10,13 +14,14 @@ import {
 import {
   ContentBand,
   Eyebrow,
-  FilterChip,
   SectionHeader,
   SurfaceCard,
   TriangleBullet,
 } from "@/components/site/Page";
+import { usePublishedNewsHighlights } from "@/components/site/usePublishedNewsHighlights";
+import { formatPublishedDate } from "@/lib/format-published-date";
 import { homepageHashForHiddenPath } from "@/lib/homepage-only";
-import { chapters, impactStats, newsItems, programs } from "@/lib/site-data";
+import { chapters, impactStats, programs } from "@/lib/site-data";
 import { cn } from "@/lib/utils";
 
 const programIcons = {
@@ -24,15 +29,6 @@ const programIcons = {
   challenge: Trophy,
   chapters: Network,
 } as const;
-
-const newsCategories = [
-  "All",
-  "Press",
-  "Programs",
-  "Research",
-  "Partnerships",
-  "Chapters",
-];
 
 const homepageAnchorStyle = {
   scrollMarginTop: "var(--atf-header-height, 76px)",
@@ -96,19 +92,6 @@ export function HomePage({
 }: {
   homepageOnlyMode?: boolean;
 }) {
-  const [activeCategory, setActiveCategory] = useState("All");
-
-  const featuredNews = newsItems.find((item) => item.featured) ?? newsItems[0];
-  const filteredNews = useMemo(
-    () =>
-      newsItems.filter(
-        (item) =>
-          !item.featured &&
-          (activeCategory === "All" || item.category === activeCategory),
-      ),
-    [activeCategory],
-  );
-
   return (
     <HomepageOnlyModeContext.Provider value={homepageOnlyMode}>
       <HeroSection />
@@ -119,12 +102,7 @@ export function HomePage({
       <FunderSection />
       <ChaptersSection />
       <StudentSection />
-      <NewsSection
-        activeCategory={activeCategory}
-        featuredNews={featuredNews}
-        filteredNews={filteredNews}
-        onCategoryChange={setActiveCategory}
-      />
+      <NewsSection />
       <NewsletterSection />
       <PartnersSection />
     </HomepageOnlyModeContext.Provider>
@@ -601,18 +579,12 @@ function StudentSection() {
   );
 }
 
-function NewsSection({
-  activeCategory,
-  featuredNews,
-  filteredNews,
-  onCategoryChange,
-}: {
-  activeCategory: string;
-  featuredNews: (typeof newsItems)[number];
-  filteredNews: readonly (typeof newsItems)[number][];
-  onCategoryChange: (category: string) => void;
-}) {
+function NewsSection() {
   const homepageOnlyMode = useContext(HomepageOnlyModeContext);
+  const { retry, state } = usePublishedNewsHighlights({
+    enabled: !homepageOnlyMode,
+    nonFeaturedLimit: 5,
+  });
 
   return (
     <ContentBand
@@ -635,69 +607,81 @@ function NewsSection({
           </HomepageLink>
         }
       />
-      <div className="grid gap-12 lg:grid-cols-[1.25fr_1fr]">
-        <HomepageLink href={`/news/${featuredNews.id}`} className="group block">
-          <div className="relative aspect-[16/10] overflow-hidden bg-atf-gray-100">
-            <img
-              src="/atf-assets/atf-award-ceremony-2024.jpg"
-              alt="ATF award ceremony audience and presenters"
-              className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-            />
-            <span className="absolute left-0 top-0 bg-primary px-3 py-2 font-display text-xs font-bold uppercase text-white">
-              Featured
-            </span>
-          </div>
-          <p className="mt-7 font-display text-xs font-bold uppercase text-primary">
-            {featuredNews.category} - {featuredNews.date}
-          </p>
-          <h3 className="mt-3 font-display text-2xl font-black uppercase leading-tight text-atf-black group-hover:text-primary md:text-3xl">
-            {featuredNews.title}
+      {state.status === "loading" ? (
+        <p className="py-10 text-sm text-atf-gray-500" role="status">
+          Loading news...
+        </p>
+      ) : null}
+      {state.status === "failed" ? (
+        <div className="border border-atf-gray-200 bg-atf-gray-50 p-6">
+          <h3 className="font-display text-xl font-black uppercase text-atf-black">
+            News temporarily unavailable
           </h3>
-          <p className="atf-body mt-4">{featuredNews.excerpt}</p>
-          <span className="mt-6 inline-flex items-center gap-2 font-display text-xs font-bold uppercase text-atf-ink group-hover:text-primary">
-            Read the story
-            <ArrowRight
-              className="size-4 transition-transform group-hover:translate-x-1"
-              aria-hidden="true"
-            />
-          </span>
-        </HomepageLink>
+          <button className="atf-link mt-4" onClick={retry} type="button">
+            Retry
+          </button>
+        </div>
+      ) : null}
+      {state.status === "ready" && state.featured === null ? (
+        <p className="py-8 text-sm text-atf-gray-500">No news published yet.</p>
+      ) : null}
+      {state.status === "ready" && state.featured ? (
+        <div className="grid gap-12 lg:grid-cols-[1.25fr_1fr]">
+          <HomepageLink
+            href={`/news/${state.featured.slug}`}
+            className="group block"
+          >
+            <div className="relative">
+              {state.featured.heroImage ? (
+                <NewsArticleImage
+                  frameClassName="aspect-[16/10]"
+                  image={state.featured.heroImage}
+                  imageClassName="transition-transform duration-300 group-hover:scale-[1.02]"
+                />
+              ) : (
+                <NewsArticleImagePlaceholder frameClassName="aspect-[16/10]" />
+              )}
+              <span className="absolute left-0 top-0 bg-primary px-3 py-2 font-display text-xs font-bold uppercase text-white">
+                Featured
+              </span>
+            </div>
+            <p className="mt-7 font-display text-xs font-bold uppercase text-primary">
+              {state.featured.category} -{" "}
+              {formatPublishedDate(state.featured.publishedAt)}
+            </p>
+            <h3 className="mt-3 font-display text-2xl font-black uppercase leading-tight text-atf-black group-hover:text-primary md:text-3xl">
+              {state.featured.title}
+            </h3>
+            <p className="atf-body mt-4">{state.featured.excerpt}</p>
+            <span className="mt-6 inline-flex items-center gap-2 font-display text-xs font-bold uppercase text-atf-ink group-hover:text-primary">
+              Read the story
+              <ArrowRight
+                className="size-4 transition-transform group-hover:translate-x-1"
+                aria-hidden="true"
+              />
+            </span>
+          </HomepageLink>
 
-        <div>
-          <div className="mb-4 flex flex-wrap gap-2" aria-label="Filter news">
-            {newsCategories.map((category) => (
-              <FilterChip
-                key={category}
-                active={activeCategory === category}
-                onClick={() => onCategoryChange(category)}
-              >
-                {category}
-              </FilterChip>
-            ))}
-          </div>
-          <div className="border-t border-atf-gray-200">
-            {filteredNews.map((item) => (
-              <HomepageLink
-                href={`/news/${item.id}`}
-                key={item.id}
-                className="group block border-b border-atf-gray-200 py-5"
-              >
-                <p className="font-display text-xs font-bold uppercase text-primary">
-                  {item.category} - {item.date}
-                </p>
-                <h3 className="mt-2 font-display text-lg font-bold leading-snug text-atf-ink group-hover:text-primary">
-                  {item.title}
-                </h3>
-              </HomepageLink>
-            ))}
-            {filteredNews.length === 0 ? (
-              <p className="py-8 text-sm text-atf-gray-500">
-                No updates in this category yet.
-              </p>
-            ) : null}
+          <div>
+            <div className="border-t border-atf-gray-200">
+              {state.recent.map((item) => (
+                <HomepageLink
+                  href={`/news/${item.slug}`}
+                  key={item.id}
+                  className="group block border-b border-atf-gray-200 py-5"
+                >
+                  <p className="font-display text-xs font-bold uppercase text-primary">
+                    {item.category} - {formatPublishedDate(item.publishedAt)}
+                  </p>
+                  <h3 className="mt-2 font-display text-lg font-bold leading-snug text-atf-ink group-hover:text-primary">
+                    {item.title}
+                  </h3>
+                </HomepageLink>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      ) : null}
     </ContentBand>
   );
 }
