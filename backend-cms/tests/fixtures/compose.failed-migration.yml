@@ -1,0 +1,7 @@
+services:
+  payload:
+    volumes:
+      - type: bind
+        source: ./tests/fixtures/failing-migrations
+        target: /app/src/migrations
+        read_only: true

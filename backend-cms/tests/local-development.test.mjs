@@ -69,6 +69,125 @@ test('Backend CMS commands use the development Compose configuration by default'
   }
 })
 
+test('Backend CMS commands use the production environment file and Compose configuration', () => {
+  const expectedCalls = {
+    build: 'compose --env-file .env.prod -f compose.yml -f compose.prod.yml build',
+    down:
+      'compose --env-file .env.prod -f compose.yml -f compose.prod.yml down --remove-orphans',
+    logs:
+      'compose --env-file .env.prod -f compose.yml -f compose.prod.yml logs --follow',
+    start:
+      'compose --env-file .env.prod -f compose.yml -f compose.prod.yml up -d --remove-orphans',
+    stop: 'compose --env-file .env.prod -f compose.yml -f compose.prod.yml stop',
+  }
+
+  for (const [target, expectedCall] of Object.entries(expectedCalls)) {
+    const recorder = createDockerRecorder()
+
+    try {
+      const result = runMake(backendDirectory, target, recorder, { ENV: 'prod' })
+
+      assert.equal(result.status, 0, `make ${target} ENV=prod\n${result.stderr}`)
+      const actualCall = existsSync(recorder.log)
+        ? readFileSync(recorder.log, 'utf8').trim()
+        : ''
+      assert.equal(actualCall, expectedCall)
+    } finally {
+      recorder.cleanup()
+    }
+  }
+})
+
+test('production Compose exposes only Payload and uses no source mounts', () => {
+  const result = spawnSync(
+    'docker',
+    ['compose', '-f', 'compose.yml', '-f', 'compose.prod.yml', 'config', '--format', 'json'],
+    {
+      cwd: backendDirectory,
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        DATABASE_URI: 'postgresql://payload:test-password@postgres:5432/atf_cms',
+        PAYLOAD_ALLOWED_ORIGINS: 'https://cms.example.test,https://www.example.test',
+        PAYLOAD_BIND_ADDRESS: '127.0.0.1',
+        PAYLOAD_PORT: '3301',
+        PAYLOAD_PUBLIC_SERVER_URL: 'https://cms.example.test',
+        PAYLOAD_PUBLIC_SITE_ORIGIN: 'https://www.example.test',
+        PAYLOAD_SECRET: 'test-secret-with-at-least-thirty-two-characters',
+        POSTGRES_DB: 'atf_cms',
+        POSTGRES_PASSWORD: 'test-password',
+        POSTGRES_USER: 'payload',
+      },
+    },
+  )
+
+  assert.equal(result.status, 0, result.stderr)
+
+  const configuration = JSON.parse(result.stdout)
+  assert.equal(configuration.name, 'atf-backend-cms-prod')
+  assert.deepEqual(Object.keys(configuration.services).sort(), ['payload', 'postgres'])
+
+  const payload = configuration.services.payload
+  const postgres = configuration.services.postgres
+
+  assert.equal(postgres.ports, undefined)
+  assert.ok(
+    payload.ports.some(
+      (port) =>
+        port.host_ip === '127.0.0.1' &&
+        String(port.published) === '3301' &&
+        Number(port.target) === 3001,
+    ),
+  )
+  assert.equal(payload.build.target, 'production')
+  assert.equal(payload.restart, 'unless-stopped')
+  assert.ok(payload.healthcheck)
+  assert.equal(payload.environment.NODE_ENV, 'production')
+
+  const mediaVolume = payload.volumes.find((volume) => volume.target === '/app/media')
+  const databaseVolume = postgres.volumes.find(
+    (volume) => volume.target === '/var/lib/postgresql/data',
+  )
+
+  assert.equal(mediaVolume.type, 'volume')
+  assert.equal(databaseVolume.type, 'volume')
+  assert.notEqual(mediaVolume.source, databaseVolume.source)
+  assert.equal(payload.volumes.some((volume) => volume.type === 'bind'), false)
+})
+
+test('production secrets stay outside the Docker build context', () => {
+  const dockerIgnore = readFileSync(path.join(backendDirectory, '.dockerignore'), 'utf8')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+
+  assert.ok(dockerIgnore.includes('.env.prod'))
+})
+
+test('production Compose rejects a missing Payload secret', () => {
+  const result = spawnSync(
+    'docker',
+    ['compose', '-f', 'compose.yml', '-f', 'compose.prod.yml', 'config'],
+    {
+      cwd: backendDirectory,
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        DATABASE_URI: 'postgresql://payload:test-password@postgres:5432/atf_cms',
+        PAYLOAD_ALLOWED_ORIGINS: 'https://cms.example.test,https://www.example.test',
+        PAYLOAD_PUBLIC_SERVER_URL: 'https://cms.example.test',
+        PAYLOAD_PUBLIC_SITE_ORIGIN: 'https://www.example.test',
+        PAYLOAD_SECRET: '',
+        POSTGRES_DB: 'atf_cms',
+        POSTGRES_PASSWORD: 'test-password',
+        POSTGRES_USER: 'payload',
+      },
+    },
+  )
+
+  assert.notEqual(result.status, 0)
+  assert.match(result.stderr, /Set PAYLOAD_SECRET in \.env\.prod/)
+})
+
 test('development Compose exposes Payload on port 3001 and keeps PostgreSQL private', () => {
   const result = spawnSync(
     'docker',
@@ -193,6 +312,31 @@ test('destroy refuses to remove persistent volumes without explicit confirmation
     assert.equal(
       readFileSync(recorder.log, 'utf8').trim(),
       'compose -f compose.yml -f compose.dev.yml down --volumes --remove-orphans',
+    )
+  } finally {
+    recorder.cleanup()
+  }
+})
+
+test('production destroy requires confirmation and removes only production volumes', () => {
+  const recorder = createDockerRecorder()
+
+  try {
+    const refused = runMake(backendDirectory, 'destroy', recorder, { ENV: 'prod' })
+
+    assert.notEqual(refused.status, 0)
+    assert.match(refused.stdout, /Refusing to delete PostgreSQL and media volumes\./)
+    assert.equal(existsSync(recorder.log), false)
+
+    const confirmed = runMake(backendDirectory, 'destroy', recorder, {
+      CONFIRM: 'destroy',
+      ENV: 'prod',
+    })
+
+    assert.equal(confirmed.status, 0, confirmed.stderr)
+    assert.equal(
+      readFileSync(recorder.log, 'utf8').trim(),
+      'compose --env-file .env.prod -f compose.yml -f compose.prod.yml down --volumes --remove-orphans',
     )
   } finally {
     recorder.cleanup()

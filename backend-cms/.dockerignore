@@ -1,4 +1,5 @@
 .env
+.env.prod
 .git
 .next
 media

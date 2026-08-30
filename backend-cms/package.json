@@ -16,6 +16,7 @@
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start --hostname 0.0.0.0 --port 3001",
     "test": "node --import tsx --test tests/local-development.test.mjs tests/news-import-data.test.ts",
     "test:integration": "node --import tsx --test --test-force-exit tests/news-articles.integration.test.ts",
+    "test:production-smoke": "node --test tests/production-smoke.test.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -14,3 +14,16 @@ COPY . .
 EXPOSE 3001
 
 CMD ["npm", "run", "dev"]
+
+FROM dependencies AS production
+
+COPY . .
+
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+
+RUN npm run build
+
+EXPOSE 3001
+
+CMD ["sh", "./docker-entrypoint.sh"]

@@ -1,4 +1,5 @@
 .env
+.env.prod
 .next/
 media/
 next-env.d.ts

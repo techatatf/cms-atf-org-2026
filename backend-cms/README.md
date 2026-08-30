@@ -48,6 +48,89 @@ To delete the local database and media data, confirm the destructive command:
 make destroy CONFIRM=destroy
 ```
 
+## Run in production
+
+The production Compose application builds Payload from the checked-out release.
+It runs Payload and PostgreSQL as the `atf-backend-cms-prod` project. The project
+name keeps its volumes separate from local development.
+
+Run these commands from the repository root:
+
+1. Create the production environment file:
+
+   ```bash
+   cp backend-cms/.env.prod.example backend-cms/.env.prod
+   chmod 600 backend-cms/.env.prod
+   ```
+
+2. Replace every example value in `.env.prod`. Keep `DATABASE_URI` aligned with
+   `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD`. URL-encode reserved
+   characters in the database password inside `DATABASE_URI`.
+
+3. Build and start the production application:
+
+   ```bash
+   make -C backend-cms build ENV=prod
+   make -C backend-cms start ENV=prod
+   make -C backend-cms logs ENV=prod
+   ```
+
+The default host binding is `127.0.0.1:3001`. Point the host reverse proxy at
+that address. The reverse proxy stays outside this Compose application.
+PostgreSQL has no host port.
+
+The Payload container runs every outstanding migration before it starts the
+Next server. The health check calls `/api/health`, which queries PostgreSQL. If
+a migration fails, the restart policy retries the container. Payload does not
+bind port `3001` or become healthy until all migrations succeed. Inspect the
+error with `make -C backend-cms logs ENV=prod`.
+
+To load production settings from another file, set `ENV_FILE` on every Make
+command:
+
+```bash
+make -C backend-cms start ENV=prod ENV_FILE=/secure/path/backend-cms.env
+```
+
+Stop or remove the production containers without deleting their PostgreSQL and
+media volumes:
+
+```bash
+make -C backend-cms stop ENV=prod
+make -C backend-cms down ENV=prod
+```
+
+To delete both production volumes, confirm the destructive command:
+
+```bash
+make -C backend-cms destroy ENV=prod CONFIRM=destroy
+```
+
+### Create a schema migration
+
+After you change the Payload schema, create a migration from `backend-cms/`:
+
+```bash
+npm run payload -- migrate:create describe_the_schema_change
+```
+
+Review and commit the generated TypeScript migration, its JSON snapshot, and
+`src/migrations/index.ts`. Build a new production image from that commit.
+
+### Run the production smoke checks
+
+Run the smoke checks on a Docker host:
+
+```bash
+npm --prefix backend-cms run test:production-smoke
+```
+
+The checks build the production image and start temporary Compose projects.
+One check verifies a successful migration and database-aware health response.
+The other injects an intentional migration failure and verifies that Payload
+stays unready and refuses requests. The checks remove their temporary
+containers, volumes, and images when they finish.
+
 ## Load News Articles
 
 ### Load the Local News Seed

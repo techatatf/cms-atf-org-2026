@@ -49,6 +49,30 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URI || '',
     },
   }),
+  endpoints: [
+    {
+      handler: async (req) => {
+        try {
+          await req.payload.count({
+            collection: 'news-articles',
+            overrideAccess: true,
+            req,
+          })
+
+          return Response.json({ status: 'ok' })
+        } catch (error) {
+          req.payload.logger.error({
+            err: error,
+            msg: 'Backend CMS health check could not reach PostgreSQL.',
+          })
+
+          return Response.json({ status: 'error' }, { status: 503 })
+        }
+      },
+      method: 'get',
+      path: '/health',
+    },
+  ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   serverURL: publicServerURL,

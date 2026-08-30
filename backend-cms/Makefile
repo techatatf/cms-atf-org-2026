@@ -3,7 +3,14 @@ SHELL := /bin/sh
 ENV ?= dev
 SUPPORTED_ENVS := dev prod
 COMPOSE_FILES := -f compose.yml -f compose.$(ENV).yml
-COMPOSE := docker compose $(COMPOSE_FILES)
+COMPOSE_ENV_ARGS :=
+
+ifeq ($(ENV),prod)
+ENV_FILE ?= .env.prod
+COMPOSE_ENV_ARGS := --env-file $(ENV_FILE)
+endif
+
+COMPOSE := docker compose $(COMPOSE_ENV_ARGS) $(COMPOSE_FILES)
 
 ifeq ($(filter $(ENV),$(SUPPORTED_ENVS)),)
 $(error ENV must be one of: $(SUPPORTED_ENVS))
@@ -24,6 +31,7 @@ help:
 	@echo "  destroy  Remove containers, networks, and persistent volumes"
 	@echo
 	@echo "The default environment is dev."
+	@echo "Production reads runtime settings from .env.prod by default."
 	@echo "Run destroy with CONFIRM=destroy. This deletes database and media data."
 
 check-compose-files:
