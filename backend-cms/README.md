@@ -48,6 +48,77 @@ To delete the local database and media data, confirm the destructive command:
 make destroy CONFIRM=destroy
 ```
 
+## Load News Articles
+
+### Load the Local News Seed
+
+Start the development application before you load the six repository fixtures.
+Run this command from `backend-cms/`:
+
+```bash
+docker compose -f compose.yml -f compose.dev.yml exec payload npm run seed:news
+```
+
+The command publishes the fixtures for local public-site testing. A repeat run
+skips matching News Articles. To replace their imported content, pass the
+explicit overwrite flag:
+
+```bash
+docker compose -f compose.yml -f compose.dev.yml exec payload npm run seed:news -- --overwrite
+```
+
+`seed:news` refuses to run when `NODE_ENV` is `production`. Payload does not run
+the Local News Seed during startup or migrations.
+
+### Import an Approved News Dataset
+
+Make the approved JSON file available inside the Payload runtime. Run the
+import command in that runtime and supply the file path:
+
+```bash
+npm run import:news -- --file /path/to/approved-news.json
+```
+
+The file must contain a JSON array. Each record uses this shape:
+
+```json
+[
+  {
+    "legacyId": "existing-public-news-identifier",
+    "title": "Imported News Article",
+    "excerpt": "A short introduction for public news lists.",
+    "body": [
+      "The first article paragraph.",
+      "The second article paragraph."
+    ],
+    "publishedAt": "2026-08-30T12:00:00.000Z",
+    "category": "Press",
+    "featured": false,
+    "status": "published"
+  }
+]
+```
+
+`category` accepts `Press`, `Programs`, `Research`, `Partnerships`, or
+`Chapters`. `status` is required and accepts `draft` or `published`. The
+importer rejects a record with a missing or invalid field and continues with
+the remaining records.
+
+The importer uses `legacyId` as the initial Public News Slug. On later runs, it
+matches that value against current and Previous News Slugs. The default import
+skips a matching News Article. To update its imported fields and requested
+status, select overwrite behavior:
+
+```bash
+npm run import:news -- --file /path/to/approved-news.json --overwrite
+```
+
+Overwrite keeps the Payload document ID, current Public News Slug, Previous
+News Slugs, and First Publication. Every run lists each created, skipped,
+updated, and rejected record, then prints totals for all four outcomes. The
+command exits with a nonzero status when it rejects a record or cannot read the
+dataset.
+
 ## Run Payload directly with npm
 
 Use Node.js 20.9 or newer and an external PostgreSQL database for direct

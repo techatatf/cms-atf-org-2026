@@ -199,6 +199,37 @@ test('destroy refuses to remove persistent volumes without explicit confirmation
   }
 })
 
+test('Local News Seed refuses to run in production', () => {
+  const result = spawnSync('npm', ['run', 'seed:news'], {
+    cwd: backendDirectory,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      NODE_ENV: 'production',
+    },
+  })
+
+  assert.notEqual(result.status, 0)
+  assert.match(
+    `${result.stdout}\n${result.stderr}`,
+    /Local News Seed refuses to run when NODE_ENV is production\./,
+  )
+})
+
+test('Approved News Dataset import requires an explicit file', () => {
+  const result = spawnSync('npm', ['run', 'import:news'], {
+    cwd: backendDirectory,
+    encoding: 'utf8',
+    env: process.env,
+  })
+
+  assert.notEqual(result.status, 0)
+  assert.match(
+    `${result.stdout}\n${result.stderr}`,
+    /Approved News Dataset import requires --file <path>\./,
+  )
+})
+
 async function loadPayloadJWTExtractor() {
   const moduleURL = pathToFileURL(
     path.join(backendDirectory, 'node_modules/payload/dist/auth/extractJWT.js'),

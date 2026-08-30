@@ -9,11 +9,13 @@
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev --hostname 0.0.0.0 --port 3001",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
+    "import:news": "cross-env NODE_OPTIONS=--no-deprecation node --import tsx src/scripts/import-news.ts",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "postinstall": "patch-package",
+    "seed:news": "cross-env NODE_OPTIONS=--no-deprecation node --import tsx src/scripts/seed-news.ts",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start --hostname 0.0.0.0 --port 3001",
-    "test": "node tests/local-development.test.mjs",
-    "test:integration": "tsx --test --test-force-exit tests/news-articles.integration.test.ts",
+    "test": "node --import tsx --test tests/local-development.test.mjs tests/news-import-data.test.ts",
+    "test:integration": "node --import tsx --test --test-force-exit tests/news-articles.integration.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

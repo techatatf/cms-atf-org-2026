@@ -61,6 +61,17 @@ A retired Public News Slug retained after an Admin changes a published slug. It
 continues to resolve to the News Article's current URL.
 _Avoid_: deleted slug, reusable slug
 
+**Local News Seed**:
+The six repository-owned News Articles used to populate a local Backend CMS.
+They are development content and are never an approved source for production.
+_Avoid_: production fixtures, approved content
+
+**Approved News Dataset**:
+An operator-supplied set of News Articles reviewed for a production import. It
+is separate from the Local News Seed and states each record's publication
+status.
+_Avoid_: repository fixtures, Local News Seed
+
 **SEO-CMS**:
 The target CMS delivery phase. Indexable public routes include published
 content and metadata in their initial HTML while editors retain private preview.

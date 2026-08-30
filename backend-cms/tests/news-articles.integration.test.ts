@@ -1,11 +1,20 @@
 import assert from 'node:assert/strict'
+import { spawnSync, type SpawnSyncReturns } from 'node:child_process'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
 import { after, before, test } from 'node:test'
+import { fileURLToPath } from 'node:url'
 
 import { REST_DELETE, REST_GET, REST_PATCH, REST_POST } from '@payloadcms/next/routes'
 import { getPayload, type Payload } from 'payload'
 
 import type { NewsArticle } from '../src/payload-types'
 import config from '../src/payload.config'
+import {
+  importNewsArticles,
+  type NewsImportRecord,
+} from '../src/news-import/importNewsArticles'
 
 const get = REST_GET(config)
 const patch = REST_PATCH(config)
@@ -15,6 +24,10 @@ const createdDocumentIDs: Array<number | string> = []
 const createdMediaIDs: Array<number | string> = []
 const createdUserIDs: Array<number | string> = []
 let payload: Payload
+const backendDirectory = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '..',
+)
 
 const publishedBody: NewsArticle['body'] = {
   root: {
@@ -1532,4 +1545,394 @@ test('an Editor uploads and updates Media while only an Admin deletes it', async
   assert.equal(adminCleanupResponse.status, 200)
   const adminMediaIndex = createdMediaIDs.indexOf(adminUploadResult.doc.id)
   createdMediaIDs.splice(adminMediaIndex, 1)
+})
+
+test('a repeated News Article import skips its known record without creating a duplicate', async () => {
+  const legacyIdentifier = `repeatable-news-import-${crypto.randomUUID()}`
+  const approvedDataset = [
+    {
+      body: ['The first imported paragraph.', 'The second imported paragraph.'],
+      category: 'Press' as const,
+      excerpt: 'A repeatable import test record.',
+      featured: false,
+      legacyId: legacyIdentifier,
+      publishedAt: '2026-08-30T16:00:00.000Z',
+      status: 'published' as const,
+      title: 'Repeatable News Import',
+    },
+  ]
+
+  const firstImport = await importNewsArticles({
+    overwrite: false,
+    payload,
+    records: approvedDataset,
+  })
+  const secondImport = await importNewsArticles({
+    overwrite: false,
+    payload,
+    records: approvedDataset,
+  })
+  const storedArticles = await payload.find({
+    collection: 'news-articles',
+    depth: 0,
+    draft: true,
+    limit: 10,
+    overrideAccess: true,
+    pagination: false,
+    where: {
+      slug: {
+        equals: legacyIdentifier,
+      },
+    },
+  })
+
+  assert.equal(firstImport.created.length, 1)
+  assert.equal(firstImport.skipped.length, 0)
+  assert.equal(secondImport.created.length, 0)
+  assert.equal(secondImport.skipped.length, 1)
+  assert.equal(storedArticles.docs.length, 1)
+  assert.equal(storedArticles.docs[0]._status, 'published')
+  assert.equal(storedArticles.docs[0].slug, legacyIdentifier)
+  createdDocumentIDs.push(storedArticles.docs[0].id)
+})
+
+test('a News Article import rejects one bad record and continues with valid records', async () => {
+  const suffix = crypto.randomUUID()
+  const rejectedIdentifier = `rejected-news-import-${suffix}`
+  const validIdentifier = `valid-news-import-${suffix}`
+  const commonRecord = {
+    body: ['An imported article body.'],
+    excerpt: 'An imported article excerpt.',
+    featured: false,
+    publishedAt: '2026-08-30T16:30:00.000Z',
+    title: 'Approved News Dataset Record',
+  }
+  const records = [
+    {
+      ...commonRecord,
+      category: 'Programs',
+      legacyId: rejectedIdentifier,
+    },
+    {
+      ...commonRecord,
+      category: 'Programs',
+      legacyId: validIdentifier,
+      status: 'draft' as const,
+    },
+  ] as unknown as NewsImportRecord[]
+
+  const result = await importNewsArticles({
+    overwrite: false,
+    payload,
+    records,
+  })
+
+  for (const created of result.created) {
+    createdDocumentIDs.push(created.documentId)
+  }
+
+  assert.equal(result.created.length, 1)
+  assert.equal(result.created[0].legacyId, validIdentifier)
+  assert.equal(result.rejected.length, 1)
+  assert.equal(result.rejected[0].legacyId, rejectedIdentifier)
+  assert.match(result.rejected[0].reason, /status/i)
+})
+
+test('explicit overwrite follows a Previous News Slug without replacing News Article history', async () => {
+  const suffix = crypto.randomUUID()
+  const legacyIdentifier = `overwrite-news-import-${suffix}`
+  const currentSlug = `current-news-import-${suffix}`
+  const originalRecord = {
+    body: ['The original imported body.'],
+    category: 'Partnerships' as const,
+    excerpt: 'The original imported excerpt.',
+    featured: false,
+    legacyId: legacyIdentifier,
+    publishedAt: '2026-08-30T17:00:00.000Z',
+    status: 'published' as const,
+    title: 'Original Approved News Import',
+  }
+  const firstImport = await importNewsArticles({
+    overwrite: false,
+    payload,
+    records: [originalRecord],
+  })
+  const documentId = firstImport.created[0].documentId
+  createdDocumentIDs.push(documentId)
+  const firstPublishedArticle = await payload.findByID({
+    collection: 'news-articles',
+    depth: 0,
+    draft: true,
+    id: documentId,
+    overrideAccess: true,
+  })
+  const firstPublishedAt = firstPublishedArticle.firstPublishedAt
+  const admin = await createAuthenticatedUser('admin')
+  const slugChangeResponse = await apiRequest({
+    body: {
+      generateSlug: false,
+      slug: currentSlug,
+    },
+    method: 'PATCH',
+    path: `news-articles/${documentId}?draft=false`,
+    token: admin.token,
+  })
+
+  assert.equal(slugChangeResponse.status, 200)
+
+  const overwrite = await importNewsArticles({
+    overwrite: true,
+    payload,
+    records: [
+      {
+        ...originalRecord,
+        body: ['The approved replacement body.'],
+        excerpt: 'The approved replacement excerpt.',
+        status: 'draft',
+        title: 'Updated Approved News Import',
+      },
+    ],
+  })
+  const updatedArticle = await payload.findByID({
+    collection: 'news-articles',
+    depth: 0,
+    draft: true,
+    id: documentId,
+    overrideAccess: true,
+  })
+  const visitorResponse = await visitorRequest(
+    `news-articles?where[slug][equals]=${currentSlug}&limit=1`,
+  )
+  const visitorResult = await visitorResponse.json()
+
+  assert.equal(overwrite.updated.length, 1)
+  assert.equal(overwrite.updated[0].documentId, documentId)
+  assert.equal(updatedArticle.id, documentId)
+  assert.equal(updatedArticle.slug, currentSlug)
+  assert.deepEqual(
+    updatedArticle.previousSlugs?.map(({ slug }) => slug),
+    [legacyIdentifier],
+  )
+  assert.equal(updatedArticle.firstPublishedAt, firstPublishedAt)
+  assert.equal(updatedArticle._status, 'draft')
+  assert.equal(updatedArticle.title, 'Updated Approved News Import')
+  assert.equal(visitorResult.totalDocs, 0)
+})
+
+test('the Approved News Dataset command imports an explicit file and reports every outcome count', async () => {
+  const directory = mkdtempSync(path.join(tmpdir(), 'atf-approved-news-'))
+  const datasetPath = path.join(directory, 'approved-news.json')
+  const legacyIdentifier = `approved-news-command-${crypto.randomUUID()}`
+  const rejectedIdentifier = `rejected-news-command-${crypto.randomUUID()}`
+  const writeDataset = (title: string) =>
+    writeFileSync(
+      datasetPath,
+      JSON.stringify([
+        {
+          body: ['The command imported this approved article body.'],
+          category: 'Research',
+          excerpt: 'The command imported this approved excerpt.',
+          featured: false,
+          legacyId: legacyIdentifier,
+          publishedAt: '2026-08-30T17:30:00.000Z',
+          status: 'published',
+          title,
+        },
+      ]),
+    )
+
+  try {
+    writeDataset('Approved News Dataset Command')
+
+    const command = spawnSync(
+      'npm',
+      ['run', 'import:news', '--', '--file', datasetPath],
+      {
+        cwd: backendDirectory,
+        encoding: 'utf8',
+        env: process.env,
+      },
+    )
+    writeDataset('Approved News Dataset Command Updated')
+    const skippedCommand = spawnSync(
+      'npm',
+      ['run', 'import:news', '--', '--file', datasetPath],
+      {
+        cwd: backendDirectory,
+        encoding: 'utf8',
+        env: process.env,
+      },
+    )
+    const skippedArticles = await payload.find({
+      collection: 'news-articles',
+      depth: 0,
+      draft: true,
+      limit: 10,
+      overrideAccess: true,
+      pagination: false,
+      where: {
+        slug: {
+          equals: legacyIdentifier,
+        },
+      },
+    })
+    const overwriteCommand = spawnSync(
+      'npm',
+      ['run', 'import:news', '--', '--file', datasetPath, '--overwrite'],
+      {
+        cwd: backendDirectory,
+        encoding: 'utf8',
+        env: process.env,
+      },
+    )
+    const overwrittenArticles = await payload.find({
+      collection: 'news-articles',
+      depth: 0,
+      draft: true,
+      limit: 10,
+      overrideAccess: true,
+      pagination: false,
+      where: {
+        slug: {
+          equals: legacyIdentifier,
+        },
+      },
+    })
+    writeFileSync(
+      datasetPath,
+      JSON.stringify([
+        {
+          body: ['This record omits an explicit publication status.'],
+          category: 'Research',
+          excerpt: 'This record must be rejected.',
+          featured: false,
+          legacyId: rejectedIdentifier,
+          publishedAt: '2026-08-30T17:45:00.000Z',
+          title: 'Rejected Approved News Dataset Command',
+        },
+      ]),
+    )
+    const rejectedCommand = spawnSync(
+      'npm',
+      ['run', 'import:news', '--', '--file', datasetPath],
+      {
+        cwd: backendDirectory,
+        encoding: 'utf8',
+        env: process.env,
+      },
+    )
+
+    for (const article of overwrittenArticles.docs) {
+      createdDocumentIDs.push(article.id)
+    }
+
+    assert.equal(command.status, 0, command.stderr)
+    assert.match(command.stdout, /Created: 1/)
+    assert.match(command.stdout, /Skipped: 0/)
+    assert.match(command.stdout, /Updated: 0/)
+    assert.match(command.stdout, /Rejected: 0/)
+    assert.equal(skippedCommand.status, 0, skippedCommand.stderr)
+    assert.match(skippedCommand.stdout, /Skipped: 1/)
+    assert.equal(
+      skippedArticles.docs[0].title,
+      'Approved News Dataset Command',
+    )
+    assert.equal(overwriteCommand.status, 0, overwriteCommand.stderr)
+    assert.match(overwriteCommand.stdout, /Updated: 1/)
+    assert.equal(overwrittenArticles.docs.length, 1)
+    assert.equal(overwrittenArticles.docs[0]._status, 'published')
+    assert.equal(overwrittenArticles.docs[0].slug, legacyIdentifier)
+    assert.equal(
+      overwrittenArticles.docs[0].title,
+      'Approved News Dataset Command Updated',
+    )
+    assert.notEqual(rejectedCommand.status, 0)
+    assert.match(rejectedCommand.stdout, /Rejected: 1/)
+    assert.match(
+      rejectedCommand.stdout,
+      new RegExp(`rejected ${rejectedIdentifier}: .*status`),
+    )
+  } finally {
+    rmSync(directory, { force: true, recursive: true })
+  }
+})
+
+test('the Local News Seed command publishes six fixtures and skips them on repeat', async () => {
+  const fixtureSlugs = [
+    'inside-atf-challenge-2026',
+    'lagos-hardware-lab',
+    'digital-skills-roi-report',
+    'undp-partnership-renewal',
+    'nairobi-largest-chapter',
+    'au-digital-advisory-council',
+  ]
+  const findFixtures = () =>
+    payload.find({
+      collection: 'news-articles',
+      depth: 0,
+      draft: true,
+      limit: 10,
+      overrideAccess: true,
+      pagination: false,
+      where: {
+        slug: {
+          in: fixtureSlugs,
+        },
+      },
+    })
+  const before = await findFixtures()
+  const preexistingDocumentIDs = new Set(before.docs.map(({ id }) => id))
+  let firstCommand: SpawnSyncReturns<string> | undefined
+  let secondCommand: SpawnSyncReturns<string> | undefined
+  let storedFixtures: Awaited<ReturnType<typeof findFixtures>> | undefined
+
+  try {
+    firstCommand = spawnSync('npm', ['run', 'seed:news'], {
+      cwd: backendDirectory,
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        NODE_ENV: 'development',
+      },
+    })
+    secondCommand = spawnSync('npm', ['run', 'seed:news'], {
+      cwd: backendDirectory,
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        NODE_ENV: 'development',
+      },
+    })
+    storedFixtures = await findFixtures()
+  } finally {
+    const after = storedFixtures ?? (await findFixtures())
+
+    for (const article of after.docs) {
+      if (!preexistingDocumentIDs.has(article.id)) {
+        createdDocumentIDs.push(article.id)
+      }
+    }
+  }
+
+  assert.ok(firstCommand)
+  assert.ok(secondCommand)
+  assert.ok(storedFixtures)
+  assert.equal(firstCommand.status, 0, firstCommand.stderr)
+  assert.equal(secondCommand.status, 0, secondCommand.stderr)
+  const firstCreated = Number(
+    /^Created: (\d+)$/m.exec(firstCommand.stdout)?.[1],
+  )
+  const firstSkipped = Number(
+    /^Skipped: (\d+)$/m.exec(firstCommand.stdout)?.[1],
+  )
+
+  assert.equal(firstCreated + firstSkipped, 6)
+  assert.match(firstCommand.stdout, /Rejected: 0/)
+  assert.match(secondCommand.stdout, /Created: 0/)
+  assert.match(secondCommand.stdout, /Skipped: 6/)
+  assert.equal(storedFixtures.docs.length, 6)
+  assert.equal(
+    storedFixtures.docs.every(({ _status }) => _status === 'published'),
+    true,
+  )
 })
