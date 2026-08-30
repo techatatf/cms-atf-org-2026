@@ -14,7 +14,6 @@ import { spawnSync } from 'node:child_process'
 import test from 'node:test'
 
 const backendDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const repositoryRoot = path.resolve(backendDirectory, '..')
 
 function createDockerRecorder() {
   const directory = mkdtempSync(path.join(tmpdir(), 'atf-cms-docker-'))
@@ -44,7 +43,7 @@ function runMake(cwd, target, recorder, extraEnvironment = {}) {
   })
 }
 
-test('root and Backend CMS commands use the development Compose configuration by default', () => {
+test('Backend CMS commands use the development Compose configuration by default', () => {
   const expectedCalls = {
     build: 'compose -f compose.yml -f compose.dev.yml build',
     down: 'compose -f compose.yml -f compose.dev.yml down --remove-orphans',
@@ -53,21 +52,19 @@ test('root and Backend CMS commands use the development Compose configuration by
     stop: 'compose -f compose.yml -f compose.dev.yml stop',
   }
 
-  for (const cwd of [repositoryRoot, backendDirectory]) {
-    for (const [target, expectedCall] of Object.entries(expectedCalls)) {
-      const recorder = createDockerRecorder()
+  for (const [target, expectedCall] of Object.entries(expectedCalls)) {
+    const recorder = createDockerRecorder()
 
-      try {
-        const result = runMake(cwd, target, recorder)
+    try {
+      const result = runMake(backendDirectory, target, recorder)
 
-        assert.equal(result.status, 0, `${cwd}: make ${target}\n${result.stderr}`)
-        const actualCall = existsSync(recorder.log)
-          ? readFileSync(recorder.log, 'utf8').trim()
-          : ''
-        assert.equal(actualCall, expectedCall)
-      } finally {
-        recorder.cleanup()
-      }
+      assert.equal(result.status, 0, `make ${target}\n${result.stderr}`)
+      const actualCall = existsSync(recorder.log)
+        ? readFileSync(recorder.log, 'utf8').trim()
+        : ''
+      assert.equal(actualCall, expectedCall)
+    } finally {
+      recorder.cleanup()
     }
   }
 })
@@ -179,26 +176,26 @@ test('development Compose keeps deployed Backend CMS and public-site origins sep
 })
 
 test('destroy refuses to remove persistent volumes without explicit confirmation', () => {
-  for (const cwd of [repositoryRoot, backendDirectory]) {
-    const recorder = createDockerRecorder()
+  const recorder = createDockerRecorder()
 
-    try {
-      const refused = runMake(cwd, 'destroy', recorder)
+  try {
+    const refused = runMake(backendDirectory, 'destroy', recorder)
 
-      assert.notEqual(refused.status, 0)
-      assert.match(refused.stdout, /Refusing to delete PostgreSQL and media volumes\./)
-      assert.equal(existsSync(recorder.log), false)
+    assert.notEqual(refused.status, 0)
+    assert.match(refused.stdout, /Refusing to delete PostgreSQL and media volumes\./)
+    assert.equal(existsSync(recorder.log), false)
 
-      const confirmed = runMake(cwd, 'destroy', recorder, { CONFIRM: 'destroy' })
+    const confirmed = runMake(backendDirectory, 'destroy', recorder, {
+      CONFIRM: 'destroy',
+    })
 
-      assert.equal(confirmed.status, 0, confirmed.stderr)
-      assert.equal(
-        readFileSync(recorder.log, 'utf8').trim(),
-        'compose -f compose.yml -f compose.dev.yml down --volumes --remove-orphans',
-      )
-    } finally {
-      recorder.cleanup()
-    }
+    assert.equal(confirmed.status, 0, confirmed.stderr)
+    assert.equal(
+      readFileSync(recorder.log, 'utf8').trim(),
+      'compose -f compose.yml -f compose.dev.yml down --volumes --remove-orphans',
+    )
+  } finally {
+    recorder.cleanup()
   }
 })
 

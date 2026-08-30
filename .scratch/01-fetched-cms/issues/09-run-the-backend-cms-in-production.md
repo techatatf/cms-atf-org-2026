@@ -18,8 +18,8 @@ Article
 - [ ] PostgreSQL data and Payload media use separate production volumes.
 - [ ] The production override defines suitable Payload health checks and restart
   behavior.
-- [ ] Root and Backend CMS Make targets accept the production environment for
-  build, start, stop, logs, down, and destroy operations.
+- [ ] Backend CMS Make targets accept the production environment for build,
+  start, stop, logs, down, and destroy operations.
 - [ ] Production initialization runs every committed outstanding schema
   migration before Payload becomes ready or serves requests.
 - [ ] A failed migration keeps Payload unready and prevents it from serving

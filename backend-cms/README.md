@@ -2,14 +2,15 @@
 
 The Backend CMS is a Payload application with native authentication and a
 PostgreSQL database. It runs independently from the public Vite site on
-`http://localhost:3001`.
+`http://localhost:3001`. Run its Make commands from `backend-cms/`.
 
 ## Run with Docker Compose
 
-Docker Compose is the expected local setup. From the repository root, build and
-start Payload and PostgreSQL:
+Docker Compose is the expected local setup. Build and start Payload and
+PostgreSQL:
 
 ```bash
+cd backend-cms
 make build
 make start
 ```
@@ -28,7 +29,7 @@ Compose passes both values to Payload. List any additional allowed browser
 origins in `PAYLOAD_ALLOWED_ORIGINS`, separated by commas. Use explicit origins.
 Do not use `*`.
 
-Run the same Make targets from either the repository root or `backend-cms/`:
+Run the remaining Make targets from `backend-cms/`:
 
 ```bash
 make logs

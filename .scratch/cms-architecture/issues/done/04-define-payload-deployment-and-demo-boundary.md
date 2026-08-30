@@ -93,16 +93,16 @@ production topology?
 - 2026-08-20, round 6: The shared `backend-cms/compose.yml` defines services,
   networks, and volumes. `compose.dev.yml` adds source mounts, hot reload, local
   ports, and development settings. `compose.prod.yml` selects the production
-  image, health checks, and restart policy without source mounts. Root and
-  `backend-cms/` Makefiles expose `start`, `stop`, `build`, `logs`, `down`, and
-  `destroy`. They default to development and accept `ENV=prod`. The `destroy`
+  image, health checks, and restart policy without source mounts.
+  `backend-cms/Makefile` exposes `start`, `stop`, `build`, `logs`, `down`, and
+  `destroy`. It defaults to development and accepts `ENV=prod`. The `destroy`
   target requires explicit confirmation because it removes PostgreSQL and media
   volumes. The ticket remains open for production image and migration behavior.
 - 2026-08-20, round 7: Production builds the Payload image from the checked-out
-  release with `make build ENV=prod`. The first release does not require an
-  external image registry. Payload runs committed PostgreSQL migrations during
-  production initialization. If a migration fails, the container must not
-  become ready or serve requests.
+  release with `make -C backend-cms build ENV=prod`. The first release does not
+  require an external image registry. Payload runs committed PostgreSQL
+  migrations during production initialization. If a migration fails, the
+  container must not become ready or serve requests.
 - 2026-08-20, resolution: The Backend CMS is a self-contained Payload and
   PostgreSQL application under `backend-cms/`. Docker Compose is the documented
   path for development and production, with a shared file and separate

@@ -56,10 +56,10 @@ approach, principal trade-offs, and phased roadmap.
   `compose.dev.yml` adds local source mounts, hot reload, ports, and development
   settings. `compose.prod.yml` selects the production image, health checks, and
   restart policy without mounting source code.
-- Root and `backend-cms/` Makefiles provide `start`, `stop`, `build`, `logs`,
-  `down`, and `destroy` targets. Development is the default, and `ENV=prod`
-  selects the production override. The `destroy` target requires confirmation
-  before it removes PostgreSQL and media volumes.
+- `backend-cms/Makefile` provides `start`, `stop`, `build`, `logs`, `down`, and
+  `destroy` targets. Development is the default, and `ENV=prod` selects the
+  production override. The `destroy` target requires confirmation before it
+  removes PostgreSQL and media volumes.
 - Production builds the Payload image from the checked-out release. Payload
   runs committed PostgreSQL migrations during initialization and does not
   become ready when a migration fails.

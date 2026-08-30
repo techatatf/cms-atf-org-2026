@@ -9,9 +9,8 @@ across ordinary stops.
 
 **Status:** closed
 
-- [x] The default root and Backend CMS Make commands use the shared and
-  development Compose configuration to start, stop, inspect, and remove the
-  local services.
+- [x] The default Backend CMS Make commands use the shared and development
+  Compose configuration to start, stop, inspect, and remove the local services.
 - [x] Payload starts with PostgreSQL, and a developer can open the native Admin
   without starting the public Vite site.
 - [x] PostgreSQL is reachable by Payload but is not published to the host.

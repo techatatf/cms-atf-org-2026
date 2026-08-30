@@ -61,11 +61,11 @@ The Payload Backend CMS runs independently from the public site on port `3001`.
 Docker Compose starts Payload and its private PostgreSQL service:
 
 ```bash
-make build
-make start
-make logs
-make stop
-make down
+make -C backend-cms build
+make -C backend-cms start
+make -C backend-cms logs
+make -C backend-cms stop
+make -C backend-cms down
 ```
 
 `stop` and `down` preserve the PostgreSQL and media volumes. Read the

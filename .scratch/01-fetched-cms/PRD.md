@@ -210,18 +210,17 @@ development and production:
   and restart policy without source mounts.
 
 Build the production Payload image from the checked-out release with
-`make build ENV=prod`. The first release does not require an external image
-registry.
+`make -C backend-cms build ENV=prod`. The first release does not require an
+external image registry.
 
 Commit each PostgreSQL schema migration with the Payload source. Run outstanding
 production migrations during Payload initialization. If a migration fails, the
 Payload container must not become ready or serve requests.
 
 Provide Make targets for `start`, `stop`, `build`, `logs`, `down`, and `destroy`
-from both the repository root and `backend-cms/`. Development is the default.
-Accept `ENV=prod` for production. Preserve persistent volumes for `stop` and
-`down`. Require explicit confirmation before `destroy` removes the PostgreSQL
-and media volumes.
+in `backend-cms/`. Development is the default. Accept `ENV=prod` for production.
+Preserve persistent volumes for `stop` and `down`. Require explicit confirmation
+before `destroy` removes the PostgreSQL and media volumes.
 
 Keep direct `npm run dev` support for developers who need it. Docker Compose
 remains the expected setup path.
