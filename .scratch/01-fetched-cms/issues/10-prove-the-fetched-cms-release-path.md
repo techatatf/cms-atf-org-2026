@@ -7,9 +7,18 @@ reusable foundation to SEO-CMS.
 **Blocked by:** 03 — Enforce Admin and Editor workflows; 04 — Preview and restore
 draft News Articles; 05 — Publish News Article images; 06 — Browse published
 News Articles; 07 — Preserve Public News Slugs; 08 — Seed and import News
-Articles safely; 09 — Run the Backend CMS in production
+Articles safely; 09 — Run the Backend CMS in production; operator completion of
+[Manually verify the production Backend CMS](../HANDOFF-09-manual-production-verification.md)
 
-**Status:** ready-for-agent
+**Status:** ready-for-human
+
+## Required manual gate
+
+Do not continue this issue until the operator completes
+[Manually verify the production Backend CMS](../HANDOFF-09-manual-production-verification.md)
+with a disposable production configuration and records the result under
+`## Comments`. Change the status to `ready-for-agent` only after every manual
+check passes.
 
 - [ ] A clean development start supports login, draft creation, Live Preview,
   publication, public listing, public article reading, and version restore.
@@ -30,3 +39,5 @@ Articles safely; 09 — Run the Backend CMS in production
 - [ ] The reusable News Article schema, query mapping, presentation components,
   Live Preview behavior, origin configuration, and Previous News Slugs are
   ready for SEO-CMS.
+
+## Comments
