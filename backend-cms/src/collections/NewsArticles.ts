@@ -1,4 +1,11 @@
-import type { CollectionBeforeChangeHook, CollectionConfig, Where } from 'payload'
+import type {
+  CollectionAfterChangeHook,
+  CollectionBeforeChangeHook,
+  CollectionBeforeDeleteHook,
+  CollectionConfig,
+  PayloadRequest,
+  Where,
+} from 'payload'
 import { slugField, ValidationError } from 'payload'
 
 import {
@@ -6,6 +13,335 @@ import {
   isEditorialUser,
 } from '../access/roles'
 import type { NewsArticle } from '../payload-types'
+
+const publicNewsSlugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+
+function previousNewsSlugValues(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return []
+  }
+
+  return value.flatMap((entry) => {
+    if (
+      typeof entry === 'object' &&
+      entry !== null &&
+      'slug' in entry &&
+      typeof entry.slug === 'string'
+    ) {
+      return [entry.slug]
+    }
+
+    return []
+  })
+}
+
+function storedPreviousNewsSlugs(slugs: string[]) {
+  return slugs.map((slug) => ({ slug }))
+}
+
+function publicNewsSlugValidationError({
+  id,
+  message,
+  req,
+}: {
+  id?: number | string
+  message: string
+  req: PayloadRequest
+}) {
+  return new ValidationError({
+    collection: 'news-articles',
+    errors: [{ message, path: 'slug' }],
+    id,
+    req,
+  })
+}
+
+function databaseErrorHasCode(
+  error: unknown,
+  code: string,
+  seen = new Set<unknown>(),
+): boolean {
+  if (typeof error !== 'object' || error === null || seen.has(error)) {
+    return false
+  }
+
+  seen.add(error)
+
+  if ('code' in error && error.code === code) {
+    return true
+  }
+
+  return (
+    ('cause' in error && databaseErrorHasCode(error.cause, code, seen)) ||
+    ('errors' in error &&
+      Array.isArray(error.errors) &&
+      error.errors.some((nestedError) =>
+        databaseErrorHasCode(nestedError, code, seen),
+      ))
+  )
+}
+
+const validateManualPublicNewsSlug: CollectionBeforeChangeHook = ({
+  data,
+  originalDoc,
+  req,
+}) => {
+  if (
+    Object.hasOwn(data, 'slug') &&
+    typeof data.slug === 'string' &&
+    !publicNewsSlugPattern.test(data.slug)
+  ) {
+    throw new ValidationError({
+      collection: 'news-articles',
+      errors: [
+        {
+          message:
+            'Use lowercase ASCII letters, digits, and single interior hyphens.',
+          path: 'slug',
+        },
+      ],
+      id: originalDoc?.id,
+      req,
+    })
+  }
+
+  return data
+}
+
+const preservePublicNewsSlug: CollectionBeforeChangeHook = ({
+  data,
+  operation,
+  originalDoc,
+  req,
+}) => {
+  const previousSlugs =
+    operation === 'create'
+      ? []
+      : previousNewsSlugValues(originalDoc?.previousSlugs)
+  data.previousSlugs = storedPreviousNewsSlugs(previousSlugs)
+
+  if (!originalDoc?.firstPublishedAt) {
+    return data
+  }
+
+  const currentSlug = originalDoc.slug
+  const requestedSlug =
+    typeof data.slug === 'string' ? data.slug : currentSlug
+
+  data.generateSlug = false
+  data.slug = requestedSlug
+
+  if (requestedSlug === currentSlug) {
+    return data
+  }
+
+  if (!hasEditorialRole(req, ['admin'])) {
+    throw new ValidationError({
+      collection: 'news-articles',
+      errors: [
+        {
+          message:
+            'Only an Admin can change a Public News Slug after First Publication.',
+          path: 'slug',
+        },
+      ],
+      id: originalDoc.id,
+      req,
+    })
+  }
+
+  const retainedSlugs = previousSlugs.filter((slug) => slug !== requestedSlug)
+
+  if (
+    typeof currentSlug === 'string' &&
+    !retainedSlugs.includes(currentSlug)
+  ) {
+    retainedSlugs.push(currentSlug)
+  }
+
+  data.previousSlugs = storedPreviousNewsSlugs(retainedSlugs)
+
+  return data
+}
+
+const rejectReservedPublicNewsSlug: CollectionBeforeChangeHook = async ({
+  data,
+  originalDoc,
+  req,
+}) => {
+  if (typeof data.slug !== 'string') {
+    return data
+  }
+
+  if (req.context.isRestoringVersion) {
+    return data
+  }
+
+  if (originalDoc?.id !== undefined && data.slug === originalDoc.slug) {
+    return data
+  }
+
+  const articleCollision = await req.payload.find({
+    collection: 'news-articles',
+    depth: 0,
+    draft: true,
+    limit: 1,
+    overrideAccess: true,
+    pagination: false,
+    req,
+    where: {
+      and: [
+        {
+          or: [
+            {
+              slug: {
+                equals: data.slug,
+              },
+            },
+            {
+              'previousSlugs.slug': {
+                equals: data.slug,
+              },
+            },
+          ],
+        },
+        ...(originalDoc?.id === undefined
+          ? []
+          : [
+              {
+                id: {
+                  not_equals: originalDoc.id,
+                },
+              },
+            ]),
+      ],
+    },
+  })
+
+  if (articleCollision.docs.length > 0) {
+    throw publicNewsSlugValidationError({
+      id: originalDoc?.id,
+      message: 'This Public News Slug is already reserved.',
+      req,
+    })
+  }
+
+  const reservationCollision = await req.payload.find({
+    collection: 'news-slug-reservations',
+    depth: 0,
+    limit: 1,
+    overrideAccess: true,
+    pagination: false,
+    req,
+    where: {
+      slug: {
+        equals: data.slug,
+      },
+    },
+  })
+  const reservation = reservationCollision.docs[0]
+
+  if (
+    reservation &&
+    relationshipID(reservation.newsArticle) !== originalDoc?.id
+  ) {
+    throw publicNewsSlugValidationError({
+      id: originalDoc?.id,
+      message: 'This Public News Slug is already reserved.',
+      req,
+    })
+  }
+
+  return data
+}
+
+const synchronizeNewsSlugReservations: CollectionAfterChangeHook = async ({
+  doc,
+  req,
+}) => {
+  const desiredSlugs = Array.from(
+    new Set([
+      ...(typeof doc.slug === 'string' ? [doc.slug] : []),
+      ...previousNewsSlugValues(doc.previousSlugs),
+    ]),
+  )
+  const existingReservations = await req.payload.find({
+    collection: 'news-slug-reservations',
+    depth: 0,
+    limit: 0,
+    overrideAccess: true,
+    pagination: false,
+    req,
+    where: {
+      newsArticle: {
+        equals: doc.id,
+      },
+    },
+  })
+  const existingBySlug = new Map(
+    existingReservations.docs.map((reservation) => [
+      reservation.slug,
+      reservation,
+    ]),
+  )
+
+  for (const slug of desiredSlugs) {
+    if (existingBySlug.has(slug)) {
+      continue
+    }
+
+    try {
+      await req.payload.create({
+        collection: 'news-slug-reservations',
+        data: {
+          newsArticle: doc.id,
+          slug,
+        },
+        overrideAccess: true,
+        req,
+      })
+    } catch (error) {
+      if (databaseErrorHasCode(error, '23505')) {
+        throw publicNewsSlugValidationError({
+          id: doc.id,
+          message: 'This Public News Slug is already reserved.',
+          req,
+        })
+      }
+
+      throw error
+    }
+  }
+
+  for (const reservation of existingReservations.docs) {
+    if (!desiredSlugs.includes(reservation.slug)) {
+      await req.payload.delete({
+        collection: 'news-slug-reservations',
+        id: reservation.id,
+        overrideAccess: true,
+        req,
+      })
+    }
+  }
+
+  return doc
+}
+
+const deleteNewsSlugReservations: CollectionBeforeDeleteHook = async ({
+  id,
+  req,
+}) => {
+  await req.payload.delete({
+    collection: 'news-slug-reservations',
+    overrideAccess: true,
+    req,
+    where: {
+      newsArticle: {
+        equals: id,
+      },
+    },
+  })
+}
 
 function relationshipID(value: unknown): number | string | null {
   if (typeof value === 'number' || typeof value === 'string') {
@@ -220,6 +556,22 @@ export const NewsArticles: CollectionConfig = {
       useAsSlug: 'title',
     }),
     {
+      name: 'previousSlugs',
+      type: 'array',
+      admin: {
+        readOnly: true,
+      },
+      defaultValue: [],
+      fields: [
+        {
+          name: 'slug',
+          type: 'text',
+          index: true,
+          required: true,
+        },
+      ],
+    },
+    {
       name: 'excerpt',
       type: 'textarea',
       required: true,
@@ -282,7 +634,15 @@ export const NewsArticles: CollectionConfig = {
     },
   ],
   hooks: {
-    beforeChange: [validatePublishedHeroImage, clearPreviousPublishedFeature],
+    beforeChange: [
+      validateManualPublicNewsSlug,
+      preservePublicNewsSlug,
+      rejectReservedPublicNewsSlug,
+      validatePublishedHeroImage,
+      clearPreviousPublishedFeature,
+    ],
+    afterChange: [synchronizeNewsSlugReservations],
+    beforeDelete: [deleteNewsSlugReservations],
   },
   versions: {
     drafts: true,

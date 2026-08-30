@@ -97,12 +97,53 @@ describe("published News Article query", () => {
       draft: "false",
       limit: "1",
       "where[_status][equals]": "published",
-      "where[slug][equals]": "typed-public-article",
+      "where[or][0][slug][equals]": "typed-public-article",
+      "where[or][1][previousSlugs.slug][equals]": "typed-public-article",
     });
     expect(fetchSpy).toHaveBeenCalledWith(
       expect.any(URL),
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
+  });
+
+  it("resolves a Previous News Slug to the current Public News Slug", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          docs: [
+            {
+              id: 43,
+              _status: "published",
+              body,
+              category: "Partnerships",
+              excerpt: "A News Article reached through its previous URL.",
+              featured: false,
+              heroImage: null,
+              previousSlugs: [{ slug: "previous-public-news-slug" }],
+              publishedAt: "2026-08-30T12:00:00.000Z",
+              slug: "current-public-news-slug",
+              title: "Current Public News Slug",
+            },
+          ],
+          totalDocs: 1,
+        }),
+        { status: 200 },
+      ),
+    );
+
+    await expect(
+      getPublishedNewsArticle("previous-public-news-slug"),
+    ).resolves.toMatchObject({
+      id: "43",
+      slug: "current-public-news-slug",
+    });
+
+    const requestURL = new URL(String(fetchSpy.mock.calls[0]?.[0]));
+    expect(Object.fromEntries(requestURL.searchParams)).toMatchObject({
+      "where[or][0][slug][equals]": "previous-public-news-slug",
+      "where[or][1][previousSlugs.slug][equals]":
+        "previous-public-news-slug",
+    });
   });
 
   it("returns no News Article when Payload resolves the slug with no documents", async () => {

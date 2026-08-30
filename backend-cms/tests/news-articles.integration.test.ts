@@ -520,6 +520,365 @@ test('an authenticated Admin creates and publishes a News Article through REST',
   assert.equal(visitorResult.docs[0]._status, 'published')
 })
 
+test('the API enforces the Public News Slug grammar', async () => {
+  const editor = await createAuthenticatedUser('editor')
+  const invalidSlugs = [
+    'Uppercase',
+    'non-ascii-café',
+    'under_score',
+    '-leading-hyphen',
+    'trailing-hyphen-',
+    'repeated--hyphen',
+  ]
+
+  for (const slug of invalidSlugs) {
+    const response = await apiRequest({
+      body: {
+        _status: 'draft',
+        body: publishedBody,
+        category: 'Press',
+        excerpt: 'This draft has an invalid manual Public News Slug.',
+        featured: false,
+        publishedAt: '2026-08-30T14:30:00.000Z',
+        slug,
+        title: 'Invalid Public News Slug',
+      },
+      method: 'POST',
+      path: 'news-articles?draft=true',
+      token: editor.token,
+    })
+    const result = await response.json()
+
+    if (response.ok) {
+      createdDocumentIDs.push(result.doc.id)
+    }
+
+    assert.equal(response.status, 400, slug)
+    assert.equal(result.errors[0].data.errors[0].path, 'slug')
+  }
+
+  const validSlug = `2026-valid-public-news-slug-${crypto.randomUUID()}`
+  const validResponse = await apiRequest({
+    body: {
+      _status: 'draft',
+      body: publishedBody,
+      category: 'Press',
+      excerpt: 'This draft has a valid manual Public News Slug.',
+      featured: false,
+      publishedAt: '2026-08-30T14:30:00.000Z',
+      slug: validSlug,
+      title: 'Valid Public News Slug',
+    },
+    method: 'POST',
+    path: 'news-articles?draft=true',
+    token: editor.token,
+  })
+  const validResult = await validResponse.json()
+
+  if (validResponse.ok) {
+    createdDocumentIDs.push(validResult.doc.id)
+  }
+
+  assert.equal(validResponse.status, 201)
+  assert.equal(validResult.doc.slug, validSlug)
+})
+
+test('First Publication locks the Public News Slug for Editors while an Admin retains the previous value', async () => {
+  const admin = await createAuthenticatedUser('admin')
+  const editor = await createAuthenticatedUser('editor')
+  const suffix = crypto.randomUUID()
+  const initialSlug = `initial-public-news-slug-${suffix}`
+  const prePublicationSlug = `pre-publication-news-slug-${suffix}`
+  const adminPrePublicationSlug = `admin-pre-publication-news-slug-${suffix}`
+  const adminSlug = `admin-public-news-slug-${suffix}`
+  const draftResponse = await apiRequest({
+    body: {
+      _status: 'draft',
+      body: publishedBody,
+      category: 'Programs',
+      excerpt: 'This draft exercises Public News Slug locking.',
+      featured: false,
+      publishedAt: '2026-08-30T14:45:00.000Z',
+      slug: initialSlug,
+      title: `Public News Slug locking ${suffix}`,
+    },
+    method: 'POST',
+    path: 'news-articles?draft=true',
+    token: editor.token,
+  })
+  const draftResult = await draftResponse.json()
+
+  assert.equal(draftResponse.status, 201)
+  createdDocumentIDs.push(draftResult.doc.id)
+
+  const prePublicationResponse = await apiRequest({
+    body: {
+      generateSlug: false,
+      slug: prePublicationSlug,
+    },
+    method: 'PATCH',
+    path: `news-articles/${draftResult.doc.id}?draft=true`,
+    token: editor.token,
+  })
+  const prePublicationResult = await prePublicationResponse.json()
+
+  assert.equal(prePublicationResponse.status, 200)
+  assert.equal(prePublicationResult.doc.slug, prePublicationSlug)
+  assert.deepEqual(prePublicationResult.doc.previousSlugs, [])
+
+  const adminPrePublicationResponse = await apiRequest({
+    body: {
+      generateSlug: false,
+      slug: adminPrePublicationSlug,
+    },
+    method: 'PATCH',
+    path: `news-articles/${draftResult.doc.id}?draft=true`,
+    token: admin.token,
+  })
+  const adminPrePublicationResult = await adminPrePublicationResponse.json()
+
+  assert.equal(adminPrePublicationResponse.status, 200)
+  assert.equal(adminPrePublicationResult.doc.slug, adminPrePublicationSlug)
+  assert.deepEqual(adminPrePublicationResult.doc.previousSlugs, [])
+
+  const publishResponse = await apiRequest({
+    body: { _status: 'published' },
+    method: 'PATCH',
+    path: `news-articles/${draftResult.doc.id}?draft=false`,
+    token: editor.token,
+  })
+  assert.equal(publishResponse.status, 200)
+
+  const editorChangeResponse = await apiRequest({
+    body: {
+      generateSlug: false,
+      slug: `editor-public-news-slug-${suffix}`,
+    },
+    method: 'PATCH',
+    path: `news-articles/${draftResult.doc.id}?draft=true`,
+    token: editor.token,
+  })
+  const editorChangeResult = await editorChangeResponse.json()
+
+  assert.equal(editorChangeResponse.status, 400)
+  assert.equal(editorChangeResult.errors[0].data.errors[0].path, 'slug')
+
+  const adminChangeResponse = await apiRequest({
+    body: {
+      generateSlug: false,
+      slug: adminSlug,
+    },
+    method: 'PATCH',
+    path: `news-articles/${draftResult.doc.id}?draft=false`,
+    token: admin.token,
+  })
+  const adminChangeResult = await adminChangeResponse.json()
+
+  assert.equal(adminChangeResponse.status, 200)
+  assert.equal(adminChangeResult.doc.slug, adminSlug)
+  assert.deepEqual(
+    adminChangeResult.doc.previousSlugs.map(
+      ({ slug }: { slug: string }) => slug,
+    ),
+    [adminPrePublicationSlug],
+  )
+})
+
+test('Current and Previous News Slugs share one reserved namespace', async () => {
+  const admin = await createAuthenticatedUser('admin')
+  const editor = await createAuthenticatedUser('editor')
+  const suffix = crypto.randomUUID()
+  const firstSlug = `reserved-first-news-slug-${suffix}`
+  const changedSlug = `reserved-changed-news-slug-${suffix}`
+  const secondSlug = `reserved-second-news-slug-${suffix}`
+  const createDraft = async (slug: string, title: string) => {
+    const response = await apiRequest({
+      body: {
+        _status: 'draft',
+        body: publishedBody,
+        category: 'Research',
+        excerpt: `${title} excerpt.`,
+        featured: false,
+        publishedAt: '2026-08-30T15:00:00.000Z',
+        slug,
+        title,
+      },
+      method: 'POST',
+      path: 'news-articles?draft=true',
+      token: editor.token,
+    })
+    const result = await response.json()
+
+    assert.equal(response.status, 201)
+    createdDocumentIDs.push(result.doc.id)
+
+    return result.doc
+  }
+  const firstArticle = await createDraft(
+    firstSlug,
+    `First reserved namespace article ${suffix}`,
+  )
+  const secondArticle = await createDraft(
+    secondSlug,
+    `Second reserved namespace article ${suffix}`,
+  )
+  const publishResponse = await apiRequest({
+    body: { _status: 'published' },
+    method: 'PATCH',
+    path: `news-articles/${firstArticle.id}?draft=false`,
+    token: editor.token,
+  })
+  assert.equal(publishResponse.status, 200)
+
+  const changeResponse = await apiRequest({
+    body: { generateSlug: false, slug: changedSlug },
+    method: 'PATCH',
+    path: `news-articles/${firstArticle.id}?draft=false`,
+    token: admin.token,
+  })
+  assert.equal(changeResponse.status, 200)
+
+  for (const reservedSlug of [changedSlug, firstSlug]) {
+    const collisionResponse = await apiRequest({
+      body: { generateSlug: false, slug: reservedSlug },
+      method: 'PATCH',
+      path: `news-articles/${secondArticle.id}?draft=true`,
+      token: editor.token,
+    })
+    const collisionResult = await collisionResponse.json()
+
+    assert.equal(collisionResponse.status, 400, reservedSlug)
+    assert.equal(collisionResult.errors[0].data.errors[0].path, 'slug')
+  }
+
+  const previousSlugResponse = await visitorRequest(
+    `news-articles?where[or][0][slug][equals]=${firstSlug}&where[or][1][previousSlugs.slug][equals]=${firstSlug}&limit=1`,
+  )
+  const previousSlugResult = await previousSlugResponse.json()
+
+  assert.equal(previousSlugResponse.status, 200)
+  assert.equal(previousSlugResult.totalDocs, 1)
+  assert.equal(previousSlugResult.docs[0].slug, changedSlug)
+  assert.deepEqual(
+    previousSlugResult.docs[0].previousSlugs.map(
+      ({ slug }: { slug: string }) => slug,
+    ),
+    [firstSlug],
+  )
+
+  const restoreResponse = await apiRequest({
+    body: { generateSlug: false, slug: firstSlug },
+    method: 'PATCH',
+    path: `news-articles/${firstArticle.id}?draft=false`,
+    token: admin.token,
+  })
+  const restoreResult = await restoreResponse.json()
+
+  assert.equal(restoreResponse.status, 200)
+  assert.equal(restoreResult.doc.slug, firstSlug)
+  assert.deepEqual(
+    restoreResult.doc.previousSlugs.map(
+      ({ slug }: { slug: string }) => slug,
+    ),
+    [changedSlug],
+  )
+})
+
+test('Public News Slug locking survives version restoration', async () => {
+  const admin = await createAuthenticatedUser('admin')
+  const editor = await createAuthenticatedUser('editor')
+  const suffix = crypto.randomUUID()
+  const initialSlug = `version-initial-news-slug-${suffix}`
+  const changedSlug = `version-changed-news-slug-${suffix}`
+  const draftResponse = await apiRequest({
+    body: {
+      _status: 'draft',
+      body: publishedBody,
+      category: 'Chapters',
+      excerpt: 'This draft exercises slug-aware version restoration.',
+      featured: false,
+      publishedAt: '2026-08-30T15:15:00.000Z',
+      slug: initialSlug,
+      title: `Slug-aware version restoration ${suffix}`,
+    },
+    method: 'POST',
+    path: 'news-articles?draft=true',
+    token: editor.token,
+  })
+  const draftResult = await draftResponse.json()
+
+  assert.equal(draftResponse.status, 201)
+  createdDocumentIDs.push(draftResult.doc.id)
+
+  const publishResponse = await apiRequest({
+    body: { _status: 'published' },
+    method: 'PATCH',
+    path: `news-articles/${draftResult.doc.id}?draft=false`,
+    token: editor.token,
+  })
+  assert.equal(publishResponse.status, 200)
+
+  const changeResponse = await apiRequest({
+    body: { generateSlug: false, slug: changedSlug },
+    method: 'PATCH',
+    path: `news-articles/${draftResult.doc.id}?draft=false`,
+    token: admin.token,
+  })
+  assert.equal(changeResponse.status, 200)
+
+  const versionsResponse = await apiRequest({
+    method: 'GET',
+    path: `news-articles/versions?where[parent][equals]=${draftResult.doc.id}&limit=50`,
+    token: admin.token,
+  })
+  const versionsResult = await versionsResponse.json()
+  const initialSlugVersion = versionsResult.docs.find(
+    (version: { version?: { slug?: string } }) =>
+      version.version?.slug === initialSlug,
+  )
+
+  assert.equal(versionsResponse.status, 200)
+  assert.ok(initialSlugVersion)
+
+  const editorRestoreResponse = await apiRequest({
+    method: 'POST',
+    path: `news-articles/versions/${initialSlugVersion.id}?draft=true`,
+    token: editor.token,
+  })
+  const editorRestoreResult = await editorRestoreResponse.json()
+
+  assert.equal(editorRestoreResponse.status, 400)
+  assert.equal(editorRestoreResult.errors[0].data.errors[0].path, 'slug')
+
+  const adminRestoreResponse = await apiRequest({
+    method: 'POST',
+    path: `news-articles/versions/${initialSlugVersion.id}?draft=true`,
+    token: admin.token,
+  })
+  const adminRestoreResult = await adminRestoreResponse.json()
+
+  assert.equal(adminRestoreResponse.status, 200)
+  assert.equal(adminRestoreResult.slug, initialSlug)
+  assert.deepEqual(
+    adminRestoreResult.previousSlugs.map(
+      ({ slug }: { slug: string }) => slug,
+    ),
+    [changedSlug],
+  )
+
+  const editorChangeAfterRestoreResponse = await apiRequest({
+    body: {
+      generateSlug: false,
+      slug: `version-editor-news-slug-${suffix}`,
+    },
+    method: 'PATCH',
+    path: `news-articles/${draftResult.doc.id}?draft=true`,
+    token: editor.token,
+  })
+
+  assert.equal(editorChangeAfterRestoreResponse.status, 400)
+})
+
 test('publishing a featured News Article clears the previous published feature', async () => {
   const editor = await createAuthenticatedUser('editor')
   const firstTitle = `First featured article ${crypto.randomUUID()}`

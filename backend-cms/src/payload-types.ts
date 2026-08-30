@@ -70,6 +70,7 @@ export interface Config {
     users: User;
     media: Media;
     'news-articles': NewsArticle;
+    'news-slug-reservations': NewsSlugReservation;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -80,6 +81,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'news-articles': NewsArticlesSelect<false> | NewsArticlesSelect<true>;
+    'news-slug-reservations': NewsSlugReservationsSelect<false> | NewsSlugReservationsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -176,6 +178,12 @@ export interface NewsArticle {
    */
   generateSlug?: boolean | null;
   slug: string;
+  previousSlugs?:
+    | {
+        slug: string;
+        id?: string | null;
+      }[]
+    | null;
   excerpt: string;
   body: {
     root: {
@@ -200,6 +208,15 @@ export interface NewsArticle {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "news-slug-reservations".
+ */
+export interface NewsSlugReservation {
+  id: number;
+  slug: string;
+  newsArticle: number | NewsArticle;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -236,6 +253,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'news-articles';
         value: number | NewsArticle;
+      } | null)
+    | ({
+        relationTo: 'news-slug-reservations';
+        value: number | NewsSlugReservation;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -328,6 +349,12 @@ export interface NewsArticlesSelect<T extends boolean = true> {
   title?: T;
   generateSlug?: T;
   slug?: T;
+  previousSlugs?:
+    | T
+    | {
+        slug?: T;
+        id?: T;
+      };
   excerpt?: T;
   body?: T;
   publishedAt?: T;
@@ -338,6 +365,14 @@ export interface NewsArticlesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "news-slug-reservations_select".
+ */
+export interface NewsSlugReservationsSelect<T extends boolean = true> {
+  slug?: T;
+  newsArticle?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

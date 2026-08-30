@@ -186,7 +186,11 @@ export async function getPublishedNewsArticle(
   requestURL.searchParams.set("draft", "false");
   requestURL.searchParams.set("limit", "1");
   requestURL.searchParams.set("where[_status][equals]", "published");
-  requestURL.searchParams.set("where[slug][equals]", slug);
+  requestURL.searchParams.set("where[or][0][slug][equals]", slug);
+  requestURL.searchParams.set(
+    "where[or][1][previousSlugs.slug][equals]",
+    slug,
+  );
 
   const controller = new AbortController();
   const timeout = globalThis.setTimeout(() => controller.abort(), timeoutMs);

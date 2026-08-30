@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { NewsArticlePage } from "@/components/site/NewsArticlePage";
 import { OpportunityButton } from "@/components/site/OpportunityButton";
@@ -21,16 +21,35 @@ type ArticleState =
 
 function NewsArticleRoute() {
   const { slug } = Route.useParams();
+  const navigate = Route.useNavigate();
+  const resolvedArticle = useRef<NewsArticle | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState<ArticleState>({ status: "loading" });
 
   useEffect(() => {
+    if (resolvedArticle.current?.slug === slug) {
+      setState({ status: "success", article: resolvedArticle.current });
+      resolvedArticle.current = null;
+      return;
+    }
+
     let isCurrentRequest = true;
     setState({ status: "loading" });
 
     getPublishedNewsArticle(slug)
       .then((article) => {
         if (!isCurrentRequest) return;
+
+        if (article && article.slug !== slug) {
+          resolvedArticle.current = article;
+          void navigate({
+            params: { slug: article.slug },
+            replace: true,
+            resetScroll: false,
+            to: "/news/$slug",
+          });
+        }
+
         setState(
           article
             ? { status: "success", article }
@@ -46,7 +65,7 @@ function NewsArticleRoute() {
     return () => {
       isCurrentRequest = false;
     };
-  }, [attempt, slug]);
+  }, [attempt, navigate, slug]);
 
   if (state.status === "loading") {
     return <ArticleLoading />;

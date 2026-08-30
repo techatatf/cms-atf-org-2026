@@ -6,6 +6,7 @@ import { buildConfig } from 'payload'
 
 import { Media } from './collections/Media'
 import { NewsArticles } from './collections/NewsArticles'
+import { NewsSlugReservations } from './collections/NewsSlugReservations'
 import { Users } from './collections/Users'
 
 const filename = fileURLToPath(import.meta.url)
@@ -40,7 +41,7 @@ export default buildConfig({
     },
     user: Users.slug,
   },
-  collections: [Users, Media, NewsArticles],
+  collections: [Users, Media, NewsArticles, NewsSlugReservations],
   cors: allowedOrigins,
   csrf: allowedOrigins,
   db: postgresAdapter({

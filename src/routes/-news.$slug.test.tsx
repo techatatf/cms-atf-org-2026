@@ -1,7 +1,13 @@
 /**
  * @vitest-environment jsdom
  */
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { RouterProvider, createMemoryHistory } from "@tanstack/react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -73,11 +79,13 @@ function payloadResponse(
   );
 }
 
-function renderArticleRoute() {
+function renderArticleRoute(
+  initialEntry = "/news/fetched-public-article",
+) {
   const router = createAppRouter({
     homepageOnlyMode: false,
     history: createMemoryHistory({
-      initialEntries: ["/news/fetched-public-article"],
+      initialEntries: [initialEntry],
     }),
   });
 
@@ -146,6 +154,26 @@ describe("published News Article route", () => {
       screen.getByRole("img", { name: `${alt}. Image unavailable.` }),
     ).toBeTruthy();
     expect(screen.getByText("This body came from Payload rich text.")).toBeTruthy();
+  });
+
+  it("replaces a Previous News Slug history entry with the current URL", async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(payloadResponse());
+    const router = renderArticleRoute("/news/previous-public-news-slug");
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: "Fetched Public Article",
+      }),
+    ).toBeTruthy();
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe(
+        "/news/fetched-public-article",
+      );
+    });
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
   });
 
   it("shows Article not found. after a successful empty response", async () => {
