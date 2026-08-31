@@ -15,6 +15,11 @@ The independently runnable editorial application that manages content for the
 ATF website and provides its own administration interface and content API.
 _Avoid_: ATF Org Backend, custom CMS frontend
 
+**Public Site**:
+The independently deployed, visitor-facing ATF website paired with one Backend
+CMS for published content and Live Preview.
+_Avoid_: CMS frontend, frontend when the deployment boundary matters
+
 **Editorial User**:
 An authenticated Backend CMS user with exactly one role: Admin or Editor. Both
 roles can enter the Payload administration interface.
@@ -32,9 +37,26 @@ First Publication.
 _Avoid_: author, content manager
 
 **Production Launch**:
-The first live Payload deployment used by the public ATF website as its content
-source. It is not preceded by a separate demo-to-production promotion stage.
-_Avoid_: Demo Deployment, pre-production CMS
+The first live Backend CMS and Public Site pair used for production. It may
+follow a Demo Rehearsal, but no demo data, Media, users, or secrets transfer to
+production.
+_Avoid_: Demo Rehearsal, demo promotion
+
+**Demo Rehearsal**:
+A disposable Backend CMS and Public Site pair used to verify production
+behavior. Its content, Media, database, users, and secrets never transfer to
+Production Launch.
+_Avoid_: staging environment, pre-production CMS, demo promotion
+
+**Public Delivery**:
+The Public Site reading published News Articles and public Media from its paired
+Backend CMS. It does not trigger or require a Public Site deployment.
+_Avoid_: publishing to the frontend, frontend publication
+
+**Live Preview**:
+The private editorial view of unsaved News Article changes, rendered by the
+paired Public Site inside the Backend CMS.
+_Avoid_: Public Delivery, Vercel preview deployment, draft publication
 
 **Fetched-CMS**:
 The first CMS delivery phase. Public news uses optional browser-time REST reads,
