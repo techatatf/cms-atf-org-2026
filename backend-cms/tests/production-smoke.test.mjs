@@ -181,6 +181,32 @@ test(
         status: 200,
       })
 
+      const registrationResponse = runCompose(environmentFile, projectName, [
+        'exec',
+        '-T',
+        'payload',
+        'node',
+        '-e',
+        `fetch('http://127.0.0.1:3001/api/users/first-register', {
+          body: JSON.stringify({
+            email: 'production-smoke-admin@example.test',
+            password: 'production-smoke-admin-password',
+          }),
+          headers: { 'Content-Type': 'application/json' },
+          method: 'POST',
+        }).then(async (response) => {
+          console.log(JSON.stringify({
+            body: await response.json(),
+            setCookie: response.headers.get('set-cookie'),
+            status: response.status,
+          }))
+        })`,
+      ])
+      const registration = JSON.parse(registrationResponse.stdout.trim())
+
+      assert.equal(registration.status, 200)
+      assert.match(registration.setCookie, /; Secure=true(?:;|$)/)
+
       const migrationCount = runCompose(environmentFile, projectName, [
         'exec',
         '-T',

@@ -22,6 +22,11 @@ network. It allows browser requests from the public Vite site on
 Payload Admin loads News Article Live Preview from
 `http://localhost:3000/preview/news/<document-id>`.
 
+If another service uses port `3001`, set `PAYLOAD_DEV_BIND_ADDRESS` and
+`PAYLOAD_DEV_PORT` in `.env`. Keep `PAYLOAD_PUBLIC_SERVER_URL`,
+`PAYLOAD_ALLOWED_ORIGINS`, and the Public Site's `VITE_BACKEND_CMS_ORIGIN`
+aligned with the address that you open in the browser.
+
 To use a LAN address, copy `.env.example` to `.env`. Set
 `PAYLOAD_PUBLIC_SERVER_URL` to the Backend CMS origin that you open in the
 browser. Set `PAYLOAD_PUBLIC_SITE_ORIGIN` to the public Vite site origin.
@@ -235,3 +240,11 @@ Keep these values for local development only. In production, set
 `PAYLOAD_PUBLIC_SITE_ORIGIN` to the public-site origin. Set the public site's
 `VITE_BACKEND_CMS_ORIGIN` to the same Backend CMS origin. Production deployment
 also owns its database credentials, Payload secret, and Compose configuration.
+
+## Prove a Fetched-CMS release
+
+Use [Prove the Fetched-CMS release](../docs/general-guides/prove-fetched-cms-release.md)
+for the complete release check. The guide keeps the Production Launch and Demo
+Rehearsal isolated, defines the Public Site build-time configuration, and covers
+the Admin, Editor, Visitor, Live Preview, outage, persistence, and migration
+checks.

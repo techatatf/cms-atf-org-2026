@@ -238,6 +238,35 @@ test('development Compose exposes Payload on port 3001 and keeps PostgreSQL priv
   assert.deepEqual(payload.command, ['npm', 'run', 'dev'])
 })
 
+test('development Compose accepts an isolated Payload host address and port', () => {
+  const result = spawnSync(
+    'docker',
+    ['compose', '-f', 'compose.yml', '-f', 'compose.dev.yml', 'config', '--format', 'json'],
+    {
+      cwd: backendDirectory,
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        PAYLOAD_DEV_BIND_ADDRESS: '127.0.0.1',
+        PAYLOAD_DEV_PORT: '3301',
+      },
+    },
+  )
+
+  assert.equal(result.status, 0, result.stderr)
+
+  const payload = JSON.parse(result.stdout).services.payload
+
+  assert.ok(
+    payload.ports.some(
+      (port) =>
+        port.host_ip === '127.0.0.1' &&
+        String(port.published) === '3301' &&
+        Number(port.target) === 3001,
+    ),
+  )
+})
+
 test('development Compose allows the local public site to read Payload', () => {
   const result = spawnSync(
     'docker',

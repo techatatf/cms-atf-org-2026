@@ -12,7 +12,7 @@ services:
       PAYLOAD_PUBLIC_SITE_ORIGIN: "${PAYLOAD_PUBLIC_SITE_ORIGIN:-http://localhost:3000}"
       PAYLOAD_SECRET: local-development-secret-change-before-production
     ports:
-      - "3001:3001"
+      - "${PAYLOAD_DEV_BIND_ADDRESS:-0.0.0.0}:${PAYLOAD_DEV_PORT:-3001}:3001"
     volumes:
       - type: bind
         source: .

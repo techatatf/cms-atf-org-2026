@@ -85,6 +85,12 @@ Preview messages only from that exact origin. The Backend CMS loads the matching
 preview route from `PAYLOAD_PUBLIC_SITE_ORIGIN`, which defaults to
 `http://localhost:3000` in the development Compose configuration.
 
+Before handing the CMS foundation to SEO-CMS, follow
+[Prove the Fetched-CMS release](docs/general-guides/prove-fetched-cms-release.md).
+The guide covers the automated gates, the clean local editorial workflow, the
+Production Launch and Demo Rehearsal configuration pairs, and the deployed HTTPS
+checks.
+
 ## Running with pm2
 
 To keep the dev server running in the background, manage it with

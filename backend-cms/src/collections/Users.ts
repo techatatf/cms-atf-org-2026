@@ -61,7 +61,11 @@ export const Users: CollectionConfig = {
       !user || (user as { role?: unknown }).role !== 'admin',
     useAsTitle: 'email',
   },
-  auth: true,
+  auth: {
+    cookies: {
+      secure: process.env.NODE_ENV === 'production',
+    },
+  },
   fields: [
     {
       name: 'role',
