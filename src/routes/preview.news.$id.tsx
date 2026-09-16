@@ -5,8 +5,9 @@ import { useMemo, type ReactNode } from "react";
 import { NewsArticlePage } from "@/components/site/NewsArticlePage";
 import { mapLivePreviewNewsArticle } from "@/services/news";
 
-const backendCMSOrigin =
-  import.meta.env.VITE_BACKEND_CMS_ORIGIN || "http://localhost:3001";
+const backendCMSOrigin = new URL(
+  import.meta.env.VITE_BACKEND_CMS_ORIGIN || "http://localhost:3001",
+).origin;
 
 export const Route = createFileRoute("/preview/news/$id")({
   component: NewsArticlePreviewRoute,

@@ -23,8 +23,11 @@ The repository work has closed these starting gaps:
 - The Demo Rehearsal wizard keeps its Backend CMS environment file outside the
   repository and uses a separate Compose project, host port, data, and Media.
 
-The external Demo Rehearsal pair has not been deployed or proven. The three
-unchecked items below are the remaining human handoff.
+The external Demo Rehearsal pair is deployed. On September 16, the user
+confirmed that the team had seen it, and read-only HTTP checks confirmed
+availability, public API access, and the demo indexing header. The evidence
+below does not yet prove the full browser workflow or deployment isolation.
+The three unchecked items remain open.
 
 - [x] A clean development start supports login, draft creation, Live Preview,
   publication, public listing, public article reading, and version restore.
@@ -89,3 +92,41 @@ unchecked items below are the remaining human handoff.
   claim that every procedure in the retired manual handoff ran. Issue 10 retains
   the restart, migration, persistence, and destructive-protection checks that
   still require release-path proof.
+
+### September 16, 2026: deployed HTTP evidence
+
+The user confirmed that the temporary demo had been shown to the team and
+approved recording these findings. Requests ran without authentication at
+approximately 18:34 to 18:36 UTC. No deployment, content, or configuration changed.
+
+| Request | Observed result |
+| --- | --- |
+| `HEAD https://cms-demo.africantechnologyforum.org/admin` | HTTP 200 over HTTPS. This proves endpoint availability, not authenticated administration. |
+| `GET https://cms-demo.africantechnologyforum.org/api/health` | HTTP 200 with `{"status":"ok"}`. |
+| `GET https://cms-demo.africantechnologyforum.org/api/news-articles?limit=1&depth=0` with the demo Public Site `Origin` header | HTTP 200, `totalDocs: 7`, and one returned News Article with `_status: published`, ID `7`, and slug `papa-yaw-joins-atf`. The response allowed the exact demo Public Site origin and credentials. Only one record was inspected. |
+| `HEAD https://public-demo.africantechnologyforum.org/` | HTTP 200 with `X-Robots-Tag: noindex, nofollow`. |
+| `HEAD https://public-demo.africantechnologyforum.org/news` | HTTP 200 with `X-Robots-Tag: noindex, nofollow`. |
+| `HEAD https://public-demo.africantechnologyforum.org/news/papa-yaw-joins-atf` | HTTP 200 with `X-Robots-Tag: noindex, nofollow`. Article rendering was not checked. |
+| `GET https://public-demo.africantechnologyforum.org/preview/news/7` | HTTP 200 with the Public Site HTML shell, script references, and `X-Robots-Tag: noindex, nofollow`. JavaScript and the authenticated preview handshake were not exercised. |
+| `HEAD https://africantechnologyforum.org/`, following redirects | HTTP 308 to `https://www.africantechnologyforum.org/`, then HTTP 200. Neither response sent `X-Robots-Tag`. Page-level robots metadata was not inspected. |
+
+These results establish HTTP availability and part of the indexing check.
+They do not close any of the three combined acceptance items above. Builds,
+automated tests, and the August 31 local proof were not rerun.
+
+Remaining evidence before closure:
+
+- Identify the deployed revisions of both the Demo Public Site and Backend
+  CMS. Local HEAD alone does not identify either deployed revision.
+- Observe published News Articles rendering in the demo browser and the
+  authenticated Live Preview workflow across the two HTTPS origins.
+- Verify that direct preview navigation boots the app and that authenticated
+  Live Preview resolves and renders the News Article's Media relationship.
+- Confirm separate demo data, Media, users, secrets, Compose project, and
+  Vercel project. Record confirmation without secret values.
+- Confirm the demo indexing configuration leaves the rendered site unchanged.
+
+The ticket remains `ready-for-human`. The next browser check is an existing
+News Article with a hero image in authenticated Live Preview. No browser session
+or deployment inventory was available during these HTTP checks. Further ticket,
+application, and deployment updates still require user approval.
