@@ -152,13 +152,17 @@ type PageHeroProps = {
   title: string;
   description: ReactNode;
   icon?: LucideIcon;
+  variant?: "default" | "news-article";
 };
 
 export function DiagonalAccentSection({
   children,
   className,
+  layout = "split",
   ...props
-}: ComponentProps<"section">) {
+}: ComponentProps<"section"> & {
+  layout?: "split" | "stacked";
+}) {
   return (
     <section
       className={cn(
@@ -167,17 +171,37 @@ export function DiagonalAccentSection({
       )}
       {...props}
     >
-      <div
-        className="absolute inset-y-0 right-0 hidden w-[64%] bg-primary lg:block"
-        style={{ clipPath: "polygon(36% 0, 100% 0, 100% 100%, 12% 100%)" }}
-        aria-hidden="true"
-      />
+      {layout === "stacked" ? (
+        <div className="absolute inset-0 hidden lg:block" aria-hidden="true">
+          <div className="atf-container h-full">
+            <div className="relative h-full max-w-5xl">
+              <div
+                className="absolute inset-y-0 left-[calc(100%+1rem)] w-screen bg-primary"
+                style={{ clipPath: "polygon(96px 0, 100% 0, 100% 100%, 0 100%)" }}
+              />
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div
+          className="absolute inset-y-0 right-0 hidden w-[64%] bg-primary lg:block"
+          style={{ clipPath: "polygon(36% 0, 100% 0, 100% 100%, 12% 100%)" }}
+          aria-hidden="true"
+        />
+      )}
       <div
         className="absolute bottom-0 left-0 h-0 w-0 border-b-[48px] border-r-[48px] border-b-primary border-r-transparent"
         aria-hidden="true"
       />
       <div className="atf-container relative z-10 py-16 lg:py-24">
-        <div className="grid gap-10 lg:grid-cols-[0.72fr_1fr] lg:items-center">
+        <div
+          className={cn(
+            "grid gap-10",
+            layout === "split"
+              ? "lg:grid-cols-[0.72fr_1fr] lg:items-center"
+              : "lg:grid-cols-1 lg:gap-4",
+          )}
+        >
           {children}
         </div>
       </div>
@@ -190,9 +214,11 @@ export function PageHero({
   title,
   description,
   icon: Icon,
+  variant = "default",
 }: PageHeroProps) {
+  const isNewsArticle = variant === "news-article";
   return (
-    <DiagonalAccentSection>
+    <DiagonalAccentSection layout={isNewsArticle ? "stacked" : "split"}>
       <div>
         <Eyebrow light>{eyebrow}</Eyebrow>
         {Icon ? (
@@ -201,8 +227,18 @@ export function PageHero({
           </div>
         ) : null}
       </div>
-      <div className="max-w-4xl lg:pl-10">
-        <h1 className="font-display text-4xl font-black uppercase leading-tight md:text-6xl">
+      <div
+        className={cn(
+          "max-w-4xl",
+          isNewsArticle ? "lg:max-w-5xl" : "lg:pl-10",
+        )}
+      >
+        <h1
+          className={cn(
+            "font-display text-4xl font-black uppercase leading-tight md:text-6xl",
+            isNewsArticle && "lg:text-5xl",
+          )}
+        >
           {title}
         </h1>
         <p className="mt-6 max-w-3xl text-lg leading-8 text-white/70">

@@ -11,6 +11,7 @@ export function NewsArticlePage({ article }: { article: NewsArticle }) {
   return (
     <SubpageTemplate
       hero={{
+        variant: "news-article",
         eyebrow: article.category,
         title: article.title,
         description: article.excerpt,
