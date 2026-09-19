@@ -21,7 +21,7 @@ without blocking the shared layout. Initial HTML with published content and
 metadata remains planned in [SEO-CMS](.scratch/02-seo-cms/PRD.md).
 
 As of September 16, 2026, the next task is
-[Prove the Fetched-CMS release path](.scratch/01-fetched-cms/issues/10-prove-the-fetched-cms-release-path.md).
+[Prove the Fetched-CMS release path](.scratch/01-fetched-cms/issues/done/10-prove-the-fetched-cms-release-path.md).
 The August 31 handoff records completed local and automated proof, but deployed
 HTTPS checks remain open. That handoff records 139 passing Public Site tests
 and three existing assertion failures; these results have not been rerun.

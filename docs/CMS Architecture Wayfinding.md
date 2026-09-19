@@ -1,6 +1,6 @@
 # CMS Architecture Wayfinding
 
-Status: Resumed September 16, 2026 at the Fetched-CMS release proof
+Status: Fetched-CMS closed September 19, 2026; ready to scope the next changes
 
 ## Destination
 
@@ -16,11 +16,11 @@ approach, principal trade-offs, and phased roadmap.
   data, Media, users, and secrets do not transfer to production. The later
   [release guide](general-guides/prove-fetched-cms-release.md) supersedes this
   map's earlier assumption that there would be no separate demo.
-- On September 16, 2026, the user confirmed that the temporary Demo Rehearsal
-  has been shown to the team. The next task is release proof, followed by a
-  side quest for team feedback. SEO-CMS planning follows those tasks.
-- Current editing approval covers only README and this map. Ticket updates,
-  application changes, and deployment changes require further user approval.
+- On September 19, 2026, the user confirmed deployed Live Preview and demo
+  isolation and accepted the Fetched-CMS closeout with deployed commits unknown.
+  Scope the user's next changes before returning to SEO-CMS planning.
+- The September 19 approval covers release verification and its ticket and map
+  closeout. Further application and deployment changes need their own scope.
 - The stakeholder has independently planned production-readiness precautions
   and private deployment configuration. This wayfinding effort must not invent
   extra pre-production gates or require disclosure of those private plans.
@@ -41,6 +41,10 @@ approach, principal trade-offs, and phased roadmap.
 - [Define the Payload deployment and public-site boundary](../.scratch/cms-architecture/issues/done/04-define-payload-deployment-and-demo-boundary.md)
   — Use a portable two-service Compose application and phase public delivery
   through Fetched-CMS before SEO-CMS adds static HTML and copied media.
+
+- [Prove the Fetched-CMS release path](../.scratch/01-fetched-cms/issues/done/10-prove-the-fetched-cms-release-path.md)
+  records the accepted Fetched-CMS closeout, verification evidence, and unknown
+  deployed revisions.
 
 ### Repository and hosting boundaries
 
@@ -190,29 +194,20 @@ approach, principal trade-offs, and phased roadmap.
 - `backend-cms/` contains Payload, PostgreSQL migrations, a Dockerfile, development
   and production Compose configuration, and safe seed and import workflows.
 - The Public Site defaults to local port 3000 and the Backend CMS to port 3001.
-- [Prove the Fetched-CMS release path](../.scratch/01-fetched-cms/issues/10-prove-the-fetched-cms-release-path.md)
+- [Prove the Fetched-CMS release path](../.scratch/01-fetched-cms/issues/done/10-prove-the-fetched-cms-release-path.md)
   records completed local and automated proof on August 31. Its Public Site
   baseline was 139 passes and three existing assertion failures. These are
   recorded results, not checks rerun during the September 16 pre-flight.
-- The same ticket records operator acceptance of the production Backend CMS.
-  Its three deployed Demo Rehearsal checklist items remain open. The user's
-  September 16 report confirms that the demo now exists, superseding the
-  ticket's older statement that it had not been deployed.
+- All eleven Fetched-CMS issues have closed status. The release-proof ticket
+  records the September 19 operator acceptance and read-only deployment checks,
+  including the limits of that evidence.
 
 ## Resume point
 
-Resume with [Prove the Fetched-CMS release path](../.scratch/01-fetched-cms/issues/10-prove-the-fetched-cms-release-path.md)
-and the [release guide](general-guides/prove-fetched-cms-release.md). The user
-identified this temporary demo pair:
+Fetched-CMS is closed. Scope the user's next requested changes or team feedback
+as new work, using the [release closeout](../.scratch/01-fetched-cms/issues/done/10-prove-the-fetched-cms-release-path.md)
+as the baseline. Then return to SEO-CMS planning when the user is ready.
 
-- [Demo Backend CMS administration](https://cms-demo.africantechnologyforum.org/admin)
-- [Demo Public Site](https://public-demo.africantechnologyforum.org/)
-
-The remaining deployed proof covers HTTPS Public Delivery and Live Preview,
-direct preview navigation with authenticated Media, and demo isolation with
-non-indexable public output. Deployment existence alone does not satisfy those
-checks. Record the deployed revisions and evidence before closing the release
-ticket, after obtaining approval to update it.
-
-After release proof, scope the team's demo feedback with the user and obtain
-approval for the proposed changes. Then return to SEO-CMS planning.
+The broader CMS architecture map remains open, including
+[Define the CMS network and security boundary](../.scratch/cms-architecture/issues/05-define-cms-network-and-security-boundary.md).
+That decision is outside this Fetched-CMS closeout.

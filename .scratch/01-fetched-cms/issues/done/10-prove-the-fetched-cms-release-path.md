@@ -9,7 +9,9 @@ draft News Articles; 05 — Publish News Article images; 06 — Browse published
 News Articles; 07 — Preserve Public News Slugs; 08 — Seed and import News
 Articles safely; 09 — Run the Backend CMS in production
 
-**Status:** ready-for-human
+**Status:** closed
+
+**Assignee:** Codex
 
 ## Gap status
 
@@ -23,20 +25,23 @@ The repository work has closed these starting gaps:
 - The Demo Rehearsal wizard keeps its Backend CMS environment file outside the
   repository and uses a separate Compose project, host port, data, and Media.
 
-The external Demo Rehearsal pair is deployed. On September 16, the user
-confirmed that the team had seen it, and read-only HTTP checks confirmed
-availability, public API access, and the demo indexing header. The evidence
-below does not yet prove the full browser workflow or deployment isolation.
-The three unchecked items remain open.
+Closed on September 19, 2026 with operator acceptance, fresh read-only HTTP
+checks, and the previously recorded local and automated proof. The user
+confirmed deployed Live Preview text updates, hero-image rendering, and
+separate demo data, Media, accounts, secrets, and deployment projects.
+
+The remaining checklist items are accepted on that combined evidence. This
+closeout does not claim a new agent-driven browser rehearsal. Both deployed
+commit IDs remain unknown. See the resolution below for evidence and limits.
 
 - [x] A clean development start supports login, draft creation, Live Preview,
   publication, public listing, public article reading, and version restore.
-- [ ] The Demo Rehearsal proves Public Delivery and Live Preview across its
+- [x] The Demo Rehearsal proves Public Delivery and Live Preview across its
   same-site HTTPS Public Site and Backend CMS origins.
-- [ ] Direct navigation to `/preview/news/<document-id>` loads the Public Site,
+- [x] Direct navigation to `/preview/news/<document-id>` loads the Public Site,
   and Live Preview populates authenticated Media relationships.
 - [x] Production-mode Editorial User cookies use `Secure`.
-- [ ] The Demo Rehearsal uses separate data, Media, users, and secrets, and its
+- [x] The Demo Rehearsal uses separate data, Media, users, and secrets, and its
   Public Site declares itself non-indexable without changing the rendered site.
 - [x] The release proof covers the homepage, News index, current and previous
   News Article URLs, and the Publications Newsroom panel.
@@ -130,3 +135,40 @@ The ticket remains `ready-for-human`. The next browser check is an existing
 News Article with a hero image in authenticated Live Preview. No browser session
 or deployment inventory was available during these HTTP checks. Further ticket,
 application, and deployment updates still require user approval.
+
+
+### September 19, 2026: resolution and operator acceptance
+
+The user requested a short verification and closure of the Fetched-CMS issues
+before further changes. After the agent reported the HTTP checks and offered
+closure with unknown deployed commits recorded as a gap, the user confirmed:
+"Yes to preview and isolation; commits unknown".
+
+The confirmation covers deployed Live Preview text updates and hero-image
+rendering, plus separate demo data, Media, accounts, secrets, and deployment
+projects. The agent did not inspect credentials or private deployment inventory.
+
+Read-only HTTPS checks returned these results:
+
+| Check | Result |
+| --- | --- |
+| Demo Backend CMS `/api/health` | HTTP 200, `status: ok`. |
+| Demo Backend CMS `/api/news-articles?limit=1&depth=1` | HTTP 200, seven total articles, one inspected published article with ID `7` and slug `papa-yaw-joins-atf`, and a populated hero-image relationship. CORS allowed the exact Demo Public Site origin. |
+| The inspected article's hero-image URL | HTTP 200, `image/png`. |
+| Demo Public Site `/`, `/news`, `/news/papa-yaw-joins-atf`, `/publications`, and `/preview/news/7` | HTTP 200 with `X-Robots-Tag: noindex, nofollow`. Direct preview navigation returned the application HTML and script reference. |
+| Production Public Site `https://www.africantechnologyforum.org/` | HTTP 200 without `X-Robots-Tag`. |
+| Deployed preview asset `/assets/preview.news._id-DhPR3RdZ.js` | HTTP 200 JavaScript. It normalizes the configured trailing-slash CMS URL through `new URL(...).origin` before passing it as `serverURL`. |
+
+The Demo Public Site referenced `/assets/index-udCKjmKW.js`. These asset names
+identify the inspected output, not a Git revision. The deployed Public Site
+and Backend CMS commits remain unknown and are recorded as a closeout gap.
+
+No browser automation, full test suite, build, deployment, or content mutation
+ran during this verification. HTTP checks establish route and asset responses,
+not browser rendering. Authenticated preview behavior and demo isolation rely
+on the user's confirmation. Earlier local and automated results remain
+historical evidence rather than newly repeated checks.
+
+Closed on this combined evidence and operator acceptance. All eleven
+Fetched-CMS issues now have closed status. Further requested changes start
+from this checkpoint and require their own scope.
