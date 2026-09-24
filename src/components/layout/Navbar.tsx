@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { SITE_HEADER_THEME, siteHeaderPalette, type SiteHeaderTheme } from "@/lib/site-header-theme";
 
 const NAV_ROW_HEIGHT_CLASS = "h-[76px]";
 const NAV_LOGO_HEIGHT_CLASS = "h-[38px]";
@@ -166,14 +167,15 @@ function NavDropdownPanel({
   );
 }
 
-export function Navbar() {
+export function Navbar({ theme = SITE_HEADER_THEME }: { theme?: SiteHeaderTheme }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const headerChromeRef = useHeaderHeight<HTMLDivElement>();
+  const palette = siteHeaderPalette[theme];
 
   const closeMobile = () => setMobileOpen(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-atf-gray-200 bg-white text-atf-ink shadow-sm">
+    <header className={cn("sticky top-0 z-50 border-b shadow-sm", palette.shell)} data-header-theme={theme}>
       <div ref={headerChromeRef}>
         <ChallengeAnnouncementBanner />
 
@@ -185,7 +187,7 @@ export function Navbar() {
         >
           <Link to="/" className="inline-flex items-center">
             <SiteLogo
-              variant="fullColor"
+              variant={palette.logo}
               className={cn(NAV_LOGO_HEIGHT_CLASS, "max-w-[220px]")}
             />
           </Link>
@@ -200,7 +202,7 @@ export function Navbar() {
                   <DropdownMenuTrigger asChild>
                     <button
                       type="button"
-                      className="inline-flex items-center gap-1 px-3 py-2 font-display text-xs font-bold uppercase text-atf-gray-700 transition-colors hover:text-primary data-[state=open]:text-primary [&[data-state=open]>svg]:rotate-180"
+                      className={cn("inline-flex items-center gap-1 px-3 py-2 font-display text-xs font-bold uppercase transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-primary data-[state=open]:text-primary [&[data-state=open]>svg]:rotate-180", palette.navigation)}
                     >
                       {item.label}
                       <ChevronDown
@@ -216,7 +218,7 @@ export function Navbar() {
                         asChild
                         className={PANEL_ITEM_CLASS}
                       >
-                        <SmartLink to={child.to} exactActive>
+                        <SmartLink to={child.to} exactActive={child.to !== "/news"}>
                           {child.label}
                         </SmartLink>
                       </DropdownMenuItem>
@@ -227,7 +229,7 @@ export function Navbar() {
                 <SmartLink
                   key={item.to}
                   to={item.to}
-                  className="px-3 py-2 font-display text-xs font-bold uppercase text-atf-gray-700 transition-colors hover:text-primary"
+                  className={cn("border-b-2 border-transparent px-3 py-2 font-display text-xs font-bold uppercase transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-primary", palette.navigation, item.to === "/news" && "data-[status=active]:border-primary", item.to === "/news" && palette.selectedNews)}
                 >
                   {item.label}
                 </SmartLink>
@@ -246,7 +248,7 @@ export function Navbar() {
             </OpportunityButton>
             <IconButton
               variant="ghost"
-              className="text-atf-ink lg:hidden"
+              className={cn("lg:hidden", palette.icon)}
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
               onClick={() => setMobileOpen((open) => !open)}
@@ -264,16 +266,16 @@ export function Navbar() {
       {mobileOpen ? (
         <nav
           aria-label="Mobile"
-          className="atf-mobile-menu overflow-y-auto overscroll-contain border-t border-atf-gray-200 bg-white px-6 py-6 lg:hidden"
+          className={cn("atf-mobile-menu overflow-y-auto overscroll-contain border-t px-6 py-6 lg:hidden", palette.mobileMenu)}
         >
           <div className="flex flex-col gap-1">
             {navItems.map((item) =>
               item.children ? (
                 <div
                   key={item.label}
-                  className="border-b border-atf-gray-200 py-3"
+                  className={cn("border-b py-3", palette.divider)}
                 >
-                  <p className="mb-3 font-display text-xs font-bold uppercase text-atf-gray-500">
+                  <p className={cn("mb-3 font-display text-xs font-bold uppercase", palette.sectionLabel)}>
                     {item.label}
                   </p>
                   <div className="grid gap-2">
@@ -282,7 +284,7 @@ export function Navbar() {
                         key={child.to}
                         to={child.to}
                         onClick={closeMobile}
-                        className="py-2 font-display text-base font-bold uppercase text-atf-ink hover:text-primary"
+                        className={cn("py-2 font-display text-base font-bold uppercase hover:text-primary focus-visible:outline-2 focus-visible:outline-primary data-[status=active]:text-primary", palette.navigation)}
                       >
                         {child.label}
                       </SmartLink>
@@ -294,7 +296,7 @@ export function Navbar() {
                   key={item.to}
                   to={item.to}
                   onClick={closeMobile}
-                  className="border-b border-atf-gray-200 py-4 font-display text-base font-bold uppercase text-atf-ink hover:text-primary"
+                  className={cn("border-b py-4 font-display text-base font-bold uppercase hover:text-primary focus-visible:outline-2 focus-visible:outline-primary data-[status=active]:border-primary data-[status=active]:text-primary", palette.mobileLink)}
                 >
                   {item.label}
                 </SmartLink>

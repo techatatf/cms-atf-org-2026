@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   getPublishedNewsArticle,
   getPublishedNewsHighlights,
+  getPublishedNewsLead,
   getPublishedNewsPage,
 } from "@/services/news";
 
@@ -188,6 +189,38 @@ describe("published News Article query", () => {
 });
 
 describe("published News Article list query", () => {
+  it("selects the featured Lead Story and excludes only it before archive pagination", async () => {
+    const makeArticle = (id: number, featured: boolean) => ({
+      id, _status: "published", body, category: "Press", excerpt: `Excerpt ${id}`,
+      featured, heroImage: null, publishedAt: "2026-08-30T09:00:00.000Z",
+      slug: `article-${id}`, title: `Article ${id}`,
+    });
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+      const url = new URL(String(input));
+      const docs = url.searchParams.has("where[id][not_equals]")
+        ? [makeArticle(2, true), makeArticle(3, false)]
+        : [makeArticle(1, true)];
+      return new Response(JSON.stringify({ docs, hasNextPage: true, page: 1, totalDocs: 14 }), { status: 200 });
+    });
+
+    const lead = await getPublishedNewsLead();
+    const archive = await getPublishedNewsPage({ excludeId: lead?.id, limit: 12 });
+
+    expect(lead?.slug).toBe("article-1");
+    expect(archive.articles.map(({ slug }) => slug)).toEqual(["article-2", "article-3"]);
+    expect(new URL(String(fetchSpy.mock.calls[1]?.[0])).searchParams.get("where[id][not_equals]")).toBe("1");
+    expect(new URL(String(fetchSpy.mock.calls[1]?.[0])).searchParams.get("limit")).toBe("12");
+  });
+
+  it("uses the newest published article when no featured Lead Story exists", async () => {
+    const article = { id: 7, _status: "published", body, category: "Press", excerpt: "Newest", featured: false, heroImage: null, publishedAt: "2026-08-30T09:00:00.000Z", slug: "newest", title: "Newest" };
+    const fetchSpy = vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(new Response(JSON.stringify({ docs: [], hasNextPage: false, page: 1, totalDocs: 0 }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ docs: [article], hasNextPage: false, page: 1, totalDocs: 1 }), { status: 200 }));
+
+    expect((await getPublishedNewsLead())?.slug).toBe("newest");
+    expect(new URL(String(fetchSpy.mock.calls[1]?.[0])).searchParams.get("where[featured][equals]")).toBeNull();
+  });
   it("returns one ordered category page from Payload", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(

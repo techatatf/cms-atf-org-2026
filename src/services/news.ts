@@ -41,6 +41,7 @@ type NewsArticleQueryOptions = {
 
 type PublishedNewsPageOptions = NewsArticleQueryOptions & {
   category?: NewsCategory;
+  excludeId?: string;
   limit?: number;
   page?: number;
 };
@@ -217,6 +218,7 @@ export async function getPublishedNewsArticle(
 
 async function requestPublishedNewsPage({
   category,
+  excludeId,
   featured,
   limit = 12,
   origin = DEFAULT_BACKEND_CMS_ORIGIN,
@@ -233,6 +235,10 @@ async function requestPublishedNewsPage({
 
   if (category) {
     requestURL.searchParams.set("where[category][equals]", category);
+  }
+
+  if (excludeId) {
+    requestURL.searchParams.set("where[id][not_equals]", excludeId);
   }
 
   if (featured !== undefined) {
@@ -280,6 +286,21 @@ export function getPublishedNewsPage(
   options: PublishedNewsPageOptions = {},
 ): Promise<PublishedNewsPage> {
   return requestPublishedNewsPage(options);
+}
+
+export async function getPublishedNewsLead(
+  options: NewsArticleQueryOptions = {},
+): Promise<NewsArticle | null> {
+  const featured = await requestPublishedNewsPage({
+    ...options,
+    featured: true,
+    limit: 1,
+  });
+
+  if (featured.articles[0]) return featured.articles[0];
+
+  const latest = await requestPublishedNewsPage({ ...options, limit: 1 });
+  return latest.articles[0] ?? null;
 }
 
 export async function getPublishedNewsHighlights({

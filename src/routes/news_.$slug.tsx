@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { NewsArticlePage } from "@/components/site/NewsArticlePage";
 import { OpportunityButton } from "@/components/site/OpportunityButton";
 import { EmptyState } from "@/components/site/Page";
+import { SubpageBreadcrumb, newsArticleBreadcrumb } from "@/components/site/SubpageBreadcrumb";
 import {
   getPublishedNewsArticle,
   type NewsArticle,
@@ -73,12 +74,15 @@ function NewsArticleRoute() {
 
   if (state.status === "not-found") {
     return (
+      <>
+      <SubpageBreadcrumb entries={newsArticleBreadcrumb()} />
       <EmptyState
         title="Article not found."
         description="No published News Article uses this Public News Slug."
         href="/news"
         action="Back to News"
       />
+      </>
     );
   }
 
@@ -93,6 +97,8 @@ function NewsArticleRoute() {
 
 function ArticleLoading() {
   return (
+    <>
+    <SubpageBreadcrumb entries={newsArticleBreadcrumb()} />
     <section className="bg-white" aria-label="News Article">
       <div className="atf-container flex min-h-[50vh] items-center justify-center py-16">
         <p
@@ -103,11 +109,14 @@ function ArticleLoading() {
         </p>
       </div>
     </section>
+    </>
   );
 }
 
 function ArticleUnavailable({ onRetry }: { onRetry: () => void }) {
   return (
+    <>
+    <SubpageBreadcrumb entries={newsArticleBreadcrumb()} />
     <section className="bg-white" aria-labelledby="news-unavailable-title">
       <div className="atf-container flex min-h-[50vh] items-center justify-center py-16">
         <div className="max-w-xl text-center">
@@ -126,5 +135,6 @@ function ArticleUnavailable({ onRetry }: { onRetry: () => void }) {
         </div>
       </div>
     </section>
+    </>
   );
 }

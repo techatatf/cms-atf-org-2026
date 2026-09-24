@@ -1,7 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
-import { act, cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { RouterProvider, createMemoryHistory } from "@tanstack/react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -115,7 +115,11 @@ describe("News Article Live Preview route", () => {
           return new Response(
             JSON.stringify({
               ...requestBody.data,
-              heroImage: populatedHeroImage,
+              heroImage: requestBody.data.heroImage === 7
+                ? populatedHeroImage
+                : requestBody.data.heroImage === 8
+                  ? { ...populatedHeroImage, alt: "Replacement draft image", url: "/api/media/file/replacement.jpg" }
+                  : null,
             }),
             { status: 200 },
           );
@@ -202,6 +206,24 @@ describe("News Article Live Preview route", () => {
         data: draftArticle,
         depth: 1,
       });
+
+      if (configuredURL === "https://cms.example.test/") {
+        fireEvent.error(heroImage);
+        expect(screen.queryByRole("img", { name: populatedHeroImage.alt })).toBeNull();
+
+        window.dispatchEvent(new MessageEvent("message", {
+          data: { collectionSlug: "news-articles", data: { ...draftArticle, heroImage: null }, type: "payload-live-preview" },
+          origin: backendCMSOrigin,
+        }));
+        await waitFor(() => expect(screen.queryByRole("img", { name: populatedHeroImage.alt })).toBeNull());
+
+        window.dispatchEvent(new MessageEvent("message", {
+          data: { collectionSlug: "news-articles", data: { ...draftArticle, heroImage: 8 }, type: "payload-live-preview" },
+          origin: backendCMSOrigin,
+        }));
+        const replacement = await screen.findByRole("img", { name: "Replacement draft image" });
+        expect(replacement.getAttribute("src")).toBe(`${backendCMSOrigin}/api/media/file/replacement.jpg`);
+      }
     },
   );
 

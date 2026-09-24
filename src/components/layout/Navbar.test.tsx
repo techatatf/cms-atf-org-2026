@@ -12,6 +12,7 @@ import {
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { Navbar } from "@/components/layout/Navbar";
+import { HomepageOnlyShell } from "@/components/layout/HomepageOnlyShell";
 
 let activePath = "/";
 
@@ -242,7 +243,7 @@ describe("Navbar", () => {
     );
   });
 
-  it("marks only exact current-page panel links as selected", () => {
+  it("keeps the Newsroom navigation active on landing and article pages", () => {
     activePath = "/news";
     render(<Navbar />);
 
@@ -264,6 +265,12 @@ describe("Navbar", () => {
     activePath = "/news/some-article";
     render(<Navbar />);
 
+    const primaryNewsroom = within(screen.getByRole("navigation", { name: "Primary" })).getByRole("link", { name: "Newsroom" });
+    expect(primaryNewsroom.getAttribute("aria-current")).toBe("page");
+    expect(primaryNewsroom.className).toContain("data-[status=active]:border-primary");
+    fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
+    expect(within(screen.getByRole("navigation", { name: "Mobile" })).getAllByRole("link", { name: "Newsroom" })[1].getAttribute("aria-current")).toBe("page");
+
     fireEvent.pointerDown(screen.getByRole("button", { name: "Publications" }));
 
     menu = screen.getByRole("menu");
@@ -271,6 +278,26 @@ describe("Navbar", () => {
       within(menu).getByRole("link", { name: "Newsroom" }).getAttribute(
         "data-status",
       ),
-    ).toBeNull();
+    ).toBe("active");
+  });
+
+  it("defaults both header shells to dark and supports the shared light variant", () => {
+    render(<Navbar />);
+    expect(screen.getByRole("banner").getAttribute("data-header-theme")).toBe("dark");
+    expect(screen.getByAltText("African Technology Forum").getAttribute("src")).toBe("/atf-assets/v2/logo-bright.png");
+    fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
+    expect(screen.getByRole("navigation", { name: "Mobile" }).className).toContain("bg-atf-black");
+
+    cleanup();
+    render(<Navbar theme="light" />);
+    expect(screen.getByRole("banner").getAttribute("data-header-theme")).toBe("light");
+    expect(screen.getByAltText("African Technology Forum").getAttribute("src")).toBe("/atf-assets/v2/logo-full-color.png");
+
+    cleanup();
+    render(<HomepageOnlyShell><p>Home</p></HomepageOnlyShell>);
+    expect(screen.getByRole("banner").getAttribute("data-header-theme")).toBe("dark");
+    cleanup();
+    render(<HomepageOnlyShell theme="light"><p>Home</p></HomepageOnlyShell>);
+    expect(screen.getByRole("banner").getAttribute("data-header-theme")).toBe("light");
   });
 });

@@ -8,6 +8,7 @@ type NewsArticleImageProps = {
   frameClassName?: string;
   image: NewsArticleHeroImage;
   imageClassName?: string;
+  onFailure?: () => void;
 };
 
 function UnavailableImage({
@@ -38,6 +39,7 @@ export function NewsArticleImage({
   frameClassName,
   image,
   imageClassName,
+  onFailure,
 }: NewsArticleImageProps) {
   const [failed, setFailed] = useState(false);
 
@@ -56,7 +58,10 @@ export function NewsArticleImage({
         alt={image.alt}
         className={cn("block size-full object-cover", imageClassName)}
         decoding="async"
-        onError={() => setFailed(true)}
+        onError={() => {
+          setFailed(true);
+          onFailure?.();
+        }}
         src={image.url}
       />
     </div>

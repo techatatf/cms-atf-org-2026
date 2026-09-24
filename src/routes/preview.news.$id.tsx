@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, type ReactNode } from "react";
 
 import { NewsArticlePage } from "@/components/site/NewsArticlePage";
+import { SubpageBreadcrumb, newsArticleBreadcrumb } from "@/components/site/SubpageBreadcrumb";
 import { mapLivePreviewNewsArticle } from "@/services/news";
 
 const backendCMSOrigin = new URL(
@@ -26,6 +27,7 @@ function NewsArticlePreviewRoute() {
   if (isLoading || !article) {
     return (
       <PreviewDocument>
+        <SubpageBreadcrumb entries={newsArticleBreadcrumb()} />
         <section className="bg-white" aria-labelledby="preview-waiting-title">
           <div className="atf-container flex min-h-[50vh] items-center justify-center py-16">
             <div className="max-w-xl text-center">
