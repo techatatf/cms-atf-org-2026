@@ -1,5 +1,9 @@
 import { Link } from "@tanstack/react-router";
 
+import { truncateAtWord } from "@/lib/truncate-at-word";
+
+export const BREADCRUMB_LABEL_MAX_CHARS = 20;
+
 export type BreadcrumbEntry = { label: string; href?: string };
 
 export function SubpageBreadcrumb({ entries }: { entries: BreadcrumbEntry[] }) {
@@ -14,14 +18,29 @@ export function SubpageBreadcrumb({ entries }: { entries: BreadcrumbEntry[] }) {
                 {entry.label}
               </Link>
             ) : (
-              <span aria-current="page" className="block min-w-0 truncate text-atf-ink" title={entry.label}>
-                {entry.label}
-              </span>
+              <CurrentPageLabel label={entry.label} />
             )}
           </li>
         ))}
       </ol>
     </nav>
+  );
+}
+
+function CurrentPageLabel({ label }: { label: string }) {
+  const shortLabel = truncateAtWord(label, BREADCRUMB_LABEL_MAX_CHARS);
+
+  return (
+    <span aria-current="page" className="block min-w-0 truncate text-atf-ink" title={label}>
+      {shortLabel === label ? (
+        label
+      ) : (
+        <>
+          <span aria-hidden="true">{shortLabel}</span>
+          <span className="sr-only">{label}</span>
+        </>
+      )}
+    </span>
   );
 }
 

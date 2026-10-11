@@ -136,7 +136,7 @@ describe("published News Article route", () => {
     ).toBeTruthy();
     expect(screen.getAllByText("The public article excerpt.")).toHaveLength(1);
     const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
-    expect(breadcrumb.querySelector('[aria-current="page"]')?.textContent).toBe("Fetched Public Article");
+    expect(breadcrumb.querySelector('[aria-current="page"]')?.getAttribute("title")).toBe("Fetched Public Article");
     expect(
       screen.getByText("This body came from Payload rich text."),
     ).toBeTruthy();
@@ -239,6 +239,23 @@ describe("published News Article route", () => {
     expect(await screen.findByRole("heading", { name: "Second Article" })).toBeTruthy();
     const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
     expect(breadcrumb.querySelector('[aria-current="page"]')?.textContent).toBe("Second Article");
+  });
+
+  it("shortens a long title in the breadcrumb while keeping the full title available", async () => {
+    const longTitle = "African Technology Forum announces its new fellowship cohort";
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      payloadResponse(null, "fetched-public-article", longTitle),
+    );
+
+    renderArticleRoute();
+
+    expect(await screen.findByRole("heading", { level: 1, name: longTitle })).toBeTruthy();
+    const current = screen
+      .getByRole("navigation", { name: "Breadcrumb" })
+      .querySelector('[aria-current="page"]');
+    expect(current?.getAttribute("title")).toBe(longTitle);
+    expect(current?.querySelector('[aria-hidden="true"]')?.textContent).toBe("African Technology…");
+    expect(current?.querySelector(".sr-only")?.textContent).toBe(longTitle);
   });
 
   it("shows Article not found. after a successful empty response", async () => {
