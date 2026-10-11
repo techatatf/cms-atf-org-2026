@@ -20,6 +20,18 @@ The independently deployed, visitor-facing ATF website paired with one Backend
 CMS for published content and Live Preview.
 _Avoid_: CMS frontend, frontend when the deployment boundary matters
 
+**Homepage-Only Mode**:
+The temporary default Public Site mode used while the full site is still being
+built. It exposes only the homepage, legal pages, the Newsroom, and Live
+Preview; other routes redirect to homepage sections.
+_Avoid_: maintenance mode, landing page
+
+**Multi-Page Mode**:
+The Public Site with all routes exposed, enabled by setting
+`VITE_HOMEPAGE_ONLY_MODE=false`. It is the intended end state once the site is
+complete.
+_Avoid_: full mode, V2 mode
+
 **Editorial User**:
 An authenticated Backend CMS user with exactly one role: Admin or Editor. Both
 roles can enter the Payload administration interface.

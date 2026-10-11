@@ -116,6 +116,7 @@ describe("application router homepage-only mode", () => {
       ["About", "/#about"],
       ["Programs", "/#programs"],
       ["Chapters", "/#chapters"],
+      ["Newsroom", "/news"],
       ["Partner with Us", "/#funder"],
     ]);
     expect(screen.queryByRole("button", { name: /Who We Are/i })).toBeNull();
@@ -171,37 +172,23 @@ describe("application router homepage-only mode", () => {
     }
   });
 
-  it("keeps the News section mounted but hidden when enabled", async () => {
-    vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
-    const router = createAppRouter({
-      homepageOnlyMode: true,
-      history: createMemoryHistory({ initialEntries: ["/"] }),
-    });
+  it.each([true, false])(
+    "shows the News section when homepage-only mode is %s",
+    async (homepageOnlyMode) => {
+      vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+      const router = createAppRouter({
+        homepageOnlyMode,
+        history: createMemoryHistory({ initialEntries: ["/"] }),
+      });
 
-    const { container } = render(<RouterProvider router={router} />);
+      const { container } = render(<RouterProvider router={router} />);
 
-    await screen.findByRole("heading", {
-      name: /At the forefront\s*of African technology/i,
-    });
-    expect(container.querySelector("#news")?.classList.contains("hidden")).toBe(
-      true,
-    );
-  });
-
-  it("keeps the News section visible when homepage-only mode is disabled", async () => {
-    vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
-    const router = createAppRouter({
-      homepageOnlyMode: false,
-      history: createMemoryHistory({ initialEntries: ["/"] }),
-    });
-
-    const { container } = render(<RouterProvider router={router} />);
-
-    await screen.findByRole("heading", { name: /The latest from across/i });
-    expect(container.querySelector("#news")?.classList.contains("hidden")).toBe(
-      false,
-    );
-  });
+      await screen.findByRole("heading", { name: /The latest from across/i });
+      expect(
+        container.querySelector("#news")?.classList.contains("hidden"),
+      ).toBe(false);
+    },
+  );
 
   it.each([true, false])(
     "renders the newsletter CTA between News and Partners when homepage-only mode is %s",
@@ -524,7 +511,7 @@ describe("application router homepage-only mode", () => {
 
     const main = await screen.findByRole("main");
     const hiddenRouteHref =
-      /^\/(?:about|who-we-are|team|what-we-do|consulting|challenge|chapters|where-we-work|countries(?:\/|$)|publications|articles|research|library|news(?:\/|$))/;
+      /^\/(?:about|who-we-are|team|what-we-do|consulting|challenge|chapters|where-we-work|countries(?:\/|$)|publications|articles|research|library)/;
 
     expect(
       within(main)
@@ -552,21 +539,24 @@ describe("application router homepage-only mode", () => {
     expect(screen.queryByRole("link", { name: "Join a Chapter" })).toBeNull();
   });
 
-  it("restores the original news destination when homepage-only mode is disabled", async () => {
-    vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
-    const router = createAppRouter({
-      homepageOnlyMode: false,
-      history: createMemoryHistory({ initialEntries: ["/"] }),
-    });
+  it.each([true, false])(
+    "links View all news to the Newsroom when homepage-only mode is %s",
+    async (homepageOnlyMode) => {
+      vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+      const router = createAppRouter({
+        homepageOnlyMode,
+        history: createMemoryHistory({ initialEntries: ["/"] }),
+      });
 
-    render(<RouterProvider router={router} />);
+      render(<RouterProvider router={router} />);
 
-    expect(
-      (
-        await screen.findByRole("link", { name: /View all news/i })
-      ).getAttribute("href"),
-    ).toBe("/news");
-  });
+      expect(
+        (
+          await screen.findByRole("link", { name: /View all news/i })
+        ).getAttribute("href"),
+      ).toBe("/news");
+    },
+  );
 
   it("keeps one booking action with the response-time copy", async () => {
     vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
@@ -628,6 +618,7 @@ describe("application router homepage-only mode", () => {
       ["About", "/#about"],
       ["Programs", "/#programs"],
       ["Chapters", "/#chapters"],
+      ["Newsroom", "/news"],
       ["Partner with Us", "/#funder"],
     ]);
 
@@ -674,6 +665,7 @@ describe("application router homepage-only mode", () => {
       "/#about",
       "/#programs",
       "/#chapters",
+      "/news",
       "/#funder",
       "/#student",
       "mailto:info@africantechnologyforum.org",
@@ -742,9 +734,6 @@ describe("application router homepage-only mode", () => {
     ["/articles", "/#about"],
     ["/research", "/#about"],
     ["/library", "/#about"],
-    ["/news", "/#about"],
-    ["/news/manual-check", "/#about"],
-    ["/news/%malformed?source=bookmark", "/#about"],
   ])(
     "redirects %s to %s while homepage-only mode is enabled",
     async (path, expectedHref) => {
@@ -759,6 +748,49 @@ describe("application router homepage-only mode", () => {
       await waitFor(() => {
         expect(router.state.location.href).toBe(expectedHref);
       });
+    },
+  );
+
+  it.each([
+    { path: "/news", activeNewsroom: true },
+    { path: "/news/manual-check", activeNewsroom: true },
+    { path: "/", activeNewsroom: false },
+  ])(
+    "keeps the Newsroom at $path inside the temporary shell",
+    async ({ path, activeNewsroom }) => {
+      vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+      vi.spyOn(globalThis, "fetch").mockImplementation(
+        async () =>
+          new Response(
+            JSON.stringify({
+              docs: [],
+              hasNextPage: false,
+              page: 1,
+              totalDocs: 0,
+            }),
+            { status: 200 },
+          ),
+      );
+      const router = createAppRouter({
+        homepageOnlyMode: true,
+        history: createMemoryHistory({ initialEntries: [path] }),
+      });
+
+      render(<RouterProvider router={router} />);
+
+      const navigation = await screen.findByRole("navigation", {
+        name: "Homepage",
+      });
+      const newsroom = within(navigation).getByRole("link", {
+        name: "Newsroom",
+      });
+      await waitFor(() => {
+        expect(newsroom.getAttribute("data-status") === "active").toBe(
+          activeNewsroom,
+        );
+      });
+      expect(router.state.location.pathname).toBe(path);
+      expect(screen.queryByRole("button", { name: /Who We Are/i })).toBeNull();
     },
   );
 

@@ -18,17 +18,26 @@ import { IconButton, SiteLogo } from "@/components/site/Page";
 import { SITE_HEADER_THEME, siteHeaderPalette, type SiteHeaderTheme } from "@/lib/site-header-theme";
 import { cn } from "@/lib/utils";
 
-const homepageNavigation = [
+type HomepageNavigationItem =
+  | { label: string; hash: string }
+  | { label: string; to: "/news" };
+
+const homepageNavigation: HomepageNavigationItem[] = [
   { label: "About", hash: "about" },
   { label: "Programs", hash: "programs" },
   { label: "Chapters", hash: "chapters" },
-] as const;
+  { label: "Newsroom", to: "/news" },
+];
 
-const homepageFooterNavigation = [
+const homepageFooterNavigation: HomepageNavigationItem[] = [
   ...homepageNavigation,
   { label: "Partner with Us", hash: "funder" },
   { label: "Student Opportunities", hash: "student" },
-] as const;
+];
+
+function homepageLinkTarget(item: HomepageNavigationItem) {
+  return "to" in item ? { to: item.to } : { to: "/", hash: item.hash };
+}
 
 const socialLinks = [
   { icon: Twitter, href: "https://x.com/AfTechForum", label: "Twitter" },
@@ -87,10 +96,9 @@ export function HomepageOnlyShell({ children, theme = SITE_HEADER_THEME }: { chi
           >
             {homepageNavigation.map((item) => (
               <Link
-                key={item.hash}
-                to="/"
-                hash={item.hash}
-                className={cn("px-3 py-2 font-display text-xs font-bold uppercase transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-primary", palette.navigation)}
+                key={item.label}
+                {...homepageLinkTarget(item)}
+                className={cn("border-b-2 border-transparent px-3 py-2 font-display text-xs font-bold uppercase transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-primary", palette.navigation, "to" in item && cn("data-[status=active]:border-primary", palette.selectedNews))}
               >
                 {item.label}
               </Link>
@@ -124,9 +132,8 @@ export function HomepageOnlyShell({ children, theme = SITE_HEADER_THEME }: { chi
             <div className="mx-auto grid max-w-7xl gap-1">
               {homepageNavigation.map((item) => (
                 <Link
-                  key={item.hash}
-                  to="/"
-                  hash={item.hash}
+                  key={item.label}
+                  {...homepageLinkTarget(item)}
                   onClick={closeMobile}
                   className={cn("border-b py-4 font-display text-base font-bold uppercase hover:text-primary focus-visible:outline-2 focus-visible:outline-primary", palette.mobileLink)}
                 >
@@ -165,10 +172,9 @@ export function HomepageOnlyShell({ children, theme = SITE_HEADER_THEME }: { chi
               </h2>
               <ul className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 text-sm text-white/55">
                 {homepageFooterNavigation.map((item) => (
-                  <li key={item.hash}>
+                  <li key={item.label}>
                     <Link
-                      to="/"
-                      hash={item.hash}
+                      {...homepageLinkTarget(item)}
                       className="transition-colors hover:text-white"
                     >
                       {item.label}

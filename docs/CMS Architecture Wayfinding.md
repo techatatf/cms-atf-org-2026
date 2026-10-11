@@ -185,9 +185,12 @@ approach, principal trade-offs, and phased roadmap.
 
 - The Public Site is a browser-rendered Vite, React, and TanStack Router app
   with one ATF V2 design. The former prototype switcher and theme contexts are
-  gone. Multi-page routes require `VITE_HOMEPAGE_ONLY_MODE=false`.
+  gone. Multi-page routes require `VITE_HOMEPAGE_ONLY_MODE=false`. The
+  temporary homepage-only default still exposes the Newsroom.
 - News uses browser-time Payload REST reads through `src/services/news.ts` on
   the homepage, News index, News Article routes, and Publications Newsroom panel.
+  The Backend CMS origin comes from `src/lib/backend-cms-origin.ts`, which
+  falls back to `http://localhost:3001` only in development builds.
 - Individual News Articles use `/news/<slug>`, implemented in
   `src/routes/news_.$slug.tsx`. The six repository-owned News Articles are local
   seed data, not the public runtime source or an approved production dataset.

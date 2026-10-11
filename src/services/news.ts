@@ -1,7 +1,6 @@
 import type { SerializedEditorState } from "@payloadcms/richtext-lexical/lexical";
 
-const DEFAULT_BACKEND_CMS_ORIGIN =
-  import.meta.env.VITE_BACKEND_CMS_ORIGIN || "http://localhost:3001";
+import { BACKEND_CMS_ORIGIN } from "@/lib/backend-cms-origin";
 
 const REQUEST_TIMEOUT_MS = 5_000;
 
@@ -70,13 +69,21 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
+function requireBackendCMSOrigin(origin: string | undefined): string {
+  if (!origin) {
+    throw new Error("Backend CMS origin is not configured");
+  }
+
+  return origin;
+}
+
 function isNewsCategory(value: unknown): value is NewsCategory {
   return NEWS_CATEGORIES.some((category) => category === value);
 }
 
 function mapHeroImage(
   value: unknown,
-  backendCMSOrigin: string,
+  backendCMSOrigin: string | undefined,
 ): NewsArticleHeroImage | null {
   if (!isRecord(value)) {
     return null;
@@ -112,7 +119,7 @@ function mapHeroImage(
 function mapNewsArticle(
   value: unknown,
   acceptedStatuses: ReadonlySet<string>,
-  backendCMSOrigin: string,
+  backendCMSOrigin: string | undefined,
 ): NewsArticle {
   if (!isRecord(value)) {
     throw new Error("Unexpected News Article response");
@@ -168,7 +175,7 @@ export function mapLivePreviewNewsArticle(value: unknown): NewsArticle | null {
     return mapNewsArticle(
       value,
       new Set(["draft", "published"]),
-      DEFAULT_BACKEND_CMS_ORIGIN,
+      BACKEND_CMS_ORIGIN,
     );
   } catch {
     return null;
@@ -178,11 +185,14 @@ export function mapLivePreviewNewsArticle(value: unknown): NewsArticle | null {
 export async function getPublishedNewsArticle(
   slug: string,
   {
-    origin = DEFAULT_BACKEND_CMS_ORIGIN,
+    origin = BACKEND_CMS_ORIGIN,
     timeoutMs = REQUEST_TIMEOUT_MS,
   }: NewsArticleQueryOptions = {},
 ): Promise<NewsArticle | null> {
-  const requestURL = new URL("/api/news-articles", origin);
+  const requestURL = new URL(
+    "/api/news-articles",
+    requireBackendCMSOrigin(origin),
+  );
   requestURL.searchParams.set("depth", "1");
   requestURL.searchParams.set("draft", "false");
   requestURL.searchParams.set("limit", "1");
@@ -221,11 +231,14 @@ async function requestPublishedNewsPage({
   excludeId,
   featured,
   limit = 12,
-  origin = DEFAULT_BACKEND_CMS_ORIGIN,
+  origin = BACKEND_CMS_ORIGIN,
   page = 1,
   timeoutMs = REQUEST_TIMEOUT_MS,
 }: PublishedNewsPageRequestOptions = {}): Promise<PublishedNewsPage> {
-  const requestURL = new URL("/api/news-articles", origin);
+  const requestURL = new URL(
+    "/api/news-articles",
+    requireBackendCMSOrigin(origin),
+  );
   requestURL.searchParams.set("depth", "1");
   requestURL.searchParams.set("draft", "false");
   requestURL.searchParams.set("limit", String(limit));
@@ -305,7 +318,7 @@ export async function getPublishedNewsLead(
 
 export async function getPublishedNewsHighlights({
   nonFeaturedLimit,
-  origin = DEFAULT_BACKEND_CMS_ORIGIN,
+  origin = BACKEND_CMS_ORIGIN,
   timeoutMs = REQUEST_TIMEOUT_MS,
 }: PublishedNewsHighlightsOptions): Promise<PublishedNewsHighlights> {
   const [featuredPage, nonFeaturedPage] = await Promise.all([

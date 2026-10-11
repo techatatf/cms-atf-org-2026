@@ -12,7 +12,9 @@ live in `src/components/site/`, with navigation and footer in
 `src/components/layout/`.
 
 Multi-page routes are implemented. Set `VITE_HOMEPAGE_ONLY_MODE=false` to expose
-them; homepage-only mode remains the default when that value is absent.
+them; homepage-only mode remains the default when that value is absent. That
+temporary mode still exposes the homepage, legal pages, the Newsroom (`/news`
+and `/news/<slug>`), and Live Preview.
 
 Fetched-CMS is implemented for News Articles, including Admin and Editor roles,
 drafts, Live Preview, revisions, Media, stable public slugs, and safe imports.
@@ -95,7 +97,10 @@ cp .env.example .env
 ```
 
 The example enables the multi-page routes and sets `VITE_BACKEND_CMS_ORIGIN`
-to `http://localhost:3001`. The public preview route accepts Payload Live
+to `http://localhost:3001`. Development builds fall back to that origin when the
+value is absent. Production builds without it make no CMS requests: news
+surfaces show their unavailable state, Live Preview reports that it is
+unavailable, and the browser console logs one warning. The public preview route accepts Payload Live
 Preview messages only from that exact origin. The Backend CMS loads the matching
 preview route from `PAYLOAD_PUBLIC_SITE_ORIGIN`, which defaults to
 `http://localhost:3000` in the development Compose configuration.

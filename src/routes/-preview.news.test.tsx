@@ -246,6 +246,24 @@ describe("News Article Live Preview route", () => {
     expect(document.querySelector('a[href^="/preview"]')).toBeNull();
   });
 
+  it("explains that Live Preview is unavailable in a production build without a Backend CMS origin", async () => {
+    vi.stubEnv("DEV", false);
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const postMessageSpy = vi.spyOn(window, "postMessage");
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+
+    await renderPreviewRoute();
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: "News Article preview unavailable",
+      }),
+    ).toBeTruthy();
+    expect(postMessageSpy).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
   it("remains available while homepage-only mode hides ordinary public routes", async () => {
     vi.spyOn(globalThis, "fetch");
 

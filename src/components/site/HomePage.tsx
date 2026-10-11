@@ -580,18 +580,12 @@ function StudentSection() {
 }
 
 function NewsSection() {
-  const homepageOnlyMode = useContext(HomepageOnlyModeContext);
   const { retry, state } = usePublishedNewsHighlights({
-    enabled: !homepageOnlyMode,
     nonFeaturedLimit: 5,
   });
 
   return (
-    <ContentBand
-      id="news"
-      style={homepageAnchorStyle}
-      className={cn(homepageOnlyMode && "hidden")}
-    >
+    <ContentBand id="news" style={homepageAnchorStyle}>
       <SectionHeader
         eyebrow="Newsroom"
         title={

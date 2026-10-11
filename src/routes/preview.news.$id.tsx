@@ -4,17 +4,26 @@ import { useMemo, type ReactNode } from "react";
 
 import { NewsArticlePage } from "@/components/site/NewsArticlePage";
 import { SubpageBreadcrumb, newsArticleBreadcrumb } from "@/components/site/SubpageBreadcrumb";
+import { BACKEND_CMS_ORIGIN } from "@/lib/backend-cms-origin";
 import { mapLivePreviewNewsArticle } from "@/services/news";
-
-const backendCMSOrigin = new URL(
-  import.meta.env.VITE_BACKEND_CMS_ORIGIN || "http://localhost:3001",
-).origin;
 
 export const Route = createFileRoute("/preview/news/$id")({
   component: NewsArticlePreviewRoute,
 });
 
 function NewsArticlePreviewRoute() {
+  if (!BACKEND_CMS_ORIGIN) {
+    return (
+      <PreviewMessage title="News Article preview unavailable">
+        This Public Site build has no Backend CMS origin configured.
+      </PreviewMessage>
+    );
+  }
+
+  return <ConnectedNewsArticlePreview backendCMSOrigin={BACKEND_CMS_ORIGIN} />;
+}
+
+function ConnectedNewsArticlePreview({ backendCMSOrigin }: { backendCMSOrigin: string }) {
   const { id } = Route.useParams();
   const initialData = useMemo(() => ({ id }), [id]);
   const { data, isLoading } = useLivePreview<Record<string, unknown>>({
@@ -26,30 +35,36 @@ function NewsArticlePreviewRoute() {
 
   if (isLoading || !article) {
     return (
-      <PreviewDocument>
-        <SubpageBreadcrumb entries={newsArticleBreadcrumb()} />
-        <section className="bg-white" aria-labelledby="preview-waiting-title">
-          <div className="atf-container flex min-h-[50vh] items-center justify-center py-16">
-            <div className="max-w-xl text-center">
-              <h1
-                id="preview-waiting-title"
-                className="font-display text-4xl font-black uppercase text-atf-black"
-              >
-                Waiting for News Article preview
-              </h1>
-              <p className="mt-4 text-atf-gray-500">
-                Keep this window connected to the Payload Live Preview panel.
-              </p>
-            </div>
-          </div>
-        </section>
-      </PreviewDocument>
+      <PreviewMessage title="Waiting for News Article preview">
+        Keep this window connected to the Payload Live Preview panel.
+      </PreviewMessage>
     );
   }
 
   return (
     <PreviewDocument>
       <NewsArticlePage article={article} />
+    </PreviewDocument>
+  );
+}
+
+function PreviewMessage({ children, title }: { children: ReactNode; title: string }) {
+  return (
+    <PreviewDocument>
+      <SubpageBreadcrumb entries={newsArticleBreadcrumb()} />
+      <section className="bg-white" aria-labelledby="preview-message-title">
+        <div className="atf-container flex min-h-[50vh] items-center justify-center py-16">
+          <div className="max-w-xl text-center">
+            <h1
+              id="preview-message-title"
+              className="font-display text-4xl font-black uppercase text-atf-black"
+            >
+              {title}
+            </h1>
+            <p className="mt-4 text-atf-gray-500">{children}</p>
+          </div>
+        </div>
+      </section>
     </PreviewDocument>
   );
 }

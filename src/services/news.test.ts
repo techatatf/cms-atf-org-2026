@@ -445,3 +445,33 @@ describe("published News Article list query", () => {
     expect(result.recent.map(({ slug }) => slug)).toEqual(["next-newest"]);
   });
 });
+
+describe("News Article queries without a Backend CMS origin", () => {
+  afterEach(() => {
+    vi.doUnmock("@/lib/backend-cms-origin");
+    vi.resetModules();
+  });
+
+  it("reject every published query without sending a request", async () => {
+    vi.resetModules();
+    vi.doMock("@/lib/backend-cms-origin", () => ({
+      BACKEND_CMS_ORIGIN: undefined,
+    }));
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    const news = await import("@/services/news");
+
+    await expect(news.getPublishedNewsArticle("any-slug")).rejects.toThrow(
+      "Backend CMS origin is not configured",
+    );
+    await expect(news.getPublishedNewsPage()).rejects.toThrow(
+      "Backend CMS origin is not configured",
+    );
+    await expect(news.getPublishedNewsLead()).rejects.toThrow(
+      "Backend CMS origin is not configured",
+    );
+    await expect(
+      news.getPublishedNewsHighlights({ nonFeaturedLimit: 3 }),
+    ).rejects.toThrow("Backend CMS origin is not configured");
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+});
