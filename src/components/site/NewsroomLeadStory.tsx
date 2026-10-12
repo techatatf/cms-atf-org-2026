@@ -29,7 +29,10 @@ export function NewsroomLeadStory({ article }: { article: NewsArticle }) {
             <span className="bg-primary px-3 py-2 text-white">Lead story</span>
             <span className="border border-atf-gray-200 px-3 py-2 text-atf-ink">{article.category}</span>
           </div>
-          <h1 id="lead-story-title" className="mt-7 break-words font-display text-4xl font-black leading-[1.06] text-atf-black md:text-6xl">
+          <h1
+            id="lead-story-title"
+            className={`mt-7 break-words font-display text-4xl font-black leading-[1.06] text-atf-black md:text-6xl${hasImage ? " lg:text-4xl" : ""}`}
+          >
             {article.title}
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-atf-gray-500">{article.excerpt}</p>

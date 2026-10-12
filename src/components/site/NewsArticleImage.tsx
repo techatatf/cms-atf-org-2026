@@ -67,16 +67,3 @@ export function NewsArticleImage({
     </div>
   );
 }
-
-export function NewsArticleImagePlaceholder({
-  frameClassName,
-}: {
-  frameClassName?: string;
-}) {
-  return (
-    <UnavailableImage
-      ariaLabel="Image unavailable."
-      frameClassName={frameClassName}
-    />
-  );
-}

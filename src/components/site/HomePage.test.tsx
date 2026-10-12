@@ -219,6 +219,50 @@ describe("HomePage Newsroom", () => {
     ]);
   });
 
+  it("renders a text-only featured News Article when it has no hero image", async () => {
+    const featuredArticle = {
+      id: 1,
+      _status: "published",
+      body: {
+        root: {
+          children: [],
+          direction: "ltr",
+          format: "",
+          indent: 0,
+          type: "root",
+          version: 1,
+        },
+      },
+      category: "Press",
+      excerpt: "Imageless excerpt.",
+      featured: true,
+      heroImage: null,
+      publishedAt: "2026-08-30T09:00:00.000Z",
+      slug: "imageless-featured-news",
+      title: "Imageless Featured News",
+    };
+    vi.mocked(globalThis.fetch).mockImplementation((input) => {
+      const requestURL = new URL(String(input));
+      const featured = requestURL.searchParams.get("where[featured][equals]");
+
+      return Promise.resolve(
+        payloadPage(featured === "true" ? [featuredArticle] : []),
+      );
+    });
+
+    const { container } = render(<HomePage homepageOnlyMode={false} />);
+    const newsroom = container.querySelector<HTMLElement>("#news");
+    if (!newsroom) throw new Error("Homepage Newsroom is missing");
+    const news = within(newsroom);
+
+    expect(
+      await news.findByRole("heading", { name: "Imageless Featured News" }),
+    ).toBeTruthy();
+    expect(news.getByText("Featured")).toBeTruthy();
+    expect(news.queryByRole("img")).toBeNull();
+    expect(news.queryByText("Image unavailable")).toBeNull();
+  });
+
   it("keeps the homepage available when Newsroom fails and retries to an empty result", async () => {
     let requestCount = 0;
     const fetchSpy = vi.mocked(globalThis.fetch).mockImplementation(() => {

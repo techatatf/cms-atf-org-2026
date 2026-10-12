@@ -13,6 +13,19 @@ vi.mock("@/components/site/OpportunityButton", () => ({
 
 afterEach(cleanup);
 
+it("uses the compact title size on wide screens only when the Lead Story has an image", () => {
+  const article = {
+    id: "1", body: { root: { children: [], direction: "ltr", format: "", indent: 0, type: "root", version: 1 } },
+    category: "Press", excerpt: "Summary", featured: true,
+    heroImage: { alt: "Lead photo", url: "https://cms.example.test/first.jpg" },
+    publishedAt: "2026-08-30T09:00:00.000Z", slug: "lead", title: "Lead",
+  } as NewsArticle;
+  const { rerender } = render(<NewsroomLeadStory article={article} />);
+  expect(screen.getByRole("heading", { name: "Lead" }).className).toContain("lg:text-4xl");
+  rerender(<NewsroomLeadStory article={{ ...article, heroImage: null }} />);
+  expect(screen.getByRole("heading", { name: "Lead" }).className).not.toContain("lg:text-4xl");
+});
+
 it("recovers the Lead Story image when an editor supplies a new URL", () => {
   const article = {
     id: "1", body: { root: { children: [], direction: "ltr", format: "", indent: 0, type: "root", version: 1 } },
