@@ -31,11 +31,13 @@ export function NewsroomLeadStory({ article }: { article: NewsArticle }) {
           </div>
           <h1
             id="lead-story-title"
-            className={`mt-7 break-words font-display text-4xl font-black leading-[1.06] text-atf-black md:text-6xl${hasImage ? " lg:text-4xl" : ""}`}
+            className={`mt-7 break-words font-display text-4xl font-black leading-[1.06] text-atf-black md:text-6xl${hasImage ? " lg:text-3xl" : ""}`}
           >
             {article.title}
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-atf-gray-500">{article.excerpt}</p>
+          <p className={`mt-6 max-w-2xl text-lg leading-8 text-atf-gray-500${hasImage ? " lg:text-base lg:leading-7" : ""}`}>
+            {article.excerpt}
+          </p>
           <OpportunityButton href={`/news/${article.slug}`} size="lg" className="mt-9 self-start">
             Read the story <ArrowRight className="size-4" aria-hidden="true" />
           </OpportunityButton>
