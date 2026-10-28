@@ -197,7 +197,7 @@ Record the checked-out commit and the result of every command. Do not record
 passwords, Payload secrets, session cookies, or database connection strings.
 
 Add the following evidence to
-`.scratch/01-fetched-cms/issues/10-prove-the-fetched-cms-release-path.md`:
+`.scratch/01-fetched-cms/issues/done/10-prove-the-fetched-cms-release-path.md`:
 
 - The Public Site and Backend CMS test counts and build results.
 - The production smoke result, including the successful and failed-migration

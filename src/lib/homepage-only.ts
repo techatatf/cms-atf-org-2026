@@ -11,12 +11,10 @@ const homepageHashesByPath = new Map<string, string>([
   ["/articles", "about"],
   ["/research", "about"],
   ["/library", "about"],
-  ["/news", "about"],
 ]);
 
 export function homepageHashForHiddenPath(pathname: string) {
   if (pathname.startsWith("/countries/")) return "chapters";
-  if (pathname.startsWith("/news/")) return "about";
 
   return homepageHashesByPath.get(pathname);
 }

@@ -2,10 +2,7 @@ import { createContext, useContext } from "react";
 import { ArrowRight, Briefcase, Globe2, Network, Trophy } from "lucide-react";
 
 import { AppLink } from "@/components/site/AppLink";
-import {
-  NewsArticleImage,
-  NewsArticleImagePlaceholder,
-} from "@/components/site/NewsArticleImage";
+import { NewsArticleImage } from "@/components/site/NewsArticleImage";
 import { NewsletterSection } from "@/components/site/NewsletterSection";
 import {
   OpportunityButton,
@@ -580,18 +577,12 @@ function StudentSection() {
 }
 
 function NewsSection() {
-  const homepageOnlyMode = useContext(HomepageOnlyModeContext);
   const { retry, state } = usePublishedNewsHighlights({
-    enabled: !homepageOnlyMode,
     nonFeaturedLimit: 5,
   });
 
   return (
-    <ContentBand
-      id="news"
-      style={homepageAnchorStyle}
-      className={cn(homepageOnlyMode && "hidden")}
-    >
+    <ContentBand id="news" style={homepageAnchorStyle}>
       <SectionHeader
         eyebrow="Newsroom"
         title={
@@ -629,27 +620,44 @@ function NewsSection() {
         <div className="grid gap-12 lg:grid-cols-[1.25fr_1fr]">
           <HomepageLink
             href={`/news/${state.featured.slug}`}
-            className="group block"
+            className={cn(
+              "group block",
+              !state.featured.heroImage && "border-t border-atf-gray-200 pt-8",
+            )}
           >
-            <div className="relative">
-              {state.featured.heroImage ? (
+            {state.featured.heroImage ? (
+              <div className="relative">
                 <NewsArticleImage
                   frameClassName="aspect-[16/10]"
                   image={state.featured.heroImage}
                   imageClassName="transition-transform duration-300 group-hover:scale-[1.02]"
                 />
-              ) : (
-                <NewsArticleImagePlaceholder frameClassName="aspect-[16/10]" />
-              )}
-              <span className="absolute left-0 top-0 bg-primary px-3 py-2 font-display text-xs font-bold uppercase text-white">
+                <span className="absolute left-0 top-0 bg-primary px-3 py-2 font-display text-xs font-bold uppercase text-white">
+                  Featured
+                </span>
+              </div>
+            ) : (
+              <span className="inline-block bg-primary px-3 py-2 font-display text-xs font-bold uppercase text-white">
                 Featured
               </span>
-            </div>
-            <p className="mt-7 font-display text-xs font-bold uppercase text-primary">
+            )}
+            <p
+              className={cn(
+                "font-display text-xs font-bold uppercase text-primary",
+                state.featured.heroImage ? "mt-7" : "mt-5",
+              )}
+            >
               {state.featured.category} -{" "}
               {formatPublishedDate(state.featured.publishedAt)}
             </p>
-            <h3 className="mt-3 font-display text-2xl font-black uppercase leading-tight text-atf-black group-hover:text-primary md:text-3xl">
+            <h3
+              className={cn(
+                "mt-3 font-display font-black uppercase leading-tight text-atf-black group-hover:text-primary",
+                state.featured.heroImage
+                  ? "text-2xl md:text-3xl"
+                  : "text-3xl md:text-5xl",
+              )}
+            >
               {state.featured.title}
             </h3>
             <p className="atf-body mt-4">{state.featured.excerpt}</p>

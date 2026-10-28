@@ -15,18 +15,29 @@ import { ChallengeAnnouncementBanner } from "@/components/layout/ChallengeAnnoun
 import { useHeaderHeight } from "@/components/layout/useHeaderHeight";
 import { OpportunityButton } from "@/components/site/OpportunityButton";
 import { IconButton, SiteLogo } from "@/components/site/Page";
+import { SITE_HEADER_THEME, siteHeaderPalette, type SiteHeaderTheme } from "@/lib/site-header-theme";
+import { cn } from "@/lib/utils";
 
-const homepageNavigation = [
+type HomepageNavigationItem =
+  | { label: string; hash: string }
+  | { label: string; to: "/news" };
+
+const homepageNavigation: HomepageNavigationItem[] = [
   { label: "About", hash: "about" },
   { label: "Programs", hash: "programs" },
   { label: "Chapters", hash: "chapters" },
-] as const;
+  { label: "Newsroom", to: "/news" },
+];
 
-const homepageFooterNavigation = [
+const homepageFooterNavigation: HomepageNavigationItem[] = [
   ...homepageNavigation,
   { label: "Partner with Us", hash: "funder" },
   { label: "Student Opportunities", hash: "student" },
-] as const;
+];
+
+function homepageLinkTarget(item: HomepageNavigationItem) {
+  return "to" in item ? { to: item.to } : { to: "/", hash: item.hash };
+}
 
 const socialLinks = [
   { icon: Twitter, href: "https://x.com/AfTechForum", label: "Twitter" },
@@ -47,8 +58,9 @@ const socialLinks = [
   },
 ] as const;
 
-export function HomepageOnlyShell({ children }: { children: ReactNode }) {
+export function HomepageOnlyShell({ children, theme = SITE_HEADER_THEME }: { children: ReactNode; theme?: SiteHeaderTheme }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const palette = siteHeaderPalette[theme];
   const headerRef = useHeaderHeight<HTMLElement>();
   const closeMobile = () => setMobileOpen(false);
 
@@ -70,12 +82,13 @@ export function HomepageOnlyShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <header
         ref={headerRef}
-        className="sticky top-0 z-50 border-b border-atf-gray-200 bg-white shadow-sm"
+        className={cn("sticky top-0 z-50 border-b shadow-sm", palette.shell)}
+        data-header-theme={theme}
       >
         <ChallengeAnnouncementBanner />
         <div className="atf-container flex h-[76px] items-center justify-between gap-6">
           <Link to="/" className="inline-flex items-center">
-            <SiteLogo variant="fullColor" className="h-[38px] max-w-[220px]" />
+            <SiteLogo variant={palette.logo} className="h-[38px] max-w-[220px]" />
           </Link>
           <nav
             aria-label="Homepage"
@@ -83,10 +96,9 @@ export function HomepageOnlyShell({ children }: { children: ReactNode }) {
           >
             {homepageNavigation.map((item) => (
               <Link
-                key={item.hash}
-                to="/"
-                hash={item.hash}
-                className="px-3 py-2 font-display text-xs font-bold uppercase text-atf-ink transition-colors hover:text-primary"
+                key={item.label}
+                {...homepageLinkTarget(item)}
+                className={cn("border-b-2 border-transparent px-3 py-2 font-display text-xs font-bold uppercase transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-primary", palette.navigation, "to" in item && cn("data-[status=active]:border-primary", palette.selectedNews))}
               >
                 {item.label}
               </Link>
@@ -98,7 +110,7 @@ export function HomepageOnlyShell({ children }: { children: ReactNode }) {
           <IconButton
             id="homepage-mobile-menu-button"
             variant="ghost"
-            className="text-atf-ink lg:hidden"
+            className={cn("lg:hidden", palette.icon)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-controls="homepage-mobile-navigation"
             aria-expanded={mobileOpen}
@@ -115,16 +127,15 @@ export function HomepageOnlyShell({ children }: { children: ReactNode }) {
           <nav
             id="homepage-mobile-navigation"
             aria-label="Mobile homepage"
-            className="atf-mobile-menu absolute inset-x-0 top-full overflow-y-auto border-t border-atf-gray-200 bg-white px-6 py-5 shadow-xl lg:hidden"
+            className={cn("atf-mobile-menu absolute inset-x-0 top-full overflow-y-auto border-t px-6 py-5 shadow-xl lg:hidden", palette.mobileMenu)}
           >
             <div className="mx-auto grid max-w-7xl gap-1">
               {homepageNavigation.map((item) => (
                 <Link
-                  key={item.hash}
-                  to="/"
-                  hash={item.hash}
+                  key={item.label}
+                  {...homepageLinkTarget(item)}
                   onClick={closeMobile}
-                  className="border-b border-atf-gray-200 py-4 font-display text-base font-bold uppercase text-atf-ink hover:text-primary"
+                  className={cn("border-b py-4 font-display text-base font-bold uppercase hover:text-primary focus-visible:outline-2 focus-visible:outline-primary", palette.mobileLink)}
                 >
                   {item.label}
                 </Link>
@@ -161,10 +172,9 @@ export function HomepageOnlyShell({ children }: { children: ReactNode }) {
               </h2>
               <ul className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 text-sm text-white/55">
                 {homepageFooterNavigation.map((item) => (
-                  <li key={item.hash}>
+                  <li key={item.label}>
                     <Link
-                      to="/"
-                      hash={item.hash}
+                      {...homepageLinkTarget(item)}
                       className="transition-colors hover:text-white"
                     >
                       {item.label}

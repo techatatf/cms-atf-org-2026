@@ -20,6 +20,18 @@ The independently deployed, visitor-facing ATF website paired with one Backend
 CMS for published content and Live Preview.
 _Avoid_: CMS frontend, frontend when the deployment boundary matters
 
+**Homepage-Only Mode**:
+The temporary default Public Site mode used while the full site is still being
+built. It exposes only the homepage, legal pages, the Newsroom, and Live
+Preview; other routes redirect to homepage sections.
+_Avoid_: maintenance mode, landing page
+
+**Multi-Page Mode**:
+The Public Site with all routes exposed, enabled by setting
+`VITE_HOMEPAGE_ONLY_MODE=false`. It is the intended end state once the site is
+complete.
+_Avoid_: full mode, V2 mode
+
 **Editorial User**:
 An authenticated Backend CMS user with exactly one role: Admin or Editor. Both
 roles can enter the Payload administration interface.
@@ -63,10 +75,31 @@ The first CMS delivery phase. Public news uses optional browser-time REST reads,
 while editors receive immediate private preview of draft changes.
 _Avoid_: separate CMS product, final SEO architecture
 
+**Newsroom**:
+The Public Site section where visitors browse published News Articles and open
+individual News Article pages.
+_Avoid_: Publications when referring specifically to news
+
+**Subpage Breadcrumb**:
+The navigation trail that shows a Public Site subpage's place beneath Home and
+provides links to its parent pages.
+_Avoid_: Back link when referring to the full navigation trail
+
 **News Article**:
 Newsroom content managed by the Backend CMS and published under `/news`. A News
 Article is distinct from the site's long-form Article content under `/articles`.
 _Avoid_: Article when the distinction from long-form content matters
+
+**Lead Story**:
+The published News Article selected for the Newsroom's main story position.
+It is the featured News Article, or the newest published News Article when
+none is featured. Its selection does not depend on having an image.
+_Avoid_: newest story when a featured story takes precedence
+
+**News Archive**:
+The published News Articles available for browsing beneath the Lead Story,
+excluding that Lead Story. Visitors can narrow this collection by category.
+_Avoid_: archived articles when implying that these stories are unpublished
 
 **First Publication**:
 The first successful publication of a News Article. First Publication remains

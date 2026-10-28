@@ -1,30 +1,44 @@
 # ATF Org 2026
 
-This is the African Technology Forum website app. It is a Vite, React, Tailwind,
-and TanStack Router codebase that is being repurposed from a prototype
-comparison app into one production ATF website.
+This is the African Technology Forum website app. The Public Site uses Vite,
+React, Tailwind, and TanStack Router. The independently runnable Backend CMS
+uses Payload and PostgreSQL.
 
 ## Current State
 
-The source code still contains the earlier prototype architecture: selectable
-visual versions, theme context, feedback controls, and version-specific section
-branches. Treat that as transitional implementation detail, not as the product
-direction.
+The Public Site implements one ATF V2 design. The earlier prototype switcher,
+theme contexts, and feedback controls have been removed. Shared site components
+live in `src/components/site/`, with navigation and footer in
+`src/components/layout/`.
 
-The foundations worth preserving during the V2 implementation are:
+Multi-page routes are implemented. Set `VITE_HOMEPAGE_ONLY_MODE=false` to expose
+them; homepage-only mode remains the default when that value is absent. That
+temporary mode still exposes the homepage, legal pages, the Newsroom (`/news`
+and `/news/<slug>`), and Live Preview.
 
-- Multi-page TanStack Router routing in `src/routes`
-- Shared layout boundaries for navigation, route content, and footer
-- Reusable React components and shadcn-style primitives
-- Tailwind CSS and the existing Vite build
-- Existing route URLs and page content defaults where they still fit ATF
-- The current public asset model
+Fetched-CMS is implemented for News Articles, including Admin and Editor roles,
+drafts, Live Preview, revisions, Media, stable public slugs, and safe imports.
+The Public Site fetches published news in the browser and handles CMS failures
+without blocking the shared layout. Initial HTML with published content and
+metadata remains planned in [SEO-CMS](.scratch/02-seo-cms/PRD.md).
 
-The theme around those foundations is expected to change.
+As of September 16, 2026, the next task is
+[Prove the Fetched-CMS release path](.scratch/01-fetched-cms/issues/done/10-prove-the-fetched-cms-release-path.md).
+The August 31 handoff records completed local and automated proof, but deployed
+HTTPS checks remain open. That handoff records 139 passing Public Site tests
+and three existing assertion failures; these results have not been rerun.
+The temporary demo has since been shown to the team:
+
+- [Demo Backend CMS administration](https://cms-demo.africantechnologyforum.org/admin)
+- [Demo Public Site](https://public-demo.africantechnologyforum.org/)
+
+The agreed order is release proof, then a side quest for the team's demo
+feedback, before returning to SEO-CMS planning. See the
+[CMS architecture map](docs/CMS%20Architecture%20Wayfinding.md) for the resume point.
 
 ## Canonical Direction
 
-The approved implementation direction lives in:
+The approved V2 design direction is documented in:
 
 - `docs/Design Ref Implementation/PRD.md`
 - `docs/Design Ref Implementation/Goal Prompt.md`
@@ -34,13 +48,16 @@ The approved implementation direction lives in:
 
 Source precedence for future agents:
 
-1. The PRD and Goal Prompt define the implementation target and the obsolete
-   prototype concepts to remove.
+1. The PRD and Goal Prompt define the V2 design target. Their descriptions of
+   the earlier prototype are historical, not a current implementation inventory.
 2. The design-reference files define ATF's V2 visual language, typography,
    palette, imagery, layout rhythm, and interaction cues.
-3. The existing app code defines useful route structure and content defaults
-   that can survive when they do not conflict with the PRD.
+3. The existing app code defines the implemented route structure and components.
 4. TanStack starter text and prototype-comparison assumptions are historical.
+
+CMS scope and delivery phases are defined by the
+[Fetched-CMS PRD](.scratch/01-fetched-cms/PRD.md) and
+[SEO-CMS PRD](.scratch/02-seo-cms/PRD.md).
 
 ## Commands
 
@@ -80,7 +97,10 @@ cp .env.example .env
 ```
 
 The example enables the multi-page routes and sets `VITE_BACKEND_CMS_ORIGIN`
-to `http://localhost:3001`. The public preview route accepts Payload Live
+to `http://localhost:3001`. Development builds fall back to that origin when the
+value is absent. Production builds without it make no CMS requests: news
+surfaces show their unavailable state, Live Preview reports that it is
+unavailable, and the browser console logs one warning. The public preview route accepts Payload Live
 Preview messages only from that exact origin. The Backend CMS loads the matching
 preview route from `PAYLOAD_PUBLIC_SITE_ORIGIN`, which defaults to
 `http://localhost:3000` in the development Compose configuration.
@@ -117,10 +137,11 @@ completely, so the next launch needs the full
 
 - `src/routes/` - TanStack Router file-based routes
 - `src/components/layout/` - Shared navigation and footer
-- `src/components/sections/` - Current homepage sections
+- `src/components/site/` - ATF page components and news presentation
 - `src/components/ui/` - Shared UI primitives
-- `src/contexts/` - Current transitional prototype contexts
-- `src/lib/themes.ts` - Current transitional prototype theme definitions
+- `src/services/news.ts` - Published News Article queries and response mapping
+- `backend-cms/` - Payload application, PostgreSQL migrations, and Compose setup
+- `.scratch/` - Local Markdown PRDs and implementation tickets
 - `public/atf-assets/` - Current production-facing ATF assets
 - `docs/design-ref/` - Reference-only V2 design files and assets
 - `docs/Design Ref Implementation/` - PRD and prompt for the V2 implementation
@@ -132,6 +153,6 @@ multi-page TanStack Router app and translate the V2 design system across the
 existing routes.
 
 Do not copy the reference HTML as one large static page. Do not add a new
-selectable theme. Do not preserve the prototype switcher, feedback panel,
+selectable theme. Do not reintroduce the prototype switcher, feedback panel,
 accent picker, version selector, or URL-based visual version behavior in the
 final public site.

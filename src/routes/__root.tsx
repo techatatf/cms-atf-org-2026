@@ -12,10 +12,11 @@ import type { AppRouterContext } from "@/router";
 
 const homepageOnlyAllowedPaths = new Set([
   "/",
+  "/news",
   "/privacy-policy",
   "/terms-of-service",
 ]);
-const newsArticlePreviewPathPrefix = "/preview/news/";
+const homepageOnlyAllowedPathPrefixes = ["/news/", "/preview/news/"];
 
 export const Route = createRootRouteWithContext<AppRouterContext>()({
   beforeLoad: ({ context, location }) => {
@@ -23,7 +24,11 @@ export const Route = createRootRouteWithContext<AppRouterContext>()({
       return;
     }
 
-    if (location.pathname.startsWith(newsArticlePreviewPathPrefix)) {
+    if (
+      homepageOnlyAllowedPathPrefixes.some((prefix) =>
+        location.pathname.startsWith(prefix),
+      )
+    ) {
       return;
     }
 

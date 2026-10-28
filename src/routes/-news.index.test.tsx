@@ -1,281 +1,141 @@
 /**
  * @vitest-environment jsdom
  */
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { RouterProvider, createMemoryHistory } from "@tanstack/react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createAppRouter } from "@/router";
 
-const articleBody = {
-  root: {
-    children: [],
-    direction: "ltr",
-    format: "",
-    indent: 0,
-    type: "root",
-    version: 1,
-  },
-};
-
-function createDeferred<T>() {
-  let resolve!: (value: T | PromiseLike<T>) => void;
-  let reject!: (reason?: unknown) => void;
-  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
-    resolve = resolvePromise;
-    reject = rejectPromise;
-  });
-
-  return { promise, reject, resolve };
-}
-
-function article(index: number) {
+const body = { root: { children: [], direction: "ltr", format: "", indent: 0, type: "root", version: 1 } };
+function article(id: number, featured = false, heroImage: null | { alt: string; url: string } = null) {
   return {
-    id: index,
-    _status: "published",
-    body: articleBody,
-    category: "Press",
-    excerpt: `News article ${index} excerpt.`,
-    featured: index === 1,
-    heroImage: null,
-    publishedAt: `2026-08-${String(31 - index).padStart(2, "0")}T09:00:00.000Z`,
-    slug: `news-article-${index}`,
-    title: `News article ${index}`,
+    id, _status: "published", body, category: "Press", excerpt: `Excerpt ${id}`,
+    featured, heroImage, publishedAt: `2026-08-${String(31 - id).padStart(2, "0")}T09:00:00.000Z`,
+    slug: `article-${id}`, title: `Article ${id}`,
   };
 }
-
-function pageResponse({
-  docs,
-  hasNextPage,
-  page,
-  totalDocs,
-}: {
-  docs: ReturnType<typeof article>[];
-  hasNextPage: boolean;
-  page: number;
-  totalDocs: number;
-}) {
-  return new Response(
-    JSON.stringify({
-      docs,
-      hasNextPage,
-      page,
-      totalDocs,
-      totalPages: Math.ceil(totalDocs / 12),
-    }),
-    { status: 200 },
-  );
+function page(docs: ReturnType<typeof article>[], hasNextPage = false) {
+  return new Response(JSON.stringify({ docs, hasNextPage, page: 1, totalDocs: docs.length }), { status: 200 });
 }
-
-function renderNewsIndex() {
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((done) => { resolve = done; });
+  return { promise, resolve };
+}
+function renderNews() {
   const router = createAppRouter({
     homepageOnlyMode: false,
     history: createMemoryHistory({ initialEntries: ["/news"] }),
   });
-
   render(<RouterProvider router={router} />);
-
-  return router;
 }
-
 beforeEach(() => {
   vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
-  Object.defineProperty(Element.prototype, "scrollIntoView", {
-    configurable: true,
-    value: vi.fn(),
-  });
+  Object.defineProperty(Element.prototype, "scrollIntoView", { configurable: true, value: vi.fn() });
 });
-
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
   Reflect.deleteProperty(Element.prototype, "scrollIntoView");
 });
 
-describe("published News index", () => {
-  it("keeps the layout visible while loading and renders the first twelve articles", async () => {
-    const response = createDeferred<Response>();
-    const fetchSpy = vi
-      .spyOn(globalThis, "fetch")
-      .mockReturnValue(response.promise);
-
-    renderNewsIndex();
+describe("Newsroom", () => {
+  it("keeps the shell visible, promotes an image-free featured Lead Story, and pages the other stories", async () => {
+    const leadResponse = deferred<Response>();
+    const fetchSpy = vi.spyOn(globalThis, "fetch")
+      .mockReturnValueOnce(leadResponse.promise)
+      .mockResolvedValueOnce(page(Array.from({ length: 12 }, (_, i) => article(i + 2)), true))
+      .mockResolvedValueOnce(page([article(14)]));
+    renderNews();
 
     expect(await screen.findByRole("banner")).toBeTruthy();
     expect(screen.getByRole("contentinfo")).toBeTruthy();
-    expect(screen.getByRole("status").textContent).toContain("Loading news...");
+    expect(screen.getByRole("status").textContent).toContain("Loading news");
+    leadResponse.resolve(page([article(1, true)]));
 
-    response.resolve(
-      pageResponse({
-        docs: Array.from({ length: 12 }, (_, index) => article(index + 1)),
-        hasNextPage: true,
-        page: 1,
-        totalDocs: 13,
-      }),
-    );
-
-    expect(
-      await screen.findByRole("heading", { level: 2, name: "News article 1" }),
-    ).toBeTruthy();
-    expect(
-      screen.getAllByRole("heading", {
-        level: 2,
-        name: /^News article \d+$/,
-      }),
-    ).toHaveLength(12);
-    expect(screen.getByRole("button", { name: "Load more" })).toBeTruthy();
-
-    const requestURL = new URL(String(fetchSpy.mock.calls[0]?.[0]));
-    expect(Object.fromEntries(requestURL.searchParams)).toMatchObject({
-      limit: "12",
-      page: "1",
-      sort: "-publishedAt,slug",
-    });
-  });
-
-  it("retries an initial failure and distinguishes a successful empty collection", async () => {
-    const retryResponse = createDeferred<Response>();
-    const fetchSpy = vi
-      .spyOn(globalThis, "fetch")
-      .mockRejectedValueOnce(new TypeError("offline"))
-      .mockReturnValueOnce(retryResponse.promise);
-
-    renderNewsIndex();
-
-    expect(
-      await screen.findByRole("heading", {
-        level: 2,
-        name: "News temporarily unavailable",
-      }),
-    ).toBeTruthy();
-    expect(screen.getByRole("banner")).toBeTruthy();
-    expect(screen.getByRole("contentinfo")).toBeTruthy();
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
-
-    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
-
-    expect(screen.getByRole("status").textContent).toContain("Loading news...");
-    expect(fetchSpy).toHaveBeenCalledTimes(2);
-
-    retryResponse.resolve(
-      pageResponse({
-        docs: [],
-        hasNextPage: false,
-        page: 1,
-        totalDocs: 0,
-      }),
-    );
-
-    expect(await screen.findByText("No news published yet.")).toBeTruthy();
-    expect(screen.queryByText("News temporarily unavailable")).toBeNull();
-  });
-
-  it("resets to the first page when the category changes", async () => {
-    const categoryResponse = createDeferred<Response>();
-    const fetchSpy = vi
-      .spyOn(globalThis, "fetch")
-      .mockResolvedValueOnce(
-        pageResponse({
-          docs: [article(1)],
-          hasNextPage: true,
-          page: 1,
-          totalDocs: 13,
-        }),
-      )
-      .mockReturnValueOnce(categoryResponse.promise);
-
-    renderNewsIndex();
-
-    expect(
-      await screen.findByRole("heading", { level: 2, name: "News article 1" }),
-    ).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Research" }));
-
-    expect(screen.getByRole("status").textContent).toContain("Loading news...");
-    expect(screen.queryByText("News article 1")).toBeNull();
-    const categoryURL = new URL(String(fetchSpy.mock.calls[1]?.[0]));
-    expect(Object.fromEntries(categoryURL.searchParams)).toMatchObject({
-      limit: "12",
-      page: "1",
-      "where[category][equals]": "Research",
-    });
-
-    categoryResponse.resolve(
-      pageResponse({
-        docs: [],
-        hasNextPage: false,
-        page: 1,
-        totalDocs: 0,
-      }),
-    );
-
-    expect(
-      await screen.findByText("No updates in this category yet."),
-    ).toBeTruthy();
-    expect(
-      screen
-        .getByRole("button", { name: "Research" })
-        .getAttribute("aria-pressed"),
-    ).toBe("true");
-    expect(screen.queryByRole("button", { name: "Load more" })).toBeNull();
-
-    fireEvent.click(screen.getByRole("button", { name: "Research" }));
-    expect(fetchSpy).toHaveBeenCalledTimes(2);
-  });
-
-  it("keeps prior pages visible and retries a failed Load more page", async () => {
-    const retryResponse = createDeferred<Response>();
-    const fetchSpy = vi
-      .spyOn(globalThis, "fetch")
-      .mockResolvedValueOnce(
-        pageResponse({
-          docs: [article(1)],
-          hasNextPage: true,
-          page: 1,
-          totalDocs: 2,
-        }),
-      )
-      .mockRejectedValueOnce(new TypeError("page two offline"))
-      .mockReturnValueOnce(retryResponse.promise);
-
-    renderNewsIndex();
-
-    expect(
-      await screen.findByRole("heading", { level: 2, name: "News article 1" }),
-    ).toBeTruthy();
+    expect(await screen.findByRole("heading", { level: 1, name: "Article 1" })).toBeTruthy();
+    expect(screen.queryByRole("img", { name: /Article 1/ })).toBeNull();
+    const archive = screen.getByRole("region", { name: "News Archive" });
+    await waitFor(() => expect(within(archive).getAllByRole("heading", { level: 3, name: /^Article \d+$/ })).toHaveLength(12));
+    expect(within(archive).queryByText("Article 1")).toBeNull();
+    expect(screen.getByRole("link", { name: /Read the story/ }).getAttribute("href")).toBe("/news/article-1");
+    expect(new URL(String(fetchSpy.mock.calls[1]?.[0])).searchParams.get("where[id][not_equals]")).toBe("1");
     fireEvent.click(screen.getByRole("button", { name: "Load more" }));
+    expect(await within(archive).findByRole("heading", { level: 3, name: "Article 14" })).toBeTruthy();
+    expect(new URL(String(fetchSpy.mock.calls[2]?.[0])).searchParams.get("page")).toBe("2");
+  });
 
-    expect(
-      await screen.findByText("More news temporarily unavailable."),
-    ).toBeTruthy();
-    expect(screen.getByText("News article 1")).toBeTruthy();
-    expect(fetchSpy).toHaveBeenCalledTimes(2);
-
-    const failedPageURL = new URL(String(fetchSpy.mock.calls[1]?.[0]));
-    expect(failedPageURL.searchParams.get("page")).toBe("2");
-
+  it("retries an unavailable CMS and distinguishes a site with no published news", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch")
+      .mockRejectedValueOnce(new TypeError("offline"))
+      .mockResolvedValueOnce(page([]))
+      .mockResolvedValueOnce(page([]));
+    renderNews();
+    expect(await screen.findByRole("heading", { name: "News temporarily unavailable" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
-
-    expect(screen.getByText("News article 1")).toBeTruthy();
-    expect(screen.getByRole("status").textContent).toContain(
-      "Loading more news...",
-    );
+    expect(await screen.findByText("No news published yet.")).toBeTruthy();
     expect(fetchSpy).toHaveBeenCalledTimes(3);
+  });
 
-    retryResponse.resolve(
-      pageResponse({
-        docs: [article(2)],
-        hasNextPage: false,
-        page: 2,
-        totalDocs: 2,
-      }),
-    );
+  it("filters only the archive and ignores a stale category response", async () => {
+    const research = deferred<Response>();
+    const fetchSpy = vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(page([article(1, true)]))
+      .mockResolvedValueOnce(page([article(2)]))
+      .mockReturnValueOnce(research.promise)
+      .mockResolvedValueOnce(page([article(3)]));
+    renderNews();
+    expect(await screen.findByRole("heading", { level: 3, name: "Article 2" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Research" }));
+    fireEvent.click(screen.getByRole("button", { name: "Press" }));
+    expect(await screen.findByRole("heading", { level: 3, name: "Article 3" })).toBeTruthy();
+    research.resolve(page([article(4)]));
+    await waitFor(() => expect(screen.queryByRole("heading", { level: 3, name: "Article 4" })).toBeNull());
+    expect(screen.getByRole("heading", { level: 1, name: "Article 1" })).toBeTruthy();
+    expect(new URL(String(fetchSpy.mock.calls[2]?.[0])).searchParams.get("where[category][equals]")).toBe("Research");
+    expect(new URL(String(fetchSpy.mock.calls[3]?.[0])).searchParams.get("where[category][equals]")).toBe("Press");
+  });
 
-    expect(
-      await screen.findByRole("heading", { level: 2, name: "News article 2" }),
-    ).toBeTruthy();
-    expect(screen.getByText("News article 1")).toBeTruthy();
-    expect(screen.queryByText("More news temporarily unavailable.")).toBeNull();
-    expect(screen.queryByRole("button", { name: "Load more" })).toBeNull();
+  it("keeps loaded archive stories while a failed Load more page is retried", async () => {
+    const retry = deferred<Response>();
+    const fetchSpy = vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(page([article(1, true)]))
+      .mockResolvedValueOnce(page([article(2)], true))
+      .mockRejectedValueOnce(new TypeError("page two offline"))
+      .mockReturnValueOnce(retry.promise);
+    renderNews();
+    expect(await screen.findByRole("heading", { level: 3, name: "Article 2" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Load more" }));
+    expect(await screen.findByText("More news temporarily unavailable.")).toBeTruthy();
+    expect(screen.getByRole("heading", { level: 3, name: "Article 2" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    retry.resolve(page([article(3)]));
+    expect(await screen.findByRole("heading", { level: 3, name: "Article 3" })).toBeTruthy();
+    expect(new URL(String(fetchSpy.mock.calls[2]?.[0])).searchParams.get("page")).toBe("2");
+    expect(new URL(String(fetchSpy.mock.calls[3]?.[0])).searchParams.get("page")).toBe("2");
+  });
+
+  it("retries a failed archive without dropping the Lead Story", async () => {
+    vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(page([article(1, true)]))
+      .mockRejectedValueOnce(new TypeError("archive offline"))
+      .mockResolvedValueOnce(page([article(2)]));
+    renderNews();
+    expect(await screen.findByRole("heading", { name: "News Archive temporarily unavailable" })).toBeTruthy();
+    expect(screen.getByRole("heading", { level: 1, name: "Article 1" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    expect(await screen.findByRole("heading", { level: 3, name: "Article 2" })).toBeTruthy();
+  });
+
+  it("uses the text masthead after a lead image fails", async () => {
+    vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(page([article(1, true, { alt: "Lead photo", url: "/lead.jpg" })]))
+      .mockResolvedValueOnce(page([]));
+    renderNews();
+    const image = await screen.findByRole("img", { name: "Lead photo" });
+    fireEvent.error(image);
+    expect(screen.queryByRole("img", { name: "Lead photo" })).toBeNull();
+    expect(screen.getByRole("heading", { level: 1, name: "Article 1" })).toBeTruthy();
   });
 });

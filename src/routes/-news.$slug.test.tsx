@@ -56,6 +56,9 @@ function createDeferred<T>() {
 
 function payloadResponse(
   heroImage: null | { alt: string; url: string } = null,
+  slug = "fetched-public-article",
+  title = "Fetched Public Article",
+  body: unknown = articleBody,
 ) {
   return new Response(
     JSON.stringify({
@@ -63,14 +66,14 @@ function payloadResponse(
         {
           id: 7,
           _status: "published",
-          body: articleBody,
+          body,
           category: "Research",
           excerpt: "The public article excerpt.",
           featured: false,
           heroImage,
           publishedAt: "2026-08-29T12:00:00.000Z",
-          slug: "fetched-public-article",
-          title: "Fetched Public Article",
+          slug,
+          title,
         },
       ],
       totalDocs: 1,
@@ -120,6 +123,8 @@ describe("published News Article route", () => {
     expect(screen.getByRole("status").textContent).toContain(
       "Loading News Article...",
     );
+    expect(screen.getByRole("navigation", { name: "Breadcrumb" }).textContent).toContain("Newsroom");
+    expect(screen.getByRole("navigation", { name: "Breadcrumb" }).textContent).not.toContain("fetched-public-article");
 
     response.resolve(payloadResponse());
 
@@ -129,13 +134,59 @@ describe("published News Article route", () => {
         name: "Fetched Public Article",
       }),
     ).toBeTruthy();
-    expect(screen.getAllByText("The public article excerpt.")).toHaveLength(2);
+    expect(screen.getAllByText("The public article excerpt.")).toHaveLength(1);
+    const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
+    expect(breadcrumb.querySelector('[aria-current="page"]')?.getAttribute("title")).toBe("Fetched Public Article");
     expect(
       screen.getByText("This body came from Payload rich text."),
     ).toBeTruthy();
   });
 
-  it("replaces a failed hero image without hiding the News Article text", async () => {
+  it("renders an excerpt once when it also starts the rich-text body", async () => {
+    const repeatedBody = {
+      ...articleBody,
+      root: {
+        ...articleBody.root,
+        children: [
+          { ...articleBody.root.children[0], children: [{ ...articleBody.root.children[0].children[0], text: "The public article excerpt." }] },
+          articleBody.root.children[0],
+        ],
+      },
+    };
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(payloadResponse(null, "fetched-public-article", "Fetched Public Article", repeatedBody));
+    renderArticleRoute();
+    expect(await screen.findByRole("heading", { name: "Fetched Public Article" })).toBeTruthy();
+    expect(screen.getAllByText("The public article excerpt.")).toHaveLength(1);
+    expect(screen.getByText("This body came from Payload rich text.")).toBeTruthy();
+  });
+
+  it("keeps a linked excerpt in the header without repeating or losing its link", async () => {
+    const linkedBody = {
+      ...articleBody,
+      root: {
+        ...articleBody.root,
+        children: [
+          {
+            ...articleBody.root.children[0],
+            children: [{
+              type: "link", version: 2, direction: "ltr", format: "", indent: 0,
+              fields: { linkType: "custom", newTab: false, url: "https://example.test/story" },
+              children: [{ ...articleBody.root.children[0].children[0], text: "The public article excerpt." }],
+            }],
+          },
+          articleBody.root.children[0],
+        ],
+      },
+    };
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(payloadResponse(null, "fetched-public-article", "Fetched Public Article", linkedBody));
+    renderArticleRoute();
+    expect(await screen.findByRole("heading", { name: "Fetched Public Article" })).toBeTruthy();
+    expect(screen.getAllByText("The public article excerpt.")).toHaveLength(1);
+    expect(screen.getByRole("link", { name: "The public article excerpt." }).getAttribute("href")).toBe("https://example.test/story");
+    expect(screen.getByText("This body came from Payload rich text.")).toBeTruthy();
+  });
+
+  it("removes a failed hero image without hiding the News Article text", async () => {
     const alt = "Editors reviewing a workshop prototype";
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       payloadResponse({
@@ -149,10 +200,7 @@ describe("published News Article route", () => {
     const image = await screen.findByRole("img", { name: alt });
     fireEvent.error(image);
 
-    expect(screen.getByText("Image unavailable")).toBeTruthy();
-    expect(
-      screen.getByRole("img", { name: `${alt}. Image unavailable.` }),
-    ).toBeTruthy();
+    expect(screen.queryByRole("img", { name: alt })).toBeNull();
     expect(screen.getByText("This body came from Payload rich text.")).toBeTruthy();
   });
 
@@ -174,6 +222,40 @@ describe("published News Article route", () => {
       );
     });
     expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+    expect(screen.getByRole("navigation", { name: "Breadcrumb" }).textContent).toContain("Newsroom");
+  });
+
+  it("uses the newly resolved title after navigating to another News Article", async () => {
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+      const url = new URL(String(input));
+      return url.searchParams.get("where[or][0][slug][equals]") === "second-article"
+        ? payloadResponse(null, "second-article", "Second Article")
+        : payloadResponse();
+    });
+    const router = renderArticleRoute();
+    expect(await screen.findByRole("heading", { name: "Fetched Public Article" })).toBeTruthy();
+    await router.navigate({ to: "/news/$slug", params: { slug: "second-article" } });
+    expect(await screen.findByRole("heading", { name: "Second Article" })).toBeTruthy();
+    const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
+    expect(breadcrumb.querySelector('[aria-current="page"]')?.textContent).toBe("Second Article");
+  });
+
+  it("shortens a long title in the breadcrumb while keeping the full title available", async () => {
+    const longTitle = "African Technology Forum announces its new fellowship cohort";
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      payloadResponse(null, "fetched-public-article", longTitle),
+    );
+
+    renderArticleRoute();
+
+    expect(await screen.findByRole("heading", { level: 1, name: longTitle })).toBeTruthy();
+    const current = screen
+      .getByRole("navigation", { name: "Breadcrumb" })
+      .querySelector('[aria-current="page"]');
+    expect(current?.getAttribute("title")).toBe(longTitle);
+    expect(current?.querySelector('[aria-hidden="true"]')?.textContent).toBe("African Technology…");
+    expect(current?.querySelector(".sr-only")?.textContent).toBe(longTitle);
   });
 
   it("shows Article not found. after a successful empty response", async () => {
@@ -208,6 +290,8 @@ describe("published News Article route", () => {
         name: "News temporarily unavailable",
       }),
     ).toBeTruthy();
+    expect(screen.getByRole("navigation", { name: "Breadcrumb" }).textContent).toContain("Newsroom");
+    expect(screen.getByRole("navigation", { name: "Breadcrumb" }).textContent).not.toContain("fetched-public-article");
     expect(fetchSpy).toHaveBeenCalledTimes(1);
 
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));

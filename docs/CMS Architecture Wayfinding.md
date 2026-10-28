@@ -1,6 +1,6 @@
 # CMS Architecture Wayfinding
 
-Status: Active at the CMS network and security boundary
+Status: Fetched-CMS closed September 19, 2026; ready to scope the next changes
 
 ## Destination
 
@@ -12,8 +12,15 @@ approach, principal trade-offs, and phased roadmap.
 
 ## Notes
 
-- The first Payload deployment is a Production Launch that immediately supplies
-  the public ATF site. There is no separate Demo Deployment or promotion stage.
+- Production Launch and Demo Rehearsal are separate deployment pairs. Demo
+  data, Media, users, and secrets do not transfer to production. The later
+  [release guide](general-guides/prove-fetched-cms-release.md) supersedes this
+  map's earlier assumption that there would be no separate demo.
+- On September 19, 2026, the user confirmed deployed Live Preview and demo
+  isolation and accepted the Fetched-CMS closeout with deployed commits unknown.
+  Scope the user's next changes before returning to SEO-CMS planning.
+- The September 19 approval covers release verification and its ticket and map
+  closeout. Further application and deployment changes need their own scope.
 - The stakeholder has independently planned production-readiness precautions
   and private deployment configuration. This wayfinding effort must not invent
   extra pre-production gates or require disclosure of those private plans.
@@ -35,11 +42,15 @@ approach, principal trade-offs, and phased roadmap.
   — Use a portable two-service Compose application and phase public delivery
   through Fetched-CMS before SEO-CMS adds static HTML and copied media.
 
+- [Prove the Fetched-CMS release path](../.scratch/01-fetched-cms/issues/done/10-prove-the-fetched-cms-release-path.md)
+  records the accepted Fetched-CMS closeout, verification evidence, and unknown
+  deployed revisions.
+
 ### Repository and hosting boundaries
 
 - The public ATF site may remain hosted on Vercel, but the application must not
   depend on Vercel-specific behavior.
-- The Backend CMS will live in this repository under the top-level
+- The Backend CMS lives in this repository under the top-level
   `backend-cms/` directory. A separate repository is unnecessary unless a later
   non-Vercel constraint supplies a concrete reason to split it.
 - `backend-cms/` is a self-contained Payload/Next.js full-stack application
@@ -74,12 +85,12 @@ approach, principal trade-offs, and phased roadmap.
 
 ### Initial CMS scope
 
-- The first CMS release will manage news articles only.
+- Fetched-CMS manages News Articles only.
 - More content types can be added later.
 - The CMS should serve nontechnical editorial users.
-- Initial access control should include at least Admin and Editor roles.
-- The desired minimal editorial workflow includes drafts, preview, revisions,
-  and optional scheduled publishing, subject to support in the selected CMS.
+- Admin and Editor roles enforce permissions at the API boundary.
+- Drafts, Live Preview, and revisions are implemented. Scheduled publication
+  and unpublication are outside the Fetched-CMS scope.
 
 ### Application and authentication boundary
 
@@ -136,8 +147,9 @@ approach, principal trade-offs, and phased roadmap.
   preview path is separate from published delivery to ordinary visitors.
 - Public changes may take a few minutes to appear after SEO-CMS triggers and
   completes a site build.
-- Public article slugs remain stable after first publication. An intentional
-  Admin change must retain the old slug as a permanent redirect.
+- Public News Slugs are locked for Editors after First Publication. An Admin
+  change retains Previous News Slugs. Fetched-CMS resolves them through a
+  client-side URL replacement; SEO-CMS adds permanent HTTP redirects.
 
 ### Approval and operational depth
 
@@ -149,36 +161,56 @@ approach, principal trade-offs, and phased roadmap.
 ## Open decision frontier
 
 - [Define the CMS network and security boundary](../.scratch/cms-architecture/issues/05-define-cms-network-and-security-boundary.md)
-  across the public REST API, native administration and authentication, editor
-  preview, media, HTTPS termination, CORS, cookies, and Payload access rules.
-- Define the First Admin bootstrap, credential injection, recovery, rotation,
-  and non-deletion rules without placing credentials in source control or a
-  container image.
-- Complete the JWT threat model: token storage, expiry, refresh, revocation,
-  logout, signing-key rotation, browser attack exposure, and role changes while
-  a token remains valid.
-- Specify idempotent First Admin seeding behavior for restarts and redeployments,
-  safe password hashing, credential rotation and recovery, and the exact
-  privileges that remain immutable on the First Admin account.
-- Specify the public read endpoints and protected write/admin endpoints,
-  including server-side Admin and Editor authorization rules.
-- Specify how Fetched-CMS hands its content query layer and slug history to
-  SEO-CMS without creating a second integration path.
-- Define how existing hard-coded news content will be migrated and how article
-  URLs will remain stable.
+  remains open. Reconcile its questions with the implemented public REST reads,
+  native authentication, Admin and Editor access rules, explicit CORS and CSRF
+  origins, private preview, and production Secure cookies before deciding what
+  remains unresolved. This documentation update does not close that ticket.
+
+## Not yet specified
+
+- Which team-feedback changes to make after the release proof. The feedback
+  itself has not yet been captured in this map.
+- Whether First Admin recovery, credential rotation, or JWT lifecycle questions
+  from the earlier frontier need decisions beyond Payload's native behavior.
+  The implementation already bootstraps the first user as Admin and prevents
+  deletion or demotion of the last Admin. It does not implement a separately
+  immutable First Admin account or the earlier proposed credential seeding.
+- The detailed SEO-CMS build and deployment process, reusing the existing news
+  query mapping, presentation, Live Preview, and Previous News Slugs.
+- Whether Google program and mobile-readiness requirements belong in SEO-CMS.
+  The [discovery questionnaire](to-questionnaire-google-program-readiness.md)
+  remains unanswered in the repository.
 
 ## Current repository facts
 
-- The public site is a Vite, React, and TanStack Router application.
-- News content is currently hard-coded in `src/lib/site-data.ts`.
-- Individual news pages use the existing `/news/$articleId` route shape.
-- No CMS, CMS API, database, Dockerfile, or Compose configuration currently
-  exists in the repository.
-- The root Vite development script already uses port 3000, so the independently
-  running Backend CMS needs a different local port.
+- The Public Site is a browser-rendered Vite, React, and TanStack Router app
+  with one ATF V2 design. The former prototype switcher and theme contexts are
+  gone. Multi-page routes require `VITE_HOMEPAGE_ONLY_MODE=false`. The
+  temporary homepage-only default still exposes the Newsroom.
+- News uses browser-time Payload REST reads through `src/services/news.ts` on
+  the homepage, News index, News Article routes, and Publications Newsroom panel.
+  The Backend CMS origin comes from `src/lib/backend-cms-origin.ts`, which
+  falls back to `http://localhost:3001` only in development builds.
+- Individual News Articles use `/news/<slug>`, implemented in
+  `src/routes/news_.$slug.tsx`. The six repository-owned News Articles are local
+  seed data, not the public runtime source or an approved production dataset.
+- `backend-cms/` contains Payload, PostgreSQL migrations, a Dockerfile, development
+  and production Compose configuration, and safe seed and import workflows.
+- The Public Site defaults to local port 3000 and the Backend CMS to port 3001.
+- [Prove the Fetched-CMS release path](../.scratch/01-fetched-cms/issues/done/10-prove-the-fetched-cms-release-path.md)
+  records completed local and automated proof on August 31. Its Public Site
+  baseline was 139 passes and three existing assertion failures. These are
+  recorded results, not checks rerun during the September 16 pre-flight.
+- All eleven Fetched-CMS issues have closed status. The release-proof ticket
+  records the September 19 operator acceptance and read-only deployment checks,
+  including the limits of that evidence.
 
 ## Resume point
 
-Resume Wayfinder with [Define the CMS network and security boundary](../.scratch/cms-architecture/issues/05-define-cms-network-and-security-boundary.md).
-Begin by classifying the Backend CMS routes that must be public, editor-only,
-or private before selecting CORS, cookie, proxy, and access-control rules.
+Fetched-CMS is closed. Scope the user's next requested changes or team feedback
+as new work, using the [release closeout](../.scratch/01-fetched-cms/issues/done/10-prove-the-fetched-cms-release-path.md)
+as the baseline. Then return to SEO-CMS planning when the user is ready.
+
+The broader CMS architecture map remains open, including
+[Define the CMS network and security boundary](../.scratch/cms-architecture/issues/05-define-cms-network-and-security-boundary.md).
+That decision is outside this Fetched-CMS closeout.
