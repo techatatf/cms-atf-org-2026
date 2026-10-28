@@ -158,6 +158,20 @@ ENV_FILE=/secure/path/backend-cms-demo.env \
   ./scripts/prove-fetched-cms-demo.sh
 ```
 
+The wizard uses host port `3002` on `127.0.0.1` by default. To use another
+private host address or port, pass both values when you start the wizard:
+
+```bash
+ENV_FILE=/secure/path/backend-cms-demo.env \
+PAYLOAD_BIND_ADDRESS=172.18.0.1 \
+PAYLOAD_PORT=7878 \
+  ./scripts/prove-fetched-cms-demo.sh
+```
+
+If the reverse proxy runs in Docker, do not use `127.0.0.1`. Use a private host
+address that the reverse-proxy container can reach. Do not expose the selected
+port through the host firewall.
+
 The wizard writes the Demo Rehearsal Backend CMS configuration to the selected
 file, starts the isolated Compose project when you approve that step, and walks
 you through the Vercel, DNS, reverse-proxy, HTTPS, workflow, and outage checks.

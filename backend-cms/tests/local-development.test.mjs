@@ -14,6 +14,7 @@ import { spawnSync } from 'node:child_process'
 import test from 'node:test'
 
 const backendDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+const repositoryDirectory = path.resolve(backendDirectory, '..')
 
 function createDockerRecorder() {
   const directory = mkdtempSync(path.join(tmpdir(), 'atf-cms-docker-'))
@@ -265,6 +266,34 @@ test('development Compose accepts an isolated Payload host address and port', ()
         Number(port.target) === 3001,
     ),
   )
+})
+
+test('Demo Rehearsal wizard honors an explicit Payload host address and port', () => {
+  const directory = mkdtempSync(path.join(tmpdir(), 'atf-cms-demo-wizard-'))
+  const environmentFile = path.join(directory, 'backend-cms-demo.env')
+  const wizard = path.join(repositoryDirectory, 'scripts/prove-fetched-cms-demo.sh')
+
+  try {
+    const result = spawnSync('bash', [wizard], {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        ENV_FILE: environmentFile,
+        PAYLOAD_BIND_ADDRESS: '172.18.0.1',
+        PAYLOAD_PORT: '7878',
+      },
+      input: '\ninvalid-secret\n',
+    })
+
+    assert.notEqual(result.status, 0)
+    assert.match(`${result.stdout}\n${result.stderr}`, /Use at least 24 URL-safe characters/)
+
+    const environment = readFileSync(environmentFile, 'utf8')
+    assert.match(environment, /^PAYLOAD_BIND_ADDRESS=172\.18\.0\.1$/m)
+    assert.match(environment, /^PAYLOAD_PORT=7878$/m)
+  } finally {
+    rmSync(directory, { force: true, recursive: true })
+  }
 })
 
 test('development Compose allows the local public site to read Payload', () => {

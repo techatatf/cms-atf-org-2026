@@ -215,8 +215,14 @@ mkdir -p -- "$(dirname -- "$ENV_FILE")"
 COMPOSE_PROJECT_NAME="atf-backend-cms-demo"
 POSTGRES_DB="atf_cms_demo"
 POSTGRES_USER="payload_demo"
-PAYLOAD_BIND_ADDRESS="127.0.0.1"
-PAYLOAD_PORT="3002"
+EXISTING_PAYLOAD_BIND_ADDRESS=$(_existing PAYLOAD_BIND_ADDRESS || true)
+EXISTING_PAYLOAD_PORT=$(_existing PAYLOAD_PORT || true)
+PAYLOAD_BIND_ADDRESS="${PAYLOAD_BIND_ADDRESS:-${EXISTING_PAYLOAD_BIND_ADDRESS:-127.0.0.1}}"
+PAYLOAD_PORT="${PAYLOAD_PORT:-${EXISTING_PAYLOAD_PORT:-3002}}"
+if [[ ! "$PAYLOAD_PORT" =~ ^[0-9]+$ ]] || (( PAYLOAD_PORT < 1024 || PAYLOAD_PORT > 65535 )); then
+  warn "Set PAYLOAD_PORT to a number from 1024 through 65535."
+  exit 1
+fi
 write_env COMPOSE_PROJECT_NAME "$COMPOSE_PROJECT_NAME"
 write_env POSTGRES_DB "$POSTGRES_DB"
 write_env POSTGRES_USER "$POSTGRES_USER"
@@ -254,7 +260,8 @@ if confirm "Build the checked-out release and start the demo project now?"; then
     make -C "$REPOSITORY_DIRECTORY/backend-cms" build ENV=prod ENV_FILE="$ENV_FILE"
   COMPOSE_PROJECT_NAME="$COMPOSE_PROJECT_NAME" \
     make -C "$REPOSITORY_DIRECTORY/backend-cms" start ENV=prod ENV_FILE="$ENV_FILE"
-  curl --fail --show-error --silent \
+  curl --connect-timeout 2 --fail --retry 30 --retry-all-errors \
+    --retry-delay 2 --retry-max-time 90 --show-error --silent \
     "http://${PAYLOAD_BIND_ADDRESS}:${PAYLOAD_PORT}/api/health"
   printf '\n'
   note "The local demo health endpoint returned successfully."
@@ -280,7 +287,7 @@ if [[ -n "$REVERSE_PROXY_DASHBOARD_URL" ]]; then
   open_url "$REVERSE_PROXY_DASHBOARD_URL"
 fi
 step "Create a proxy host for $BACKEND_CMS_HOST."
-step "Forward it to 127.0.0.1 on port $PAYLOAD_PORT, or to the equivalent private host address."
+step "Forward it to $PAYLOAD_BIND_ADDRESS on port $PAYLOAD_PORT."
 step "Enable WebSocket support, obtain a valid TLS certificate, and force HTTPS."
 step "Use the DNS records shown by Vercel for $PUBLIC_SITE_HOST."
 pause "Press Enter after DNS and both HTTPS certificates are ready."
