@@ -694,7 +694,7 @@ describe("application router homepage-only mode", () => {
     expect(
       screen.queryByRole("heading", {
         level: 1,
-        name: "Our Mission, Vision and Story",
+        name: "Advancing the development of science and technology in Africa since 1988.",
       }),
     ).toBeNull();
     expect(
@@ -723,6 +723,10 @@ describe("application router homepage-only mode", () => {
 
   it.each([
     ["/who-we-are", "/#about"],
+    ["/governance", "/#about"],
+    ["/partners", "/#about"],
+    ["/annual-reports", "/#about"],
+    ["/careers", "/#about"],
     ["/what-we-do", "/#programs"],
     ["/consulting", "/#funder"],
     ["/challenge", "/#student"],
@@ -885,7 +889,7 @@ describe("application router homepage-only mode", () => {
     expect(
       await screen.findByRole("heading", {
         level: 1,
-        name: "Our Mission, Vision and Story",
+        name: "Advancing the development of science and technology in Africa since 1988.",
       }),
     ).toBeTruthy();
     expect(screen.getByRole("button", { name: /Who We Are/i })).toBeTruthy();
@@ -901,6 +905,10 @@ describe("application router homepage-only mode", () => {
   it.each([
     "/who-we-are",
     "/team",
+    "/governance",
+    "/partners",
+    "/annual-reports",
+    "/careers",
     "/what-we-do",
     "/consulting",
     "/challenge",

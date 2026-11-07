@@ -71,7 +71,7 @@ vi.mock("@tanstack/react-router", () => ({
 }));
 
 describe("Navbar", () => {
-  it("keeps the four section parents as dropdown triggers", () => {
+  it("keeps the section parents as dropdown triggers", () => {
     render(<Navbar />);
 
     const primaryNav = screen.getByRole("navigation", { name: "Primary" });
@@ -85,17 +85,13 @@ describe("Navbar", () => {
     expect(dropdownTriggers).toEqual([
       { label: "Who We Are", hasMenu: "menu" },
       { label: "What We Do", hasMenu: "menu" },
-  // YDS: We are hiding the drop-down until we have enough content for 
-  //      multiple sections and multiple pages
-      // { label: "Where We Work", hasMenu: "menu" },
-      { label: "Publications", hasMenu: "menu" },
     ]);
   });
 
-  it("keeps Publications as a dropdown family while Newsroom remains elevated", () => {
+  it("lists the Who We Are pages in order and keeps Publications and Newsroom elevated", () => {
     render(<Navbar />);
 
-    fireEvent.pointerDown(screen.getByRole("button", { name: "Publications" }));
+    fireEvent.pointerDown(screen.getByRole("button", { name: "Who We Are" }));
 
     const menu = screen.getByRole("menu");
     const desktopItems = within(menu)
@@ -106,20 +102,20 @@ describe("Navbar", () => {
       }));
 
     expect(desktopItems).toEqual([
-      { label: "Overview", href: "/publications" },
-      { label: "Newsroom", href: "/news" },
-      { label: "Articles", href: "/articles" },
-      { label: "Research Papers", href: "/research" },
-      { label: "Library", href: "/library" },
+      { label: "Mission & Story", href: "/about" },
+      { label: "Team", href: "/team" },
+      { label: "Governance", href: "/governance" },
+      { label: "Partners & Funders", href: "/partners" },
+      { label: "Annual Reports", href: "/annual-reports" },
+      { label: "Careers & Volunteering", href: "/careers" },
     ]);
 
+    const primaryNav = screen.getByRole("navigation", { name: "Primary" });
     expect(
-      within(screen.getByRole("navigation", { name: "Primary" }))
-        .getByRole(
-          "link",
-          { name: "Newsroom" },
-        )
-        .getAttribute("href"),
+      within(primaryNav).getByRole("link", { name: "Publications" }).getAttribute("href"),
+    ).toBe("/publications");
+    expect(
+      within(primaryNav).getByRole("link", { name: "Newsroom" }).getAttribute("href"),
     ).toBe("/news");
   });
 
@@ -177,23 +173,16 @@ describe("Navbar", () => {
       }));
 
     expect(mobileLinks).toEqual([
-      { label: "Overview", href: "/who-we-are" },
-      { label: "Our Mission, Vision and Story", href: "/about" },
-      { label: "The Team And Contributors", href: "/team" },
-      { label: "Overview", href: "/what-we-do" },
+      { label: "Mission & Story", href: "/about" },
+      { label: "Team", href: "/team" },
+      { label: "Governance", href: "/governance" },
+      { label: "Partners & Funders", href: "/partners" },
+      { label: "Annual Reports", href: "/annual-reports" },
+      { label: "Careers & Volunteering", href: "/careers" },
       { label: "ATF Consulting", href: "/consulting" },
       { label: "ATF Challenge", href: "/challenge" },
       { label: "ATF Chapters", href: "/chapters" },
-      { label: "Overview", href: "/where-we-work" },
-      { label: "Ghana", href: "/countries/ghana" },
-      { label: "Nigeria", href: "/countries/nigeria" },
-      { label: "Kenya", href: "/countries/kenya" },
-      { label: "South Africa", href: "/countries/south-africa" },
-      { label: "Overview", href: "/publications" },
-      { label: "Newsroom", href: "/news" },
-      { label: "Articles", href: "/articles" },
-      { label: "Research Papers", href: "/research" },
-      { label: "Library", href: "/library" },
+      { label: "Publications", href: "/publications" },
       { label: "Newsroom", href: "/news" },
       { label: "Partner with Us", href: "/consulting" },
     ]);
@@ -223,24 +212,24 @@ describe("Navbar", () => {
   it("applies the panel item state styling contract to dropdown links", () => {
     render(<Navbar />);
 
-    fireEvent.pointerDown(screen.getByRole("button", { name: "Publications" }));
+    fireEvent.pointerDown(screen.getByRole("button", { name: "Who We Are" }));
 
     const menu = screen.getByRole("menu");
-    const newsroom = within(menu).getByRole("link", { name: "Newsroom" });
+    const item = within(menu).getByRole("link", { name: "Team" });
 
-    expect(newsroom.className).toContain("font-semibold");
-    expect(newsroom.className).toContain("hover:bg-atf-gray-100");
-    expect(newsroom.className).toContain("hover:text-primary");
-    expect(newsroom.className).toContain("focus:bg-atf-gray-100");
-    expect(newsroom.className).toContain("focus:text-primary");
-    expect(newsroom.className).toContain("active:bg-primary");
-    expect(newsroom.className).toContain("active:text-white");
-    expect(newsroom.className).toContain("data-[status=active]:bg-primary");
-    expect(newsroom.className).toContain("data-[status=active]:text-white");
-    expect(newsroom.className).toContain(
+    expect(item.className).toContain("font-semibold");
+    expect(item.className).toContain("hover:bg-atf-gray-100");
+    expect(item.className).toContain("hover:text-primary");
+    expect(item.className).toContain("focus:bg-atf-gray-100");
+    expect(item.className).toContain("focus:text-primary");
+    expect(item.className).toContain("active:bg-primary");
+    expect(item.className).toContain("active:text-white");
+    expect(item.className).toContain("data-[status=active]:bg-primary");
+    expect(item.className).toContain("data-[status=active]:text-white");
+    expect(item.className).toContain(
       "data-[status=active]:hover:bg-primary",
     );
-    expect(newsroom.className).toContain(
+    expect(item.className).toContain(
       "data-[status=active]:focus:text-white",
     );
   });
@@ -249,38 +238,19 @@ describe("Navbar", () => {
     activePath = "/news";
     render(<Navbar />);
 
-    fireEvent.pointerDown(screen.getByRole("button", { name: "Publications" }));
-
-    let menu = screen.getByRole("menu");
-    expect(
-      within(menu).getByRole("link", { name: "Newsroom" }).getAttribute(
-        "data-status",
-      ),
-    ).toBe("active");
-    expect(
-      within(menu).getByRole("link", { name: "Articles" }).getAttribute(
-        "data-status",
-      ),
-    ).toBeNull();
+    const primary = () => screen.getByRole("navigation", { name: "Primary" });
+    expect(within(primary()).getByRole("link", { name: "Newsroom" }).getAttribute("aria-current")).toBe("page");
+    expect(within(primary()).getByRole("link", { name: "Publications" }).getAttribute("aria-current")).toBeNull();
 
     cleanup();
     activePath = "/news/some-article";
     render(<Navbar />);
 
-    const primaryNewsroom = within(screen.getByRole("navigation", { name: "Primary" })).getByRole("link", { name: "Newsroom" });
+    const primaryNewsroom = within(primary()).getByRole("link", { name: "Newsroom" });
     expect(primaryNewsroom.getAttribute("aria-current")).toBe("page");
     expect(primaryNewsroom.className).toContain("data-[status=active]:border-primary");
     fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
-    expect(within(screen.getByRole("navigation", { name: "Mobile" })).getAllByRole("link", { name: "Newsroom" })[1].getAttribute("aria-current")).toBe("page");
-
-    fireEvent.pointerDown(screen.getByRole("button", { name: "Publications" }));
-
-    menu = screen.getByRole("menu");
-    expect(
-      within(menu).getByRole("link", { name: "Newsroom" }).getAttribute(
-        "data-status",
-      ),
-    ).toBe("active");
+    expect(within(screen.getByRole("navigation", { name: "Mobile" })).getByRole("link", { name: "Newsroom" }).getAttribute("aria-current")).toBe("page");
   });
 
   it("defaults both header shells to dark and supports the shared light variant", () => {

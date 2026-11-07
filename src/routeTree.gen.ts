@@ -17,12 +17,16 @@ import { Route as TeamRouteImport } from './routes/team'
 import { Route as ResearchRouteImport } from './routes/research'
 import { Route as PublicationsRouteImport } from './routes/publications'
 import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
+import { Route as PartnersRouteImport } from './routes/partners'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as LibraryRouteImport } from './routes/library'
+import { Route as GovernanceRouteImport } from './routes/governance'
 import { Route as ConsultingRouteImport } from './routes/consulting'
 import { Route as ChaptersRouteImport } from './routes/chapters'
 import { Route as ChallengeRouteImport } from './routes/challenge'
+import { Route as CareersRouteImport } from './routes/careers'
 import { Route as ArticlesRouteImport } from './routes/articles'
+import { Route as AnnualReportsRouteImport } from './routes/annual-reports'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as NewsSlugRouteImport } from './routes/news_.$slug'
@@ -69,6 +73,11 @@ const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
   path: '/privacy-policy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PartnersRoute = PartnersRouteImport.update({
+  id: '/partners',
+  path: '/partners',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NewsRoute = NewsRouteImport.update({
   id: '/news',
   path: '/news',
@@ -77,6 +86,11 @@ const NewsRoute = NewsRouteImport.update({
 const LibraryRoute = LibraryRouteImport.update({
   id: '/library',
   path: '/library',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GovernanceRoute = GovernanceRouteImport.update({
+  id: '/governance',
+  path: '/governance',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConsultingRoute = ConsultingRouteImport.update({
@@ -94,9 +108,19 @@ const ChallengeRoute = ChallengeRouteImport.update({
   path: '/challenge',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CareersRoute = CareersRouteImport.update({
+  id: '/careers',
+  path: '/careers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ArticlesRoute = ArticlesRouteImport.update({
   id: '/articles',
   path: '/articles',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnnualReportsRoute = AnnualReportsRouteImport.update({
+  id: '/annual-reports',
+  path: '/annual-reports',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -128,12 +152,16 @@ const PreviewNewsIdRoute = PreviewNewsIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/annual-reports': typeof AnnualReportsRoute
   '/articles': typeof ArticlesRoute
+  '/careers': typeof CareersRoute
   '/challenge': typeof ChallengeRoute
   '/chapters': typeof ChaptersRoute
   '/consulting': typeof ConsultingRoute
+  '/governance': typeof GovernanceRoute
   '/library': typeof LibraryRoute
   '/news': typeof NewsRoute
+  '/partners': typeof PartnersRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/publications': typeof PublicationsRoute
   '/research': typeof ResearchRoute
@@ -149,12 +177,16 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/annual-reports': typeof AnnualReportsRoute
   '/articles': typeof ArticlesRoute
+  '/careers': typeof CareersRoute
   '/challenge': typeof ChallengeRoute
   '/chapters': typeof ChaptersRoute
   '/consulting': typeof ConsultingRoute
+  '/governance': typeof GovernanceRoute
   '/library': typeof LibraryRoute
   '/news': typeof NewsRoute
+  '/partners': typeof PartnersRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/publications': typeof PublicationsRoute
   '/research': typeof ResearchRoute
@@ -171,12 +203,16 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/annual-reports': typeof AnnualReportsRoute
   '/articles': typeof ArticlesRoute
+  '/careers': typeof CareersRoute
   '/challenge': typeof ChallengeRoute
   '/chapters': typeof ChaptersRoute
   '/consulting': typeof ConsultingRoute
+  '/governance': typeof GovernanceRoute
   '/library': typeof LibraryRoute
   '/news': typeof NewsRoute
+  '/partners': typeof PartnersRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/publications': typeof PublicationsRoute
   '/research': typeof ResearchRoute
@@ -194,12 +230,16 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/annual-reports'
     | '/articles'
+    | '/careers'
     | '/challenge'
     | '/chapters'
     | '/consulting'
+    | '/governance'
     | '/library'
     | '/news'
+    | '/partners'
     | '/privacy-policy'
     | '/publications'
     | '/research'
@@ -215,12 +255,16 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/annual-reports'
     | '/articles'
+    | '/careers'
     | '/challenge'
     | '/chapters'
     | '/consulting'
+    | '/governance'
     | '/library'
     | '/news'
+    | '/partners'
     | '/privacy-policy'
     | '/publications'
     | '/research'
@@ -236,12 +280,16 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/annual-reports'
     | '/articles'
+    | '/careers'
     | '/challenge'
     | '/chapters'
     | '/consulting'
+    | '/governance'
     | '/library'
     | '/news'
+    | '/partners'
     | '/privacy-policy'
     | '/publications'
     | '/research'
@@ -258,12 +306,16 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AnnualReportsRoute: typeof AnnualReportsRoute
   ArticlesRoute: typeof ArticlesRoute
+  CareersRoute: typeof CareersRoute
   ChallengeRoute: typeof ChallengeRoute
   ChaptersRoute: typeof ChaptersRoute
   ConsultingRoute: typeof ConsultingRoute
+  GovernanceRoute: typeof GovernanceRoute
   LibraryRoute: typeof LibraryRoute
   NewsRoute: typeof NewsRoute
+  PartnersRoute: typeof PartnersRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   PublicationsRoute: typeof PublicationsRoute
   ResearchRoute: typeof ResearchRoute
@@ -335,6 +387,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyPolicyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/partners': {
+      id: '/partners'
+      path: '/partners'
+      fullPath: '/partners'
+      preLoaderRoute: typeof PartnersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/news': {
       id: '/news'
       path: '/news'
@@ -347,6 +406,13 @@ declare module '@tanstack/react-router' {
       path: '/library'
       fullPath: '/library'
       preLoaderRoute: typeof LibraryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/governance': {
+      id: '/governance'
+      path: '/governance'
+      fullPath: '/governance'
+      preLoaderRoute: typeof GovernanceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/consulting': {
@@ -370,11 +436,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChallengeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/careers': {
+      id: '/careers'
+      path: '/careers'
+      fullPath: '/careers'
+      preLoaderRoute: typeof CareersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/articles': {
       id: '/articles'
       path: '/articles'
       fullPath: '/articles'
       preLoaderRoute: typeof ArticlesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/annual-reports': {
+      id: '/annual-reports'
+      path: '/annual-reports'
+      fullPath: '/annual-reports'
+      preLoaderRoute: typeof AnnualReportsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -418,12 +498,16 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AnnualReportsRoute: AnnualReportsRoute,
   ArticlesRoute: ArticlesRoute,
+  CareersRoute: CareersRoute,
   ChallengeRoute: ChallengeRoute,
   ChaptersRoute: ChaptersRoute,
   ConsultingRoute: ConsultingRoute,
+  GovernanceRoute: GovernanceRoute,
   LibraryRoute: LibraryRoute,
   NewsRoute: NewsRoute,
+  PartnersRoute: PartnersRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
   PublicationsRoute: PublicationsRoute,
   ResearchRoute: ResearchRoute,

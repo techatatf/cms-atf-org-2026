@@ -50,8 +50,12 @@ const navItems: NavItem[] = [
     label: "Who We Are",
     panel: "opportunity",
     children: [
-      { label: "Our Mission, Vision and Story", to: "/about" },
-      { label: "The Team And Contributors", to: "/team" },
+      { label: "Mission & Story", to: "/about" },
+      { label: "Team", to: "/team" },
+      { label: "Governance", to: "/governance" },
+      { label: "Partners & Funders", to: "/partners" },
+      { label: "Annual Reports", to: "/annual-reports" },
+      { label: "Careers & Volunteering", to: "/careers" },
     ],
   },
   {

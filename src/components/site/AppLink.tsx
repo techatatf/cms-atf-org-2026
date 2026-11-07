@@ -15,8 +15,10 @@ export function AppLink({ href, children, ...props }: AppLinkProps) {
     );
   }
 
+  const [to, hash] = href.split("#");
+
   return (
-    <Link to={href as never} {...props}>
+    <Link to={to as never} hash={hash || undefined} {...props}>
       {children}
     </Link>
   );

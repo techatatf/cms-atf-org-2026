@@ -153,6 +153,8 @@ type PageHeroProps = {
   description: ReactNode;
   icon?: LucideIcon;
   variant?: "default" | "news-article";
+  /** Short label/value facts shown under the description. */
+  meta?: readonly { label: string; value: string }[];
 };
 
 export function DiagonalAccentSection({
@@ -215,6 +217,7 @@ export function PageHero({
   description,
   icon: Icon,
   variant = "default",
+  meta,
 }: PageHeroProps) {
   const isNewsArticle = variant === "news-article";
   return (
@@ -244,6 +247,20 @@ export function PageHero({
         <p className="mt-6 max-w-3xl text-lg leading-8 text-white/70">
           {description}
         </p>
+        {meta?.length ? (
+          <dl className="mt-10 grid grid-cols-2 gap-x-8 gap-y-6 border-t border-white/15 pt-6 sm:grid-cols-4">
+            {meta.map((item) => (
+              <div key={item.label}>
+                <dt className="font-display text-[11px] font-bold uppercase tracking-[0.08em] text-white/55">
+                  {item.label}
+                </dt>
+                <dd className="mt-1 font-display text-2xl font-black uppercase">
+                  {item.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        ) : null}
       </div>
     </DiagonalAccentSection>
   );
