@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Shield } from "lucide-react";
 
 import { ArticleCard, ContentBand, SubpageTemplate } from "@/components/site/Page";
+import { homeCrumb } from "@/components/site/SubpageBreadcrumb";
 
 export const Route = createFileRoute("/privacy-policy")({
   component: PrivacyPolicyPage,
@@ -45,9 +45,8 @@ function PrivacyPolicyPage() {
     <SubpageTemplate
       muted
       hero={{
-        eyebrow: "Legal",
+        breadcrumb: [homeCrumb, { label: "Privacy Policy" }],
         title: "Privacy Policy",
-        icon: Shield,
         description:
           "Last updated: January 1, 2026. This policy explains how African Technology Forum collects, uses, and protects information.",
       }}

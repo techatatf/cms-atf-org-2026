@@ -3,6 +3,7 @@ import { BookOpen, FileText, Library as LibraryIcon, Newspaper } from "lucide-re
 import { AppLink } from "@/components/site/AppLink";
 import { ContentBand, SubpageTemplate, SurfaceCard } from "@/components/site/Page";
 import { publicationCategories } from "@/lib/site-data";
+import { homeCrumb, publicationsCrumb } from "@/components/site/SubpageBreadcrumb";
 
 const icons = {
   Articles: Newspaper,
@@ -16,9 +17,8 @@ export function LibraryPage() {
     <SubpageTemplate
       muted
       hero={{
-        eyebrow: "Publications",
+        breadcrumb: [homeCrumb, publicationsCrumb, { label: "Library" }],
         title: "Library",
-        icon: LibraryIcon,
         description:
           "Explore ATF's library of thought leadership articles, research papers, reports, and implementation case studies.",
       }}

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowRight, Briefcase, CheckCircle, Target, Users } from "lucide-react";
+import { ArrowRight, CheckCircle, Target, Users } from "lucide-react";
 
 import { OpportunityButton } from "@/components/site/OpportunityButton";
 import {
@@ -8,6 +8,7 @@ import {
   SubpageTemplate,
   SurfaceCard,
 } from "@/components/site/Page";
+import { homeCrumb, whatWeDoCrumb } from "@/components/site/SubpageBreadcrumb";
 
 export const Route = createFileRoute("/consulting")({
   component: ConsultingPage,
@@ -25,11 +26,16 @@ function ConsultingPage() {
     <SubpageTemplate
       muted
       hero={{
-        eyebrow: "What We Do",
-        title: "ATF Consulting",
-        icon: Briefcase,
+        breadcrumb: [homeCrumb, whatWeDoCrumb, { label: "ATF Consulting" }],
+        title: "The ATF network, on your problem.",
+        titleAccent: "on your problem",
         description:
-          "Strategic technology consulting for governments, NGOs, enterprises, and development partners driving digital transformation across Africa.",
+          "ATF Consulting puts the professional expertise of the ATF network to work for African institutions — in whichever field of science and technology the problem sits. It began in the early 2000s, when ATF's founding generation, by then senior in companies, universities, and institutions across Africa and the diaspora, started taking on projects together.",
+        meta: [
+          { label: "Practice since", value: "Early 2000s" },
+          { label: "Draws on", value: "A network built since 1988" },
+          { label: "Works with", value: "Governments, institutions, companies" },
+        ],
       }}
     >
       <ContentBand>

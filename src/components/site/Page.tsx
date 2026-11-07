@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 
 import { AppLink } from "@/components/site/AppLink";
 import { OpportunityButton } from "@/components/site/OpportunityButton";
+import { SubpageBreadcrumb, type BreadcrumbEntry } from "@/components/site/SubpageBreadcrumb";
 import { cn } from "@/lib/utils";
 
 type LogoVariant = "fullColor" | "bright" | "dark";
@@ -148,12 +149,15 @@ export function SectionHeader({
 }
 
 type PageHeroProps = {
-  eyebrow: string;
+  /** Subpage Breadcrumb trail, rendered inside the hero. */
+  breadcrumb: BreadcrumbEntry[];
   title: string;
+  /** A phrase within `title` to highlight, as in the design reference. */
+  titleAccent?: string;
+  /** `wide` lets long sentence titles run to 22ch instead of 17ch. */
+  titleMeasure?: "default" | "wide";
   description: ReactNode;
-  icon?: LucideIcon;
-  variant?: "default" | "news-article";
-  /** Short label/value facts shown under the description. */
+  /** Key Facts: short label/value pairs shown under the description. */
   meta?: readonly { label: string; value: string }[];
 };
 
@@ -211,50 +215,54 @@ export function DiagonalAccentSection({
   );
 }
 
+/** Splits `title` so the first occurrence of `accent` renders in brand red. */
+function AccentedTitle({ title, accent }: { title: string; accent?: string }) {
+  const at = accent ? title.indexOf(accent) : -1;
+  if (!accent || at < 0) return <>{title}</>;
+  return (
+    <>
+      {title.slice(0, at)}
+      <em className="not-italic text-primary">{accent}</em>
+      {title.slice(at + accent.length)}
+    </>
+  );
+}
+
 export function PageHero({
-  eyebrow,
+  breadcrumb,
   title,
+  titleAccent,
+  titleMeasure = "default",
   description,
-  icon: Icon,
-  variant = "default",
   meta,
 }: PageHeroProps) {
-  const isNewsArticle = variant === "news-article";
   return (
-    <DiagonalAccentSection layout={isNewsArticle ? "stacked" : "split"}>
-      <div>
-        <Eyebrow light>{eyebrow}</Eyebrow>
-        {Icon ? (
-          <div className="mb-6 inline-flex size-14 items-center justify-center bg-primary text-white">
-            <Icon className="size-7" aria-hidden="true" />
-          </div>
-        ) : null}
-      </div>
+    <section className="relative isolate overflow-hidden bg-atf-black text-white">
       <div
-        className={cn(
-          "max-w-4xl",
-          isNewsArticle ? "lg:max-w-5xl" : "lg:pl-10",
-        )}
-      >
+        aria-hidden="true"
+        className="absolute bottom-0 right-0 h-0 w-0 border-b-[120px] border-l-[120px] border-b-primary border-l-transparent opacity-90 lg:border-b-[190px] lg:border-l-[190px]"
+      />
+      <div className="atf-container relative z-10 pb-20 pt-20 lg:pb-[92px] lg:pt-[104px]">
+        <SubpageBreadcrumb entries={breadcrumb} tone="hero" />
         <h1
           className={cn(
-            "font-display text-4xl font-black uppercase leading-tight md:text-6xl",
-            isNewsArticle && "lg:text-5xl",
+            "font-display text-[clamp(42px,5.4vw,82px)] font-black leading-[0.98] tracking-[-0.025em]",
+            titleMeasure === "wide" ? "max-w-[22ch]" : "max-w-[17ch]",
           )}
         >
-          {title}
+          <AccentedTitle title={title} accent={titleAccent} />
         </h1>
-        <p className="mt-6 max-w-3xl text-lg leading-8 text-white/70">
+        <p className="mt-[30px] max-w-[60ch] text-pretty text-[clamp(16px,1.35vw,19.5px)] leading-[1.65] text-white/70">
           {description}
         </p>
         {meta?.length ? (
-          <dl className="mt-10 grid grid-cols-2 gap-x-8 gap-y-6 border-t border-white/15 pt-6 sm:grid-cols-4">
+          <dl className="mt-[54px] flex flex-wrap gap-x-14 gap-y-8 border-t border-white/12 pt-[34px]">
             {meta.map((item) => (
               <div key={item.label}>
-                <dt className="font-display text-[11px] font-bold uppercase tracking-[0.08em] text-white/55">
+                <dt className="mb-[9px] font-display text-[11px] font-bold uppercase tracking-[0.14em] text-white/45">
                   {item.label}
                 </dt>
-                <dd className="mt-1 font-display text-2xl font-black uppercase">
+                <dd className="font-display text-[25px] font-extrabold tracking-[-0.01em]">
                   {item.value}
                 </dd>
               </div>
@@ -262,7 +270,7 @@ export function PageHero({
           </dl>
         ) : null}
       </div>
-    </DiagonalAccentSection>
+    </section>
   );
 }
 

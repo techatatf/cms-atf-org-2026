@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Building, Globe, MapPin, Users } from "lucide-react";
+import { Building, Globe, Users } from "lucide-react";
 
 import { AppLink } from "@/components/site/AppLink";
 import { OpportunityButton } from "@/components/site/OpportunityButton";
@@ -9,6 +9,7 @@ import {
   SubpageTemplate,
 } from "@/components/site/Page";
 import { chapters } from "@/lib/site-data";
+import { homeCrumb, whatWeDoCrumb } from "@/components/site/SubpageBreadcrumb";
 
 export const Route = createFileRoute("/chapters")({
   component: ChaptersPage,
@@ -19,11 +20,17 @@ function ChaptersPage() {
     <SubpageTemplate
       muted
       hero={{
-        eyebrow: "Where We Work",
-        title: "ATF Chapters",
-        icon: MapPin,
+        breadcrumb: [homeCrumb, whatWeDoCrumb, { label: "ATF Chapters" }],
+        title: "Chapters inside universities.",
+        titleAccent: "inside",
         description:
-          "A growing network of chapters across Africa fostering local technology communities, capacity building, and professional development.",
+          "ATF chapters are student groups based at universities. They give students direction, access to experts, and early exposure to emerging technology. We are now bringing chapters back through formal agreements with universities.",
+        meta: [
+          { label: "First chapters", value: "2012" },
+          { label: "Chapters at peak", value: "6" },
+          { label: "Chapter countries", value: "Ghana, Benin" },
+          { label: "Now", value: "Reactivating" },
+        ],
       }}
     >
       <ContentBand>

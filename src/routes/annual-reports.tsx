@@ -6,6 +6,7 @@ import { OpportunityButton } from "@/components/site/OpportunityButton";
 import { ContentBand, SectionHeader, SubpageTemplate } from "@/components/site/Page";
 import { SectionSubnav, sectionAnchorStyle } from "@/components/site/SectionSubnav";
 import { ATF_EMAIL, reports, type Report } from "@/lib/who-we-are-data";
+import { homeCrumb, whoWeAreCrumb } from "@/components/site/SubpageBreadcrumb";
 
 export const Route = createFileRoute("/annual-reports")({
   component: AnnualReportsPage,
@@ -33,8 +34,9 @@ function AnnualReportsPage() {
   return (
     <SubpageTemplate
       hero={{
-        eyebrow: "Who We Are",
+        breadcrumb: [homeCrumb, whoWeAreCrumb, { label: "Annual Reports" }],
         title: "Annual reports.",
+        titleAccent: "reports",
         description:
           "What ATF did each year, what it cost, and who paid for it. Reports and financial statements are published here once the Board of Directors approves them.",
       }}

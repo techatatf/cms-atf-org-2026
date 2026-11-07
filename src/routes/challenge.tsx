@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Award, Calendar, Lightbulb, Trophy } from "lucide-react";
+import { Award, Calendar, Lightbulb } from "lucide-react";
 
 import { OpportunityButton } from "@/components/site/OpportunityButton";
 import {
@@ -8,6 +8,7 @@ import {
   SubpageTemplate,
   SurfaceCard,
 } from "@/components/site/Page";
+import { homeCrumb, whatWeDoCrumb } from "@/components/site/SubpageBreadcrumb";
 
 export const Route = createFileRoute("/challenge")({
   component: ChallengePage,
@@ -24,11 +25,17 @@ function ChallengePage() {
   return (
     <SubpageTemplate
       hero={{
-        eyebrow: "For Students & Young Professionals",
-        title: "ATF Challenge",
-        icon: Trophy,
+        breadcrumb: [homeCrumb, whatWeDoCrumb, { label: "ATF Challenge" }],
+        title: "Learn AI. Build for a real problem.",
+        titleAccent: "real",
         description:
-          "An annual innovation challenge empowering young Africans to build technology solutions for local problems.",
+          "The ATF AI Challenge trains university students in applied AI, then sets them real problems from hospitals and companies to build against. It started in Ghana in 2023. With support from Google.org, it is scaling to Ghana, Nigeria, Kenya, and South Africa.",
+        meta: [
+          { label: "First Challenge", value: "2023" },
+          { label: "Students, 2024", value: "450" },
+          { label: "Universities, 2024", value: "23" },
+          { label: "MVPs built, 2024", value: "22" },
+        ],
       }}
     >
       <section className="grid bg-primary text-white lg:grid-cols-2">

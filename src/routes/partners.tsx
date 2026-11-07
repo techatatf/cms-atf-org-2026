@@ -21,6 +21,7 @@ import {
   type Partner,
   type PartnerRole,
 } from "@/lib/who-we-are-data";
+import { homeCrumb, whoWeAreCrumb } from "@/components/site/SubpageBreadcrumb";
 
 export const Route = createFileRoute("/partners")({
   component: PartnersPage,
@@ -93,8 +94,9 @@ function PartnersPage() {
   return (
     <SubpageTemplate
       hero={{
-        eyebrow: "Who We Are",
+        breadcrumb: [homeCrumb, whoWeAreCrumb, { label: "Partners & Funders" }],
         title: "Partners and funders.",
+        titleAccent: "funders",
         description:
           "ATF's work depends on funders, institutions, and universities. Partners fund our programmes, set real problem statements for Challenge teams, and share their experts as mentors.",
       }}

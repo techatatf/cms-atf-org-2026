@@ -7,6 +7,10 @@ import { describe, expect, it, vi } from "vitest";
 import { LibraryPage } from "@/components/site/LibraryPage";
 
 vi.mock("@tanstack/react-router", () => ({
+  useLinkProps: ({ to, ...props }: { to: string; [key: string]: unknown }) => ({
+    href: to,
+    ...props,
+  }),
   Link: ({
     to,
     children,

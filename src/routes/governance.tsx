@@ -11,6 +11,7 @@ import { OpportunityButton } from "@/components/site/OpportunityButton";
 import { ContentBand, SectionHeader, SubpageTemplate } from "@/components/site/Page";
 import { SectionSubnav, sectionAnchorStyle } from "@/components/site/SectionSubnav";
 import { boardMembers } from "@/lib/who-we-are-data";
+import { homeCrumb, whoWeAreCrumb } from "@/components/site/SubpageBreadcrumb";
 
 export const Route = createFileRoute("/governance")({
   component: GovernancePage,
@@ -41,8 +42,9 @@ function GovernancePage() {
   return (
     <SubpageTemplate
       hero={{
-        eyebrow: "Who We Are",
+        breadcrumb: [homeCrumb, whoWeAreCrumb, { label: "Governance" }],
         title: "How ATF is governed.",
+        titleAccent: "governed",
         description:
           "ATF is registered in Ghana and governed by a Board of Directors. The board oversees ATF's strategy, finances, and accountability. Its members serve without pay.",
       }}

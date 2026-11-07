@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { BookOpen, Download, ExternalLink } from "lucide-react";
+import { Download, ExternalLink } from "lucide-react";
 
 import {
   ContentBand,
@@ -8,6 +8,7 @@ import {
   SurfaceCard,
 } from "@/components/site/Page";
 import { researchPapers } from "@/lib/site-data";
+import { homeCrumb, publicationsCrumb } from "@/components/site/SubpageBreadcrumb";
 
 export const Route = createFileRoute("/research")({
   component: ResearchPage,
@@ -18,9 +19,8 @@ function ResearchPage() {
     <SubpageTemplate
       muted
       hero={{
-        eyebrow: "Publications",
+        breadcrumb: [homeCrumb, publicationsCrumb, { label: "Research Papers" }],
         title: "Research Papers",
-        icon: BookOpen,
         description:
           "In-depth research and analysis on technology trends, opportunities, and challenges across the African continent.",
       }}

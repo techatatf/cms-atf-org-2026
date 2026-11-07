@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Building2, Lightbulb, MapPin, Users } from "lucide-react";
+import { Building2, Lightbulb, Users } from "lucide-react";
 
 import {
   ActionCard,
@@ -9,6 +9,7 @@ import {
   SubpageTemplate,
 } from "@/components/site/Page";
 import { countryData } from "@/lib/site-data";
+import { homeCrumb, whereWeWorkCrumb } from "@/components/site/SubpageBreadcrumb";
 
 export const Route = createFileRoute("/countries/$country")({
   component: CountryPage,
@@ -31,9 +32,8 @@ function CountryPage() {
     <SubpageTemplate
       muted
       hero={{
-        eyebrow: "Where We Work",
+        breadcrumb: [homeCrumb, whereWeWorkCrumb, { label: data.name }],
         title: `ATF ${data.name}`,
-        icon: MapPin,
         description: (
           <>
             Headquarters: {data.capital}. {data.description}

@@ -82,8 +82,29 @@ _Avoid_: Publications when referring specifically to news
 
 **Subpage Breadcrumb**:
 The navigation trail that shows a Public Site subpage's place beneath Home and
-provides links to its parent pages.
+provides links to its parent pages. On pages with a Page Hero it sits inside
+the Page Hero; elsewhere, such as the Newsroom, it stands on its own above the
+content.
 _Avoid_: Back link when referring to the full navigation trail
+
+**Page Hero**:
+The opening band of a Public Site subpage. It carries the Subpage Breadcrumb,
+a title with at most one accented phrase, a lede, and optionally a short row
+of Key Facts.
+_Avoid_: banner, header when referring to the opening band
+
+**Key Facts**:
+The short labelled figures in a Page Hero that summarise the page's subject at
+a glance, such as a founding year or a student count.
+_Avoid_: stats bar, metrics
+
+**Section Entry Page**:
+The first page listed under a navigation section; it stands for the whole
+section. Mission & Story is the entry page for Who We Are, and ATF Consulting
+is the entry page for What We Do. A Subpage Breadcrumb's section crumb always leads to
+the Section Entry Page, including on the entry page itself, whose breadcrumb
+still names it (Home / Who We Are / Mission & Story).
+_Avoid_: section landing page when referring to the first dropdown page
 
 **News Article**:
 Newsroom content managed by the Backend CMS and published under `/news`. A News

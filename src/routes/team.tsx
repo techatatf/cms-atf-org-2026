@@ -10,6 +10,7 @@ import {
 import { ContentBand, Eyebrow, SubpageTemplate } from "@/components/site/Page";
 import { sectionAnchorStyle } from "@/components/site/SectionSubnav";
 import { boardMembers, challengeTeam, teamGroups } from "@/lib/who-we-are-data";
+import { homeCrumb, whoWeAreCrumb } from "@/components/site/SubpageBreadcrumb";
 
 export const Route = createFileRoute("/team")({
   component: TeamPage,
@@ -29,8 +30,9 @@ function TeamPage() {
   return (
     <SubpageTemplate
       hero={{
-        eyebrow: "Who We Are",
+        breadcrumb: [homeCrumb, whoWeAreCrumb, { label: "Team" }],
         title: "The people behind the forum.",
+        titleAccent: "the forum",
         description:
           "A volunteer board, including two of ATF's co-founders, provides oversight. A team in Ghana, Nigeria, Kenya, and South Africa delivers the ATF AI Challenge.",
       }}

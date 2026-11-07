@@ -113,3 +113,51 @@ describe("Who We Are pages", () => {
     expect(screen.getByText("No reports published yet. The first will appear here.")).toBeTruthy();
   });
 });
+
+const heroBreadcrumbs = [
+  ["/about", [["Home", "/"], ["Who We Are", "/about"]], "Mission & Story"],
+  ["/team", [["Home", "/"], ["Who We Are", "/about"]], "Team"],
+  ["/careers", [["Home", "/"], ["Who We Are", "/about"]], "Careers & Volunteering"],
+  ["/consulting", [["Home", "/"], ["What We Do", "/consulting"]], "ATF Consulting"],
+  ["/challenge", [["Home", "/"], ["What We Do", "/consulting"]], "ATF Challenge"],
+  ["/chapters", [["Home", "/"], ["What We Do", "/consulting"]], "ATF Chapters"],
+] as const;
+
+describe("Page Hero", () => {
+  it.each(heroBreadcrumbs)(
+    "shows the %s breadcrumb inside the hero, with section crumbs leading to the entry page",
+    async (path, links, current) => {
+      await renderPage(path);
+      const heading = await screen.findByRole("heading", { level: 1 });
+      const hero = heading.closest("section")!;
+      const trail = within(hero).getByRole("navigation", { name: "Breadcrumb" });
+
+      expect(
+        within(trail)
+          .getAllByRole("link")
+          .map((link) => [link.textContent, link.getAttribute("href")]),
+      ).toEqual(links);
+      const currents = trail.querySelectorAll('[aria-current="page"]');
+      expect(currents).toHaveLength(1);
+      expect(currents[0].textContent).toBe(current);
+    },
+  );
+
+  it.each([
+    ["/consulting", "The ATF network, on your problem.", "on your problem"],
+    ["/challenge", "Learn AI. Build for a real problem.", "real"],
+    ["/chapters", "Chapters inside universities.", "inside"],
+    ["/governance", "How ATF is governed.", "governed"],
+  ] as const)("renders the %s reference title with its accent", async (path, title, accent) => {
+    await renderPage(path);
+    const heading = await screen.findByRole("heading", { level: 1, name: title });
+    expect(heading.querySelector("em")?.textContent).toBe(accent);
+  });
+
+  it("shows Key Facts from the design reference on What We Do pages", async () => {
+    await renderPage("/chapters");
+    await screen.findByRole("heading", { level: 1, name: "Chapters inside universities." });
+    expect(screen.getByText("Chapters at peak").nextElementSibling?.textContent).toBe("6");
+    expect(screen.getByText("Reactivating")).toBeTruthy();
+  });
+});

@@ -8,6 +8,7 @@ import { ContentBand, Eyebrow, SectionHeader, SubpageTemplate } from "@/componen
 import { SectionSubnav, sectionAnchorStyle } from "@/components/site/SectionSubnav";
 import type { MailtoFormLayout } from "@/lib/mailto-form";
 import { ATF_EMAIL, ATF_LINKEDIN } from "@/lib/who-we-are-data";
+import { homeCrumb, whoWeAreCrumb } from "@/components/site/SubpageBreadcrumb";
 
 export const Route = createFileRoute("/careers")({
   component: CareersPage,
@@ -92,8 +93,9 @@ function CareersPage() {
   return (
     <SubpageTemplate
       hero={{
-        eyebrow: "Who We Are",
+        breadcrumb: [homeCrumb, whoWeAreCrumb, { label: "Careers & Volunteering" }],
         title: "Work with the forum.",
+        titleAccent: "with",
         description:
           "ATF has been run by volunteers for most of its history. Volunteers mentor Challenge teams, support university chapters, write, and help run programmes in Ghana, Nigeria, Kenya, and South Africa. When paid roles open, we list them here.",
       }}

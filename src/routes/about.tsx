@@ -15,6 +15,7 @@ import {
 } from "@/components/site/Page";
 import { SectionSubnav, sectionAnchorStyle } from "@/components/site/SectionSubnav";
 import { cn } from "@/lib/utils";
+import { homeCrumb, whoWeAreCrumb } from "@/components/site/SubpageBreadcrumb";
 
 export const Route = createFileRoute("/about")({
   component: MissionPage,
@@ -96,8 +97,10 @@ function MissionPage() {
   return (
     <SubpageTemplate
       hero={{
-        eyebrow: "Who We Are",
+        breadcrumb: [homeCrumb, whoWeAreCrumb, { label: "Mission & Story" }],
         title: "Advancing the development of science and technology in Africa since 1988.",
+        titleMeasure: "wide",
+        titleAccent: "Africa",
         description:
           "ATF was founded at MIT in 1988 by African students and young professionals. Its form has changed every decade: a journal, a professional network, university chapters, and now the ATF AI Challenge. Its mission has stayed the same.",
         meta: [

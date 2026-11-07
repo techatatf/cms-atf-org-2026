@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Calendar, FileText, User } from "lucide-react";
+import { Calendar, User } from "lucide-react";
 
 import { ArticleCard, ContentBand, SubpageTemplate } from "@/components/site/Page";
 import { articles } from "@/lib/site-data";
+import { homeCrumb, publicationsCrumb } from "@/components/site/SubpageBreadcrumb";
 
 export const Route = createFileRoute("/articles")({
   component: ArticlesPage,
@@ -13,9 +14,8 @@ function ArticlesPage() {
     <SubpageTemplate
       muted
       hero={{
-        eyebrow: "Publications",
+        breadcrumb: [homeCrumb, publicationsCrumb, { label: "Articles" }],
         title: "Articles",
-        icon: FileText,
         description:
           "Insights, analysis, and thought leadership from ATF's network of technology experts, researchers, and innovators.",
       }}

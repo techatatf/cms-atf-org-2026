@@ -1,24 +1,65 @@
-import { Link } from "@tanstack/react-router";
+import { useLinkProps } from "@tanstack/react-router";
+import type { ReactNode } from "react";
 
 import { truncateAtWord } from "@/lib/truncate-at-word";
+import { cn } from "@/lib/utils";
 
 export const BREADCRUMB_LABEL_MAX_CHARS = 20;
 
 export type BreadcrumbEntry = { label: string; href?: string };
 
-export function SubpageBreadcrumb({ entries }: { entries: BreadcrumbEntry[] }) {
+/**
+ * `bar` is the standalone strip used above content (e.g. the Newsroom).
+ * `hero` sits inside a dark Page Hero, matching the design reference.
+ */
+export function SubpageBreadcrumb({
+  entries,
+  tone = "bar",
+}: {
+  entries: BreadcrumbEntry[];
+  tone?: "bar" | "hero";
+}) {
+  const isHero = tone === "hero";
   return (
-    <nav aria-label="Breadcrumb" className="border-b border-atf-gray-200 bg-white">
-      <ol className="atf-container flex min-w-0 items-center gap-3 overflow-hidden py-4 font-display text-[11px] font-bold uppercase tracking-[0.12em] text-atf-gray-500">
+    <nav aria-label="Breadcrumb" className={isHero ? "mb-8" : "border-b border-atf-gray-200 bg-white"}>
+      <ol
+        className={cn(
+          "flex min-w-0 items-center overflow-hidden font-display text-[11px] uppercase",
+          isHero
+            ? "gap-2.5 font-semibold tracking-[0.16em] text-white/45"
+            : "atf-container gap-3 py-4 font-bold tracking-[0.12em] text-atf-gray-500",
+        )}
+      >
         {entries.map((entry, index) => (
-          <li key={`${entry.href ?? "current"}-${index}`} className={entry.href ? "flex shrink-0 items-center gap-3" : "flex min-w-0 flex-1 items-center gap-3 overflow-hidden"}>
-            {index > 0 ? <span aria-hidden="true" className="shrink-0 text-atf-gray-300">/</span> : null}
+          <li
+            key={`${entry.href ?? "current"}-${index}`}
+            className={cn(
+              "flex items-center",
+              isHero ? "gap-2.5" : "gap-3",
+              index === entries.length - 1 ? "min-w-0 flex-1 overflow-hidden" : "shrink-0",
+            )}
+          >
+            {index > 0 ? (
+              <span aria-hidden="true" className={cn("shrink-0", !isHero && "text-atf-gray-300")}>
+                /
+              </span>
+            ) : null}
             {entry.href ? (
-              <Link to={entry.href as never} activeOptions={{ exact: true }} className="shrink-0 hover:text-primary focus-visible:text-primary">
+              <CrumbLink
+                href={entry.href}
+                className={cn(
+                  "shrink-0",
+                  isHero
+                    ? "hover:text-white focus-visible:text-white"
+                    : "hover:text-primary focus-visible:text-primary",
+                )}
+              >
                 {entry.label}
-              </Link>
+              </CrumbLink>
+            ) : index === entries.length - 1 ? (
+              <CurrentPageLabel label={entry.label} tone={tone} />
             ) : (
-              <CurrentPageLabel label={entry.label} />
+              <span className="shrink-0">{entry.label}</span>
             )}
           </li>
         ))}
@@ -27,11 +68,37 @@ export function SubpageBreadcrumb({ entries }: { entries: BreadcrumbEntry[] }) {
   );
 }
 
-function CurrentPageLabel({ label }: { label: string }) {
-  const shortLabel = truncateAtWord(label, BREADCRUMB_LABEL_MAX_CHARS);
+/**
+ * A router link that never marks itself as the current page. A section crumb
+ * can point at the page being viewed (e.g. "Who We Are" on Mission & Story),
+ * but only the last crumb is the current page.
+ */
+function CrumbLink({
+  href,
+  className,
+  children,
+}: {
+  href: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  const { "aria-current": _ariaCurrent, ...linkProps } = useLinkProps({
+    to: href as never,
+    className,
+  });
+  return <a {...linkProps}>{children}</a>;
+}
+
+function CurrentPageLabel({ label, tone }: { label: string; tone: "bar" | "hero" }) {
+  // The hero has room for full labels; only the standalone bar shortens them.
+  const shortLabel = tone === "hero" ? label : truncateAtWord(label, BREADCRUMB_LABEL_MAX_CHARS);
 
   return (
-    <span aria-current="page" className="block min-w-0 truncate text-atf-ink" title={label}>
+    <span
+      aria-current="page"
+      className={cn("block min-w-0 truncate", tone === "bar" && "text-atf-ink")}
+      title={label}
+    >
       {shortLabel === label ? (
         label
       ) : (
@@ -43,6 +110,14 @@ function CurrentPageLabel({ label }: { label: string }) {
     </span>
   );
 }
+
+export const homeCrumb: BreadcrumbEntry = { label: "Home", href: "/" };
+
+/** Section crumbs lead to each section's entry page: its first dropdown page. */
+export const whoWeAreCrumb: BreadcrumbEntry = { label: "Who We Are", href: "/about" };
+export const whatWeDoCrumb: BreadcrumbEntry = { label: "What We Do", href: "/consulting" };
+export const whereWeWorkCrumb: BreadcrumbEntry = { label: "Where We Work", href: "/where-we-work" };
+export const publicationsCrumb: BreadcrumbEntry = { label: "Publications", href: "/publications" };
 
 export const newsroomBreadcrumb: BreadcrumbEntry[] = [
   { label: "Home", href: "/" },

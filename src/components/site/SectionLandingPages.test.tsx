@@ -25,6 +25,10 @@ function payloadPage(docs: unknown[] = []) {
 }
 
 vi.mock("@tanstack/react-router", () => ({
+  useLinkProps: ({ to, ...props }: { to: string; [key: string]: unknown }) => ({
+    href: to,
+    ...props,
+  }),
   Link: ({
     to,
     children,

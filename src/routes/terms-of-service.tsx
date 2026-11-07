@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { FileText } from "lucide-react";
 
 import { ArticleCard, ContentBand, SubpageTemplate } from "@/components/site/Page";
+import { homeCrumb } from "@/components/site/SubpageBreadcrumb";
 
 export const Route = createFileRoute("/terms-of-service")({
   component: TermsOfServicePage,
@@ -50,9 +50,8 @@ function TermsOfServicePage() {
     <SubpageTemplate
       muted
       hero={{
-        eyebrow: "Legal",
+        breadcrumb: [homeCrumb, { label: "Terms of Service" }],
         title: "Terms of Service",
-        icon: FileText,
         description:
           "Last updated: January 1, 2026. Please read these terms carefully before using African Technology Forum services.",
       }}

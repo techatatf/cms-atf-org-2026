@@ -7,10 +7,8 @@ import {
   Heart,
   Library,
   Lightbulb,
-  MapPin,
   Network,
   Newspaper,
-  Target,
   Trophy,
   Users,
 } from "lucide-react";
@@ -34,6 +32,7 @@ import {
   researchPapers,
 } from "@/lib/site-data";
 import { formatPublishedDate } from "@/lib/format-published-date";
+import { homeCrumb } from "@/components/site/SubpageBreadcrumb";
 
 const whoWeAreDestinations = [
   {
@@ -98,9 +97,8 @@ export function WhoWeAreLandingPage() {
   return (
     <SubpageTemplate
       hero={{
-        eyebrow: "Who We Are",
+        breadcrumb: [homeCrumb, { label: "Who We Are" }],
         title: "A pan-African technology forum built for systemic change.",
-        icon: Heart,
         description:
           "African Technology Forum is a trusted network of technology practitioners, policymakers, researchers, institutions, and young builders working across Africa's development priorities.",
       }}
@@ -182,9 +180,8 @@ export function WhatWeDoLandingPage() {
     <SubpageTemplate
       muted
       hero={{
-        eyebrow: "What We Do",
+        breadcrumb: [homeCrumb, { label: "What We Do" }],
         title: "Programs that connect strategy, talent, and implementation.",
-        icon: Target,
         description:
           "ATF combines advisory work, youth innovation, and chapter infrastructure so technology strategy can move into real programs and local capacity.",
       }}
@@ -283,9 +280,8 @@ export function WhereWeWorkLandingPage() {
     <SubpageTemplate
       muted
       hero={{
-        eyebrow: "Where We Work",
+        breadcrumb: [homeCrumb, { label: "Where We Work" }],
         title: "A chapter network rooted across Africa.",
-        icon: MapPin,
         description:
           "ATF chapters connect local technology communities to a broader pan-African network of programs, mentors, partners, and implementation experience.",
       }}
@@ -390,9 +386,8 @@ export function PublicationsLandingPage() {
     <SubpageTemplate
       muted
       hero={{
-        eyebrow: "Publications",
+        breadcrumb: [homeCrumb, { label: "Publications" }],
         title: "Insights, news, and research from across the ATF network.",
-        icon: Newspaper,
         description:
           "The Publications section gathers ATF's latest updates, expert analysis, research papers, reports, and implementation learning in one place.",
       }}
