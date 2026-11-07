@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Website" name="What We Do — ATF Consulting" subtitle="Advisory page: practices, sectors, how we work, history, engagement models, enquiry form" viewport="1440x920" -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATF Consulting — African Technology Forum</title>
+  <link href="../../colors_and_type.css" rel="stylesheet" />
+  <link href="site.css" rel="stylesheet" />
+  <script src="../../image-slot.js"></script>
+  <style>
+    .services { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; }
+    .svc { background: var(--white); padding: 52px 46px 48px; border-top: 3px solid var(--ink); }
+    .svc:nth-child(1), .svc:nth-child(4) { border-top-color: var(--red); }
+    .svc .svc-n { font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--red); margin-bottom: 22px; }
+    .svc h3 { font-family: var(--font-display); font-size: 27px; font-weight: 800; letter-spacing: -0.022em; line-height: 1.08; margin-bottom: 16px; }
+    .svc p { font-size: var(--t-base); line-height: 1.72; color: var(--mid); max-width: 46ch; }
+    .svc .svc-proof { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--rule); font-size: 13.5px; line-height: 1.6; color: var(--ink); max-width: 46ch; }
+
+    .sectors { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 2px; }
+    .sector { flex: 1 1 160px; background: var(--black); color: var(--white); padding: 26px 24px; font-family: var(--font-display); font-size: 13px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+
+    .method { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+    .phase { background: var(--white); padding: 40px 32px 44px; border-top: 2px solid var(--rule); }
+    .phase-n { font-family: var(--font-display); font-size: 42px; font-weight: 900; color: var(--rule); letter-spacing: -0.04em; line-height: 1; margin-bottom: 22px; }
+    .phase h4 { font-family: var(--font-display); font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+    .phase p { font-size: var(--t-sm); line-height: 1.68; color: var(--mid); }
+
+    .engage { display: grid; grid-template-columns: 1fr 1fr; }
+    .engage-left { background: var(--black); color: var(--white); padding: 104px 80px; }
+    .engage-left h2 { color: var(--white); font-family: var(--font-display); font-size: clamp(30px, 3vw, 46px); font-weight: 900; line-height: 1.04; letter-spacing: -0.028em; margin: 24px 0 22px; max-width: 20ch; }
+    .engage-left > p { font-size: var(--t-base); line-height: 1.72; color: rgba(255,255,255,0.72); max-width: 46ch; margin-bottom: 36px; }
+    .model { padding: 22px 0; border-top: 1px solid rgba(255,255,255,0.14); }
+    .model h4 { font-family: var(--font-display); font-size: var(--t-base); font-weight: 700; color: var(--white); margin-bottom: 5px; }
+    .model p { font-size: 13.5px; color: rgba(255,255,255,0.65); margin: 0; line-height: 1.55; }
+    .engage-right { background: var(--stone); padding: 104px 72px; }
+
+    @media (max-width: 1100px) { .method { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 900px) {
+      .services, .method { grid-template-columns: 1fr; }
+      .svc { padding: 40px 28px; }
+      .engage { grid-template-columns: 1fr; } .engage-left, .engage-right { padding: 56px 28px; }
+    }
+  </style>
+</head>
+<body>
+  <nav id="main-nav">
+    <div class="nav-inner">
+      <a class="nav-logo" href="index.html">
+        <img src="../../assets/brandmark-white.png" alt="African Technology Forum" />
+      </a>
+      <ul class="nav-links">
+        <li class="has-menu">
+          <a href="who-we-are-mission.html">Who We Are<svg class="nav-caret" viewBox="0 0 8 8" fill="none"><path d="M1 2.5L4 5.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <div class="nav-menu">
+            <a href="who-we-are-mission.html"><div class="nav-menu-title">Mission &amp; Story</div><div class="nav-menu-desc">Why ATF exists, and its story since 1988.</div></a>
+            <a href="who-we-are-team.html"><div class="nav-menu-title">Team</div><div class="nav-menu-desc">Board, Challenge team, and country leads.</div></a>
+            <a href="governance.html"><div class="nav-menu-title">Governance</div><div class="nav-menu-desc">Board of Directors and how ATF is governed.</div></a>
+            <a href="partners.html"><div class="nav-menu-title">Partners &amp; Funders</div><div class="nav-menu-desc">The funders, institutions, and universities we work with.</div></a>
+            <a href="annual-reports.html"><div class="nav-menu-title">Annual Reports</div><div class="nav-menu-desc">Reports and financial statements.</div></a>
+            <a href="careers.html"><div class="nav-menu-title">Careers &amp; Volunteering</div><div class="nav-menu-desc">Volunteer with ATF, or see open roles.</div></a>
+          </div>
+        </li>
+        <li class="has-menu">
+          <a href="what-we-do-challenge.html" class="active">What We Do<svg class="nav-caret" viewBox="0 0 8 8" fill="none"><path d="M1 2.5L4 5.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <div class="nav-menu">
+            <a href="what-we-do-consulting.html"><div class="nav-menu-title">ATF Consulting</div><div class="nav-menu-desc">Advisory drawing on the ATF professional network.</div></a>
+            <a href="what-we-do-challenge.html"><div class="nav-menu-title">ATF AI Challenge</div><div class="nav-menu-desc">AI training and real problems for university students.</div></a>
+            <a href="what-we-do-chapters.html"><div class="nav-menu-title">ATF Chapters</div><div class="nav-menu-desc">Student chapters inside universities.</div></a>
+          </div>
+        </li>
+        <li><a href="what-we-do-chapters.html#where">Where We Work</a></li>
+        <li><a href="publications.html">Publications</a></li>
+        <li><a href="newsroom.html">Newsroom</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="partners.html#become" class="nav-btn-ghost">Partner With Us</a>
+        <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="who-we-are-mission.html">Who We Are</a>
+    <a class="sub" href="who-we-are-mission.html">Mission &amp; Story</a>
+    <a class="sub" href="who-we-are-team.html">Team</a>
+    <a class="sub" href="governance.html">Governance</a>
+    <a class="sub" href="partners.html">Partners &amp; Funders</a>
+    <a class="sub" href="annual-reports.html">Annual Reports</a>
+    <a class="sub" href="careers.html">Careers &amp; Volunteering</a>
+    <a href="what-we-do-challenge.html" class="active">What We Do</a>
+    <a class="sub" href="what-we-do-consulting.html">ATF Consulting</a>
+    <a class="sub" href="what-we-do-challenge.html">ATF AI Challenge</a>
+    <a class="sub" href="what-we-do-chapters.html">ATF Chapters</a>
+    <a href="what-we-do-chapters.html#where">Where We Work</a>
+    <a href="publications.html">Publications</a>
+    <a href="newsroom.html">Newsroom</a>
+    <a href="partners.html#become">Partner With Us</a>
+  </div>
+
+  <section class="page-hero">
+    <div class="page-hero-inner">
+      <div class="breadcrumb"><a href="index.html">Home</a><span>/</span><span>What We Do</span><span>/</span><span>ATF Consulting</span></div>
+      <h1 class="page-title">The ATF network, <em>on your problem</em>.</h1>
+      <p class="page-lede">ATF Consulting puts the professional expertise of the ATF network to work for African institutions — in whichever field of science and technology the problem sits. It began in the early 2000s, when ATF's founding generation, by then senior in companies, universities, and institutions across Africa and the diaspora, started taking on projects together.</p>
+      <div class="page-hero-meta">
+        <div><span>Practice since</span><strong>Early 2000s</strong></div>
+        <div><span>Draws on</span><strong>A network built since 1988</strong></div>
+        <div><span>Works with</span><strong>Governments, institutions, companies</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="subnav">
+    <div class="subnav-inner">
+      <a href="#services">What We Do</a>
+      <a href="#method">How We Work</a>
+      <a href="#history">Where It Comes From</a>
+      <a href="#engage">Work With Us</a>
+    </div>
+  </div>
+
+  <section class="sec" id="services">
+    <div class="sec-inner">
+      <div class="sec-head-split">
+        <div>
+          <p class="eyebrow">What We Do</p>
+          <h2 class="sec-title">Four kinds of work.</h2>
+        </div>
+        <p class="sec-intro">ATF has never been tied to one technology. Our work has moved from journals to nanotechnology to 3D printing to AI. Consulting follows the same logic: the field changes, the network stays.</p>
+      </div>
+      <div class="services">
+        <div class="svc reveal">
+          <p class="svc-n">01</p>
+          <h3>Technology strategy &amp; policy</h3>
+          <p>Advice for ministries and institutions planning how science and technology will serve their goals — from national skills strategies to an institution's first technology plan.</p>
+          <p class="svc-proof">ATF works in four countries, each developing national digital and technology skills strategies.</p>
+        </div>
+        <div class="svc reveal reveal-delay-1">
+          <p class="svc-n">02</p>
+          <h3>Skills &amp; capability</h3>
+          <p>Curriculum and training for your students or staff in the technical fields you need, built to be taught again once we hand it over.</p>
+          <p class="svc-proof">ATF has introduced students to nanotechnology and 3D printing, and now designs and delivers AI training across four countries.</p>
+        </div>
+        <div class="svc reveal reveal-delay-2">
+          <p class="svc-n">03</p>
+          <h3>Sector expertise</h3>
+          <p>Access to practitioners from the ATF network who work in your field — not a generalist pool.</p>
+          <p class="svc-proof">The network spans founding-era professionals, former chapter members, and more than 120 mentors and experts in medicine, agriculture, finance, law, and engineering.</p>
+        </div>
+        <div class="svc reveal reveal-delay-3">
+          <p class="svc-n">04</p>
+          <h3>Problem definition &amp; evaluation</h3>
+          <p>Turning an institution's challenge into a problem technologists can work on — and measuring afterwards whether the solution worked.</p>
+          <p class="svc-proof">Korle Bu Teaching Hospital, 37 Military Hospital, and Esoko have framed problem statements with ATF.</p>
+        </div>
+      </div>
+      <p class="eyebrow" style="margin:56px 0 18px">Fields we draw on</p>
+      <div class="sectors" aria-label="Fields">
+        <div class="sector">Health</div>
+        <div class="sector">Agriculture</div>
+        <div class="sector">Industry &amp; manufacturing</div>
+        <div class="sector">Telecommunications</div>
+        <div class="sector">Technology policy</div>
+        <div class="sector">Core sciences</div>
+        <div class="sector">Biotechnology</div>
+        <div class="sector">AI &amp; data</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec stone" id="method">
+    <div class="sec-inner">
+      <div class="sec-head-split">
+        <div>
+          <p class="eyebrow">How We Work</p>
+          <h2 class="sec-title">From your problem to the right people.</h2>
+        </div>
+        <p class="sec-intro">Every engagement is staffed from the network and scoped to end with your team running the work.</p>
+      </div>
+      <div class="method">
+        <div class="phase reveal"><div class="phase-n">01</div><h4>Listen</h4><p>We start with your problem, your constraints, and the people who will own the result.</p></div>
+        <div class="phase reveal reveal-delay-1"><div class="phase-n">02</div><h4>Match</h4><p>We find the practitioners in the ATF network who know your sector and have done this work before.</p></div>
+        <div class="phase reveal reveal-delay-2"><div class="phase-n">03</div><h4>Deliver</h4><p>They work alongside your staff, never as a parallel team.</p></div>
+        <div class="phase reveal reveal-delay-3" style="background:var(--black);border-top-color:var(--red)"><div class="phase-n" style="color:rgba(255,255,255,0.22)">04</div><h4 style="color:var(--white)">Hand over</h4><p style="color:rgba(255,255,255,0.72)">Your team leaves with the skills, documents, and ownership to carry on.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bleed-stat" id="history">
+    <div class="bleed-stat-inner">
+      <p class="eyebrow on-dark">Where it comes from</p>
+      <div class="bleed-num" style="margin-top:28px">1988<span>.</span></div>
+      <div class="bleed-caption">
+        <h3>A journal first. Then a network. Then a practice.</h3>
+        <p>ATF began at MIT in 1988 as a journal connecting African scientists. By 1992 it had contributors in 15 countries and more than 11,000 readers. As those readers built careers across Africa and abroad, ATF Consulting grew out of the network to put their expertise to work at home.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="engage" id="engage">
+    <div class="engage-left">
+      <p class="eyebrow on-dark">Work With Us</p>
+      <h2>Start with a conversation.</h2>
+      <p>Tell us what you are trying to do. If the ATF network is the right fit, we will propose how to work together. If it isn't, we will say so.</p>
+      <div>
+        <div class="model"><h4>Advisory</h4><p>Ongoing access to ATF practitioners for your team.</p></div>
+        <div class="model"><h4>Defined project</h4><p>A scoped piece of work: a problem definition, a design, or an evaluation.</p></div>
+        <div class="model"><h4>Training programme</h4><p>Curriculum designed and delivered for your students or staff.</p></div>
+        <div class="model"><h4>Independent review</h4><p>A second opinion on a technology programme already under way.</p></div>
+      </div>
+    </div>
+    <div class="engage-right">
+      <p class="eyebrow" style="margin-bottom:28px">Request a conversation</p>
+      <form class="atf-form" data-mailto="info@africantechnologyforum.org" data-subject="Consulting enquiry" novalidate>
+        <div class="field-row">
+          <div class="field"><label for="c-name">Name</label><input id="c-name" name="Name" type="text" required autocomplete="name" placeholder="Your full name" /></div>
+          <div class="field"><label for="c-org">Organisation</label><input id="c-org" name="Organisation" type="text" required placeholder="Ministry, institution, or company" /></div>
+        </div>
+        <div class="field"><label for="c-email">Work email</label><input id="c-email" name="Email" type="email" required autocomplete="email" placeholder="you@organisation.org" /></div>
+        <div class="field-row">
+          <div class="field">
+            <label for="c-practice">Area</label>
+            <select id="c-practice" name="Area">
+              <option>Technology strategy &amp; policy</option>
+              <option>Skills &amp; capability</option>
+              <option>Sector expertise</option>
+              <option>Problem definition &amp; evaluation</option>
+              <option>Not sure yet</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="c-country">Country</label>
+            <select id="c-country" name="Country">
+              <option>Ghana</option><option>Nigeria</option><option>Kenya</option><option>South Africa</option><option>Elsewhere</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><label for="c-brief">What are you trying to do?</label><textarea id="c-brief" name="Brief" required placeholder="A few sentences on the problem, the timeline, and who else is involved."></textarea></div>
+        <button type="submit" class="btn-primary" style="width:100%;justify-content:center">Request a conversation <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <p class="form-note">Sends to info@africantechnologyforum.org from your email app.</p>
+      </form>
+    </div>
+  </section>
+
+  <footer id="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <img src="../../assets/logo-bright.png" alt="African Technology Forum" />
+          <p>Advancing the development of science and technology in Africa. Founded at MIT in 1988.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Who We Are</h4>
+          <a href="who-we-are-mission.html">Mission &amp; Story</a>
+          <a href="who-we-are-team.html">Team</a>
+          <a href="governance.html">Governance</a>
+          <a href="partners.html">Partners &amp; Funders</a>
+          <a href="annual-reports.html">Annual Reports</a>
+        </div>
+        <div class="footer-col">
+          <h4>What We Do</h4>
+          <a href="what-we-do-consulting.html">ATF Consulting</a>
+          <a href="what-we-do-challenge.html">ATF AI Challenge</a>
+          <a href="what-we-do-chapters.html">ATF Chapters</a>
+          <a href="publications.html">Publications</a>
+          <a href="newsroom.html">Newsroom</a>
+        </div>
+        <div class="footer-col">
+          <h4>Connect</h4>
+          <a href="partners.html#become">Partner With Us</a>
+          <a href="what-we-do-chapters.html#start">Start a Chapter</a>
+          <a href="careers.html">Careers &amp; Volunteering</a>
+          <a href="mailto:info@africantechnologyforum.org">info@africantechnologyforum.org</a>
+          <a href="https://www.linkedin.com/company/africantechnologyforum" target="_blank" rel="noopener">LinkedIn</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 1988–2026 African Technology Forum. All rights reserved.</p>
+        <div class="footer-legal">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Accessibility</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="site.js"></script>
+</body>
+</html>

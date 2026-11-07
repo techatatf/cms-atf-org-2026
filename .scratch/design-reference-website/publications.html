@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Website" name="Publications" subtitle="Research library: featured flagship report, four series, filterable archive table, subscribe" viewport="1440x920" -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Publications — African Technology Forum</title>
+  <link href="../../colors_and_type.css" rel="stylesheet" />
+  <link href="site.css" rel="stylesheet" />
+  <script src="../../image-slot.js"></script>
+  <style>
+    .feature { display: grid; grid-template-columns: 0.85fr 1.15fr; align-items: stretch; background: var(--stone); }
+    .feature .img-frame { min-height: 560px; background: var(--black); }
+    .feature-body { padding: 96px 76px; display: flex; flex-direction: column; justify-content: center; }
+    .feature-kicker { display: flex; gap: 12px; align-items: center; margin-bottom: 26px; flex-wrap: wrap; }
+    .pill { font-family: var(--font-display); font-size: 10.5px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; padding: 6px 11px; background: var(--red); color: var(--white); }
+    .pill.ghost { background: transparent; color: var(--mid); border: 1px solid var(--rule); }
+    .feature-body h2 { font-family: var(--font-display); font-size: clamp(28px, 3vw, 46px); font-weight: 900; line-height: 1.05; letter-spacing: -0.028em; margin-bottom: 22px; max-width: 22ch; }
+    .feature-abstract { font-size: var(--t-base); line-height: 1.75; color: var(--mid); max-width: 54ch; margin-bottom: 30px; }
+    .feature-meta { display: grid; grid-template-columns: repeat(2, auto); gap: 22px 44px; justify-content: start; padding: 24px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin-bottom: 32px; }
+    .feature-meta span { display: block; font-family: var(--font-display); font-size: 10px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--mid); margin-bottom: 7px; }
+    .feature-meta strong { font-family: var(--font-display); font-size: var(--t-base); font-weight: 800; letter-spacing: -0.01em; }
+    .feature-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    .series { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+    .series-card { background: var(--white); padding: 40px 32px 44px; border-top: 3px solid var(--ink); display: flex; flex-direction: column; }
+    .series-card:nth-child(odd) { border-top-color: var(--red); }
+    .series-count { font-family: var(--font-display); font-size: 40px; font-weight: 900; letter-spacing: -0.04em; line-height: 1; margin-bottom: 20px; }
+    .series-card h3 { font-family: var(--font-display); font-size: var(--t-lg); font-weight: 700; letter-spacing: -0.015em; margin-bottom: 11px; }
+    .series-card p { font-size: var(--t-sm); line-height: 1.68; color: var(--mid); margin-bottom: 22px; flex: 1; }
+
+    .lib-controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 34px; }
+    .lib-search { flex: 1; min-width: 260px; font-family: var(--font-body); font-size: var(--t-base); padding: 15px 18px; border: 1px solid var(--rule); background: var(--white); color: var(--ink); }
+    .lib-search:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(249,0,54,0.15); }
+    .chip { font-family: var(--font-display); font-size: 11.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 12px 18px; border: 1px solid var(--rule); background: var(--white); color: var(--mid); cursor: pointer; transition: all 0.2s; }
+    .chip:hover { border-color: var(--ink); color: var(--ink); }
+    .chip.on { background: var(--ink); border-color: var(--ink); color: var(--white); }
+
+    .lib { border-top: 1px solid var(--rule); }
+    .lib-row { display: grid; grid-template-columns: 92px 1fr 150px 118px 130px; gap: 28px; align-items: center; padding: 26px 0; border-bottom: 1px solid var(--rule); transition: background 0.18s; }
+    .lib-row:hover { background: var(--paper); }
+    .lib-year { font-family: var(--font-display); font-size: var(--t-base); font-weight: 800; color: var(--mid); letter-spacing: -0.01em; }
+    .lib-title { font-family: var(--font-display); font-size: var(--t-lg); font-weight: 700; letter-spacing: -0.015em; line-height: 1.28; }
+    .lib-row:hover .lib-title { color: var(--red); }
+    .lib-authors { font-size: 13px; color: var(--mid); margin-top: 6px; }
+    .lib-type { font-family: var(--font-display); font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--red); }
+    .lib-sector { font-size: 13px; color: var(--mid); }
+    .lib-dl { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase; color: var(--ink); justify-self: end; }
+    .lib-dl:hover { color: var(--red); }
+    .lib-head { display: grid; grid-template-columns: 92px 1fr 150px 118px 130px; gap: 28px; padding-bottom: 14px; }
+    .lib-head span { font-family: var(--font-display); font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid); }
+    .lib-head span:last-child { text-align: right; }
+
+    .subscribe { display: grid; grid-template-columns: 1fr 1fr; }
+    .sub-left { background: var(--red); color: var(--white); padding: 96px 80px; }
+    .sub-left h2 { font-family: var(--font-display); font-size: clamp(28px, 2.8vw, 42px); font-weight: 900; line-height: 1.05; letter-spacing: -0.026em; margin: 24px 0 20px; max-width: 20ch; }
+    .sub-left p { font-size: var(--t-base); line-height: 1.7; color: rgba(255,255,255,0.85); max-width: 42ch; }
+    .sub-right { background: var(--black); padding: 96px 72px; display: flex; flex-direction: column; justify-content: center; }
+    .sub-form { display: flex; gap: 0; margin-top: 26px; }
+    .sub-form input { flex: 1; font-family: var(--font-body); font-size: var(--t-base); padding: 17px 18px; border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.06); color: var(--white); }
+    .sub-form input::placeholder { color: rgba(255,255,255,0.4); }
+    .sub-form input:focus { outline: none; border-color: var(--red); }
+    .sub-note { font-size: 13px; color: rgba(255,255,255,0.45); margin-top: 18px; line-height: 1.6; }
+
+    @media (max-width: 1100px) { .series { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 900px) {
+      .feature { grid-template-columns: 1fr; } .feature-body { padding: 56px 28px; } .feature .img-frame { min-height: 380px; }
+      .series { grid-template-columns: 1fr; }
+      .lib-head { display: none; }
+      .lib-row { grid-template-columns: 1fr; gap: 10px; padding: 22px 0; }
+      .lib-dl { justify-self: start; }
+      .subscribe { grid-template-columns: 1fr; } .sub-left, .sub-right { padding: 56px 28px; }
+    }
+  </style>
+</head>
+<body>
+  <nav id="main-nav">
+    <div class="nav-inner">
+      <a class="nav-logo" href="index.html">
+        <img src="../../assets/brandmark-white.png" alt="African Technology Forum" />
+      </a>
+      <ul class="nav-links">
+        <li class="has-menu">
+          <a href="who-we-are-mission.html">Who We Are<svg class="nav-caret" viewBox="0 0 8 8" fill="none"><path d="M1 2.5L4 5.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <div class="nav-menu">
+            <a href="who-we-are-mission.html"><div class="nav-menu-title">Mission &amp; Story</div><div class="nav-menu-desc">Why ATF exists, and its story since 1988.</div></a>
+            <a href="who-we-are-team.html"><div class="nav-menu-title">Team</div><div class="nav-menu-desc">Board, Challenge team, and country leads.</div></a>
+            <a href="governance.html"><div class="nav-menu-title">Governance</div><div class="nav-menu-desc">Board of Directors and how ATF is governed.</div></a>
+            <a href="partners.html"><div class="nav-menu-title">Partners &amp; Funders</div><div class="nav-menu-desc">The funders, institutions, and universities we work with.</div></a>
+            <a href="annual-reports.html"><div class="nav-menu-title">Annual Reports</div><div class="nav-menu-desc">Reports and financial statements.</div></a>
+            <a href="careers.html"><div class="nav-menu-title">Careers &amp; Volunteering</div><div class="nav-menu-desc">Volunteer with ATF, or see open roles.</div></a>
+          </div>
+        </li>
+        <li class="has-menu">
+          <a href="what-we-do-challenge.html">What We Do<svg class="nav-caret" viewBox="0 0 8 8" fill="none"><path d="M1 2.5L4 5.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <div class="nav-menu">
+            <a href="what-we-do-consulting.html"><div class="nav-menu-title">ATF Consulting</div><div class="nav-menu-desc">Advisory drawing on the ATF professional network.</div></a>
+            <a href="what-we-do-challenge.html"><div class="nav-menu-title">ATF AI Challenge</div><div class="nav-menu-desc">AI training and real problems for university students.</div></a>
+            <a href="what-we-do-chapters.html"><div class="nav-menu-title">ATF Chapters</div><div class="nav-menu-desc">Student chapters inside universities.</div></a>
+          </div>
+        </li>
+        <li><a href="what-we-do-chapters.html#where">Where We Work</a></li>
+        <li><a href="publications.html" class="active">Publications</a></li>
+        <li><a href="newsroom.html">Newsroom</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="partners.html#become" class="nav-btn-ghost">Partner With Us</a>
+        <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="who-we-are-mission.html">Who We Are</a>
+    <a class="sub" href="who-we-are-mission.html">Mission &amp; Story</a>
+    <a class="sub" href="who-we-are-team.html">Team</a>
+    <a class="sub" href="governance.html">Governance</a>
+    <a class="sub" href="partners.html">Partners &amp; Funders</a>
+    <a class="sub" href="annual-reports.html">Annual Reports</a>
+    <a class="sub" href="careers.html">Careers &amp; Volunteering</a>
+    <a href="what-we-do-challenge.html">What We Do</a>
+    <a class="sub" href="what-we-do-consulting.html">ATF Consulting</a>
+    <a class="sub" href="what-we-do-challenge.html">ATF AI Challenge</a>
+    <a class="sub" href="what-we-do-chapters.html">ATF Chapters</a>
+    <a href="what-we-do-chapters.html#where">Where We Work</a>
+    <a href="publications.html" class="active">Publications</a>
+    <a href="newsroom.html">Newsroom</a>
+    <a href="partners.html#become">Partner With Us</a>
+  </div>
+
+  <section class="page-hero">
+    <div class="page-hero-inner">
+      <div class="breadcrumb"><a href="index.html">Home</a><span>/</span><span>Publications</span></div>
+      <h1 class="page-title">The evidence base, <em>published openly</em>.</h1>
+      <p class="page-lede">Policy briefs, programme evaluations, and the annual state-of-the-sector report. Everything ATF produces is free to download, cite, and reuse — including the evaluations that did not flatter us.</p>
+      <div class="page-hero-meta">
+        <div><span>Publications</span><strong>240</strong></div>
+        <div><span>Open access</span><strong>100%</strong></div>
+        <div><span>Series</span><strong>4</strong></div>
+        <div><span>Since</span><strong>1988</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="subnav">
+    <div class="subnav-inner">
+      <a href="#featured">Featured</a>
+      <a href="#series">Series</a>
+      <a href="#library">Library</a>
+      <a href="#subscribe">Subscribe</a>
+    </div>
+  </div>
+
+  <section class="feature" id="featured">
+    <div class="img-frame">
+      <image-slot id="pub-cover" shape="rect" fit="cover" placeholder="Drop the report cover"></image-slot>
+    </div>
+    <div class="feature-body">
+      <div class="feature-kicker">
+        <span class="pill">New</span>
+        <span class="pill ghost">Flagship report</span>
+        <span class="pill ghost">August 2026</span>
+      </div>
+      <h2>The State of African Technology 2026</h2>
+      <p class="feature-abstract">Our ninth annual assessment of science and technology capacity across the continent: research output, engineering pipeline, public investment, and where the gap between policy intent and delivery is widest. Includes country profiles for all fifty-four member states and a chapter on procurement as the binding constraint.</p>
+      <div class="feature-meta">
+        <div><span>Pages</span><strong>184</strong></div>
+        <div><span>Countries profiled</span><strong>54</strong></div>
+        <div><span>Contributors</span><strong>31</strong></div>
+        <div><span>Licence</span><strong>CC BY 4.0</strong></div>
+      </div>
+      <div class="feature-actions">
+        <a href="#" class="btn-primary"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1v9m0 0L3.5 6.5M7 10l3.5-3.5M1 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Download the report</a>
+        <a href="#" class="btn-outline">Read the summary</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="series">
+    <div class="sec-inner">
+      <div class="sec-head-split">
+        <div>
+          <p class="eyebrow">Series</p>
+          <h2 class="sec-title">Four standing publications.</h2>
+        </div>
+        <p class="sec-intro">Each series has a fixed format and a published review process. Briefs are peer-read inside the network before release; evaluations are reviewed by an independent panel.</p>
+      </div>
+      <div class="series">
+        <div class="series-card reveal">
+          <div class="series-count">142</div>
+          <h3>Policy briefs</h3>
+          <p>Six-to-ten page briefs written for ministry staff who have twenty minutes. One decision, the evidence for it, and what it costs.</p>
+          <a href="#" class="link-arrow">Browse briefs <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+        <div class="series-card reveal reveal-delay-1">
+          <div class="series-count">9</div>
+          <h3>State of African Technology</h3>
+          <p>The annual flagship. Continental capacity assessment with country profiles, published every August since 2018.</p>
+          <a href="#" class="link-arrow">All editions <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+        <div class="series-card reveal reveal-delay-2">
+          <div class="series-count">61</div>
+          <h3>Evaluation reports</h3>
+          <p>Independent assessments of programmes we ran or advised on — including the ones that failed, which are the more useful documents.</p>
+          <a href="#" class="link-arrow">Browse evaluations <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+        <div class="series-card reveal reveal-delay-3">
+          <div class="series-count">28</div>
+          <h3>Chapter research notes</h3>
+          <p>Short field research from the chapter network. Lightly edited, quickly published, close to the ground.</p>
+          <a href="#" class="link-arrow">Browse notes <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bleed-stat">
+    <div class="bleed-stat-inner">
+      <p class="eyebrow on-dark">Open access</p>
+      <div class="bleed-num" style="margin-top:28px">240</div>
+      <div class="bleed-caption">
+        <h3>Publications, none of them behind a paywall or an email gate.</h3>
+        <p>A method kept private cannot scale. Everything here is CC BY 4.0 — translate it, adapt it, publish it under your own institution's name if that gets it read. We ask only for a citation.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec stone" id="library">
+    <div class="sec-inner">
+      <div class="sec-head-split">
+        <div>
+          <p class="eyebrow">Library</p>
+          <h2 class="sec-title">Everything we have published.</h2>
+        </div>
+        <p class="sec-intro">Filter by series, sector, or year. Archive back to the ATF journal of 1988 — early issues are scanned from print.</p>
+      </div>
+      <div class="lib-controls">
+        <input class="lib-search" type="search" placeholder="Search titles, authors, or keywords" aria-label="Search publications" />
+        <button class="chip on">All</button>
+        <button class="chip">Briefs</button>
+        <button class="chip">Evaluations</button>
+        <button class="chip">Flagship</button>
+        <button class="chip">Notes</button>
+      </div>
+      <div class="lib-head">
+        <span>Year</span><span>Title</span><span>Series</span><span>Sector</span><span>Download</span>
+      </div>
+      <div class="lib">
+        <div class="lib-row">
+          <div class="lib-year">2026</div>
+          <div><div class="lib-title">The State of African Technology 2026</div><p class="lib-authors">ATF Research · 31 contributors</p></div>
+          <div class="lib-type">Flagship</div>
+          <div class="lib-sector">Cross-sector</div>
+          <a href="#" class="lib-dl"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1v9m0 0L3.5 6.5M7 10l3.5-3.5M1 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> PDF · 14 MB</a>
+        </div>
+        <div class="lib-row">
+          <div class="lib-year">2026</div>
+          <div><div class="lib-title">Procurement thresholds and the exclusion of local technology firms</div><p class="lib-authors">Research &amp; Evaluation practice</p></div>
+          <div class="lib-type">Policy brief</div>
+          <div class="lib-sector">Public admin</div>
+          <a href="#" class="lib-dl"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1v9m0 0L3.5 6.5M7 10l3.5-3.5M1 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> PDF · 1.2 MB</a>
+        </div>
+        <div class="lib-row">
+          <div class="lib-year">2026</div>
+          <div><div class="lib-title">Offline-first health records: eighteen-month field evaluation</div><p class="lib-authors">Independent panel · Ghana Health Service</p></div>
+          <div class="lib-type">Evaluation</div>
+          <div class="lib-sector">Health</div>
+          <a href="#" class="lib-dl"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1v9m0 0L3.5 6.5M7 10l3.5-3.5M1 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> PDF · 3.8 MB</a>
+        </div>
+        <div class="lib-row">
+          <div class="lib-year">2025</div>
+          <div><div class="lib-title">What happened to the 2019 national AI strategies</div><p class="lib-authors">ATF Research</p></div>
+          <div class="lib-type">Policy brief</div>
+          <div class="lib-sector">Policy</div>
+          <a href="#" class="lib-dl"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1v9m0 0L3.5 6.5M7 10l3.5-3.5M1 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> PDF · 900 KB</a>
+        </div>
+        <div class="lib-row">
+          <div class="lib-year">2025</div>
+          <div><div class="lib-title">Voice interfaces for low-literacy agricultural advisory</div><p class="lib-authors">Nairobi &amp; Nakuru chapters</p></div>
+          <div class="lib-type">Research note</div>
+          <div class="lib-sector">Agriculture</div>
+          <a href="#" class="lib-dl"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1v9m0 0L3.5 6.5M7 10l3.5-3.5M1 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> PDF · 1.6 MB</a>
+        </div>
+        <div class="lib-row">
+          <div class="lib-year">2025</div>
+          <div><div class="lib-title">Continental skills programme: three-country tracer study</div><p class="lib-authors">Research &amp; Evaluation practice</p></div>
+          <div class="lib-type">Evaluation</div>
+          <div class="lib-sector">Education</div>
+          <a href="#" class="lib-dl"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1v9m0 0L3.5 6.5M7 10l3.5-3.5M1 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> PDF · 5.1 MB</a>
+        </div>
+        <div class="lib-row">
+          <div class="lib-year">2024</div>
+          <div><div class="lib-title">Mini-grid regulation: what the first decade taught us</div><p class="lib-authors">ATF Research · energy working group</p></div>
+          <div class="lib-type">Policy brief</div>
+          <div class="lib-sector">Energy</div>
+          <a href="#" class="lib-dl"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1v9m0 0L3.5 6.5M7 10l3.5-3.5M1 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> PDF · 1.1 MB</a>
+        </div>
+        <div class="lib-row">
+          <div class="lib-year">2024</div>
+          <div><div class="lib-title">Why our 2021 digital identity pilot was discontinued</div><p class="lib-authors">Independent panel</p></div>
+          <div class="lib-type">Evaluation</div>
+          <div class="lib-sector">Public admin</div>
+          <a href="#" class="lib-dl"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1v9m0 0L3.5 6.5M7 10l3.5-3.5M1 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> PDF · 2.2 MB</a>
+        </div>
+      </div>
+      <div style="margin-top:44px;display:flex;gap:18px;flex-wrap:wrap;align-items:center">
+        <a href="#" class="btn-outline">Load the full archive <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <p style="font-size:13px;color:var(--mid)">Showing 8 of 240 · Newest first</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="subscribe" id="subscribe">
+    <div class="sub-left">
+      <p class="eyebrow on-dark">Subscribe</p>
+      <h2>New research, roughly monthly.</h2>
+      <p>One email when something is published. No campaign sequences, no event marketing, no forwarding your address to partners.</p>
+    </div>
+    <div class="sub-right">
+      <p class="eyebrow">Research digest</p>
+      <form class="sub-form" onsubmit="event.preventDefault(); this.querySelector('button').textContent = 'Subscribed';">
+        <input type="email" placeholder="you@institution.org" aria-label="Email address" />
+        <button type="submit" class="btn-primary">Subscribe</button>
+      </form>
+      <p class="sub-note">Unsubscribe in one click. We publish our list policy alongside our governance documents.</p>
+    </div>
+  </section>
+
+  <footer id="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <img src="../../assets/logo-bright.png" alt="African Technology Forum" />
+          <p>Advancing the development of science and technology in Africa. Founded at MIT in 1988.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Who We Are</h4>
+          <a href="who-we-are-mission.html">Mission &amp; Story</a>
+          <a href="who-we-are-team.html">Team</a>
+          <a href="governance.html">Governance</a>
+          <a href="partners.html">Partners &amp; Funders</a>
+          <a href="annual-reports.html">Annual Reports</a>
+        </div>
+        <div class="footer-col">
+          <h4>What We Do</h4>
+          <a href="what-we-do-consulting.html">ATF Consulting</a>
+          <a href="what-we-do-challenge.html">ATF AI Challenge</a>
+          <a href="what-we-do-chapters.html">ATF Chapters</a>
+          <a href="publications.html">Publications</a>
+          <a href="newsroom.html">Newsroom</a>
+        </div>
+        <div class="footer-col">
+          <h4>Connect</h4>
+          <a href="partners.html#become">Partner With Us</a>
+          <a href="what-we-do-chapters.html#start">Start a Chapter</a>
+          <a href="careers.html">Careers &amp; Volunteering</a>
+          <a href="mailto:info@africantechnologyforum.org">info@africantechnologyforum.org</a>
+          <a href="https://www.linkedin.com/company/africantechnologyforum" target="_blank" rel="noopener">LinkedIn</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 1988–2026 African Technology Forum. All rights reserved.</p>
+        <div class="footer-legal">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Accessibility</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="site.js"></script>
+  <script>
+    document.querySelectorAll('.chip').forEach(function (c) {
+      c.addEventListener('click', function () {
+        document.querySelectorAll('.chip').forEach(function (x) { x.classList.remove('on'); });
+        c.classList.add('on');
+      });
+    });
+  </script>
+</body>
+</html>

@@ -4,6 +4,23 @@ This is the African Technology Forum website app. The Public Site uses Vite,
 React, Tailwind, and TanStack Router. The independently runnable Backend CMS
 uses Payload and PostgreSQL.
 
+## Quick Start
+
+Start the Backend CMS first (Docker). Admin opens at http://localhost:3001/admin (or http://192.168.1.99:3001/admin)
+
+```bash
+cd backend-cms
+make build   # first run only, or after dependency changes
+make start   # use `make logs` to follow output and `make stop` to stop
+```
+
+Start the Public Site in a second terminal from the repository root. The site
+opens at http://localhost:3000 (or http://192.168.1.99:3000).
+
+```bash
+bun --bun run dev
+```
+
 ## Current State
 
 The Public Site implements one ATF V2 design. The earlier prototype switcher,

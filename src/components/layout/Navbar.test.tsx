@@ -85,7 +85,9 @@ describe("Navbar", () => {
     expect(dropdownTriggers).toEqual([
       { label: "Who We Are", hasMenu: "menu" },
       { label: "What We Do", hasMenu: "menu" },
-      { label: "Where We Work", hasMenu: "menu" },
+  // YDS: We are hiding the drop-down until we have enough content for 
+  //      multiple sections and multiple pages
+      // { label: "Where We Work", hasMenu: "menu" },
       { label: "Publications", hasMenu: "menu" },
     ]);
   });

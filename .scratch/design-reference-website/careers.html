@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Website" name="Who We Are — Careers & Volunteering" subtitle="Ways to volunteer, open roles, and a volunteer sign-up form" viewport="1440x920" -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Careers &amp; Volunteering — African Technology Forum</title>
+  <link href="../../colors_and_type.css" rel="stylesheet" />
+  <link href="site.css" rel="stylesheet" />
+  <style>
+    .ways { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+    .way { background: var(--white); padding: 36px 32px 40px; border-top: 2px solid var(--ink); position: relative; }
+    .way:first-child { border-top-color: var(--red); }
+    .way-for { font-family: var(--font-display); font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); margin-bottom: 16px; }
+    .way h3 { font-family: var(--font-display); font-size: 20px; font-weight: 800; letter-spacing: -0.015em; margin-bottom: 10px; }
+    .way p { font-size: var(--t-sm); line-height: 1.7; color: var(--mid); }
+
+    .roles-box { background: var(--white); border: 1px solid var(--rule); display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: center; padding: 40px 44px; }
+    .roles-box h3 { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: -0.015em; margin-bottom: 8px; }
+    .roles-box p { font-size: var(--t-base); line-height: 1.7; color: var(--mid); max-width: 56ch; }
+
+    .join { display: grid; grid-template-columns: 0.9fr 1.1fr; }
+    .join-left { background: var(--black); color: var(--white); padding: 104px 80px; }
+    .join-left h2 { color: var(--white); font-family: var(--font-display); font-size: clamp(30px, 3vw, 46px); font-weight: 900; line-height: 1.04; letter-spacing: -0.028em; margin: 24px 0 22px; max-width: 16ch; }
+    .join-left > p { font-size: var(--t-base); line-height: 1.72; color: rgba(255,255,255,0.72); max-width: 42ch; margin-bottom: 40px; }
+    .jstep { display: grid; grid-template-columns: 40px 1fr; gap: 18px; padding: 22px 0; border-top: 1px solid rgba(255,255,255,0.14); }
+    .jstep b { font-family: var(--font-display); font-size: 15px; font-weight: 900; color: var(--white); background: var(--red); width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; }
+    .jstep h4 { font-family: var(--font-display); font-size: var(--t-base); font-weight: 700; margin-bottom: 4px; color: var(--white); }
+    .jstep p { font-size: 13.5px; line-height: 1.6; color: rgba(255,255,255,0.65); }
+    .join-right { background: var(--stone); padding: 104px 72px; }
+
+    @media (max-width: 1100px) { .ways { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 900px) {
+      .ways { grid-template-columns: 1fr; }
+      .roles-box { grid-template-columns: 1fr; padding: 32px 28px; }
+      .join { grid-template-columns: 1fr; } .join-left, .join-right { padding: 56px 28px; }
+    }
+  </style>
+</head>
+<body>
+  <nav id="main-nav">
+    <div class="nav-inner">
+      <a class="nav-logo" href="index.html">
+        <img src="../../assets/brandmark-white.png" alt="African Technology Forum" />
+      </a>
+      <ul class="nav-links">
+        <li class="has-menu">
+          <a href="who-we-are-mission.html" class="active">Who We Are<svg class="nav-caret" viewBox="0 0 8 8" fill="none"><path d="M1 2.5L4 5.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <div class="nav-menu">
+            <a href="who-we-are-mission.html"><div class="nav-menu-title">Mission &amp; Story</div><div class="nav-menu-desc">Why ATF exists, and its story since 1988.</div></a>
+            <a href="who-we-are-team.html"><div class="nav-menu-title">Team</div><div class="nav-menu-desc">Board, Challenge team, and country leads.</div></a>
+            <a href="governance.html"><div class="nav-menu-title">Governance</div><div class="nav-menu-desc">Board of Directors and how ATF is governed.</div></a>
+            <a href="partners.html"><div class="nav-menu-title">Partners &amp; Funders</div><div class="nav-menu-desc">The funders, institutions, and universities we work with.</div></a>
+            <a href="annual-reports.html"><div class="nav-menu-title">Annual Reports</div><div class="nav-menu-desc">Reports and financial statements.</div></a>
+            <a href="careers.html"><div class="nav-menu-title">Careers &amp; Volunteering</div><div class="nav-menu-desc">Volunteer with ATF, or see open roles.</div></a>
+          </div>
+        </li>
+        <li class="has-menu">
+          <a href="what-we-do-challenge.html">What We Do<svg class="nav-caret" viewBox="0 0 8 8" fill="none"><path d="M1 2.5L4 5.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <div class="nav-menu">
+            <a href="what-we-do-consulting.html"><div class="nav-menu-title">ATF Consulting</div><div class="nav-menu-desc">Advisory drawing on the ATF professional network.</div></a>
+            <a href="what-we-do-challenge.html"><div class="nav-menu-title">ATF AI Challenge</div><div class="nav-menu-desc">AI training and real problems for university students.</div></a>
+            <a href="what-we-do-chapters.html"><div class="nav-menu-title">ATF Chapters</div><div class="nav-menu-desc">Student chapters inside universities.</div></a>
+          </div>
+        </li>
+        <li><a href="what-we-do-chapters.html#where">Where We Work</a></li>
+        <li><a href="publications.html">Publications</a></li>
+        <li><a href="newsroom.html">Newsroom</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="partners.html#become" class="nav-btn-ghost">Partner With Us</a>
+        <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="who-we-are-mission.html" class="active">Who We Are</a>
+    <a class="sub" href="who-we-are-mission.html">Mission &amp; Story</a>
+    <a class="sub" href="who-we-are-team.html">Team</a>
+    <a class="sub" href="governance.html">Governance</a>
+    <a class="sub" href="partners.html">Partners &amp; Funders</a>
+    <a class="sub" href="annual-reports.html">Annual Reports</a>
+    <a class="sub" href="careers.html">Careers &amp; Volunteering</a>
+    <a href="what-we-do-challenge.html">What We Do</a>
+    <a class="sub" href="what-we-do-consulting.html">ATF Consulting</a>
+    <a class="sub" href="what-we-do-challenge.html">ATF AI Challenge</a>
+    <a class="sub" href="what-we-do-chapters.html">ATF Chapters</a>
+    <a href="what-we-do-chapters.html#where">Where We Work</a>
+    <a href="publications.html">Publications</a>
+    <a href="newsroom.html">Newsroom</a>
+    <a href="partners.html#become">Partner With Us</a>
+  </div>
+
+  <section class="page-hero">
+    <div class="page-hero-inner">
+      <div class="breadcrumb"><a href="index.html">Home</a><span>/</span><a href="who-we-are-mission.html">Who We Are</a><span>/</span><span>Careers &amp; Volunteering</span></div>
+      <h1 class="page-title">Work <em>with</em> the forum.</h1>
+      <p class="page-lede">ATF has been run by volunteers for most of its history. Volunteers mentor Challenge teams, support university chapters, write, and help run programmes in Ghana, Nigeria, Kenya, and South Africa. When paid roles open, we list them here.</p>
+    </div>
+  </section>
+
+  <div class="subnav">
+    <div class="subnav-inner">
+      <a href="#ways">Ways to Help</a>
+      <a href="#roles">Open Roles</a>
+      <a href="#join">Volunteer</a>
+    </div>
+  </div>
+
+  <section class="sec" id="ways">
+    <div class="sec-inner">
+      <div class="sec-head-split">
+        <div>
+          <p class="eyebrow">Ways to Help</p>
+          <h2 class="sec-title">Bring what you know.</h2>
+        </div>
+        <p class="sec-intro">Most volunteers give a few hours a month. Some take on a single project. All of them work directly with students and the ATF team.</p>
+      </div>
+      <div class="ways">
+        <div class="way reveal"><p class="way-for">Practitioners</p><h3>Mentor a Challenge team</h3><p>Guide a student team through the ATF AI Challenge, from problem statement to working MVP.</p></div>
+        <div class="way reveal reveal-delay-1"><p class="way-for">Experts</p><h3>Judge or review</h3><p>Assess Challenge submissions and give teams honest, specific feedback.</p></div>
+        <div class="way reveal reveal-delay-2"><p class="way-for">Academics &amp; alumni</p><h3>Support a chapter</h3><p>Speak at, advise, or help set up a university chapter in your field.</p></div>
+        <div class="way reveal"><p class="way-for">Writers &amp; editors</p><h3>Write for ATF</h3><p>ATF began as a journal in 1988. Help us report, edit, and publish the work of African technologists.</p></div>
+        <div class="way reveal reveal-delay-1"><p class="way-for">Organisers</p><h3>Run events locally</h3><p>Help deliver programmes and events in Ghana, Nigeria, Kenya, or South Africa.</p></div>
+        <div class="way reveal reveal-delay-2"><p class="way-for">Professionals</p><h3>Lend a skill</h3><p>Design, finance, legal, communications, or engineering support on a defined project.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec stone" id="roles">
+    <div class="sec-inner">
+      <div class="sec-head-split">
+        <div>
+          <p class="eyebrow">Open Roles</p>
+          <h2 class="sec-title">Paid positions.</h2>
+        </div>
+        <p class="sec-intro">Staff roles are posted here and on our LinkedIn page when they open.</p>
+      </div>
+      <div class="roles-box">
+        <div>
+          <h3>No paid roles are open right now.</h3>
+          <p>Follow ATF on LinkedIn to see new roles first, or sign up below to volunteer in the meantime.</p>
+        </div>
+        <a href="https://www.linkedin.com/company/africantechnologyforum" target="_blank" rel="noopener" class="btn-outline">Follow on LinkedIn <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="join" id="join">
+    <div class="join-left">
+      <p class="eyebrow on-dark">Volunteer</p>
+      <h2>Tell us how you'd like to help.</h2>
+      <p>Two minutes. We read every response and match it to the programmes that need you.</p>
+      <div>
+        <div class="jstep"><b>1</b><div><h4>Send the form</h4><p>Your interests, country, and how much time you have.</p></div></div>
+        <div class="jstep"><b>2</b><div><h4>We match you</h4><p>We look for a programme, chapter, or project that fits.</p></div></div>
+        <div class="jstep"><b>3</b><div><h4>Short call</h4><p>A conversation with the ATF team before you start.</p></div></div>
+      </div>
+    </div>
+    <div class="join-right">
+      <form class="atf-form" data-mailto="info@africantechnologyforum.org" data-subject="Volunteer sign-up" novalidate>
+        <div class="field-row">
+          <div class="field"><label for="v-name">Full name</label><input id="v-name" name="Name" type="text" required autocomplete="name" placeholder="Your full name" /></div>
+          <div class="field"><label for="v-email">Email</label><input id="v-email" name="Email" type="email" required autocomplete="email" placeholder="you@example.com" /></div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="v-country">Country</label>
+            <select id="v-country" name="Country" required>
+              <option value="">Choose a country</option>
+              <option>Ghana</option><option>Nigeria</option><option>Kenya</option><option>South Africa</option><option>Elsewhere in Africa</option><option>Outside Africa</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="v-time">Time available</label>
+            <select id="v-time" name="Time available">
+              <option>A few hours a month</option><option>A few hours a week</option><option>A single project</option>
+            </select>
+          </div>
+        </div>
+        <fieldset class="field" data-group-required>
+          <legend>I'd like to</legend>
+          <div class="check-chips">
+            <label class="check-chip"><input type="checkbox" name="Interests" value="Mentor a Challenge team" /><span>Mentor</span></label>
+            <label class="check-chip"><input type="checkbox" name="Interests" value="Judge or review" /><span>Judge or review</span></label>
+            <label class="check-chip"><input type="checkbox" name="Interests" value="Support a chapter" /><span>Support a chapter</span></label>
+            <label class="check-chip"><input type="checkbox" name="Interests" value="Write for ATF" /><span>Write</span></label>
+            <label class="check-chip"><input type="checkbox" name="Interests" value="Run events locally" /><span>Run events</span></label>
+            <label class="check-chip"><input type="checkbox" name="Interests" value="Lend a skill" /><span>Lend a skill</span></label>
+          </div>
+        </fieldset>
+        <div class="field"><label for="v-li">LinkedIn profile <span class="opt">Optional</span></label><input id="v-li" name="LinkedIn" type="url" placeholder="https://www.linkedin.com/in/…" /></div>
+        <div class="field"><label for="v-why">What would you bring?</label><textarea id="v-why" name="About" required placeholder="Your field, experience, and what you'd like to work on."></textarea></div>
+        <label class="consent"><input type="checkbox" name="Consent" value="Yes" required /><span>ATF may contact me about volunteering.</span></label>
+        <button type="submit" class="btn-primary" style="width:100%;justify-content:center">Send <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <p class="form-note">Sends to info@africantechnologyforum.org from your email app.</p>
+      </form>
+    </div>
+  </section>
+
+  <footer id="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <img src="../../assets/logo-bright.png" alt="African Technology Forum" />
+          <p>Advancing the development of science and technology in Africa. Founded at MIT in 1988.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Who We Are</h4>
+          <a href="who-we-are-mission.html">Mission &amp; Story</a>
+          <a href="who-we-are-team.html">Team</a>
+          <a href="governance.html">Governance</a>
+          <a href="partners.html">Partners &amp; Funders</a>
+          <a href="annual-reports.html">Annual Reports</a>
+        </div>
+        <div class="footer-col">
+          <h4>What We Do</h4>
+          <a href="what-we-do-consulting.html">ATF Consulting</a>
+          <a href="what-we-do-challenge.html">ATF AI Challenge</a>
+          <a href="what-we-do-chapters.html">ATF Chapters</a>
+          <a href="publications.html">Publications</a>
+          <a href="newsroom.html">Newsroom</a>
+        </div>
+        <div class="footer-col">
+          <h4>Connect</h4>
+          <a href="partners.html#become">Partner With Us</a>
+          <a href="what-we-do-chapters.html#start">Start a Chapter</a>
+          <a href="careers.html">Careers &amp; Volunteering</a>
+          <a href="mailto:info@africantechnologyforum.org">info@africantechnologyforum.org</a>
+          <a href="https://www.linkedin.com/company/africantechnologyforum" target="_blank" rel="noopener">LinkedIn</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 1988–2026 African Technology Forum. All rights reserved.</p>
+        <div class="footer-legal">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Accessibility</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="site.js"></script>
+</body>
+</html>

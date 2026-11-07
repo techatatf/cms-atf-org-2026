@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Website" name="Who We Are — Mission & Story" subtitle="Mission statement headline, how we do it, four eras with archive images, journal reach, linked pillars, founding quote, partners" viewport="1440x920" -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mission & Story — African Technology Forum</title>
+  <link href="../../colors_and_type.css" rel="stylesheet" />
+  <link href="site.css" rel="stylesheet" />
+  <script src="../../image-slot.js"></script>
+  <style>
+    .statement { background: var(--paper); padding: 128px 100px; }
+    .statement-inner { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.6fr; gap: 80px; }
+    .statement-quote { font-family: var(--font-display); font-size: clamp(28px, 3.1vw, 50px); font-weight: 800; line-height: 1.1; letter-spacing: -0.025em; }
+    .statement-quote em { font-style: normal; color: var(--red); }
+    .statement-body p { font-size: 17px; line-height: 1.78; color: var(--mid); margin-bottom: 22px; max-width: 58ch; }
+    .statement-body p strong { color: var(--ink); font-weight: 600; }
+    .statement-side { font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mid); }
+
+    .timeline { border-top: 1px solid var(--rule); }
+    .tl-row { display: grid; grid-template-columns: 190px 1fr 1fr; gap: 56px; padding: 46px 0; border-bottom: 1px solid var(--rule); align-items: start; }
+    .tl-year { font-family: var(--font-display); font-size: 40px; font-weight: 900; letter-spacing: -0.03em; color: var(--ink); line-height: 1; }
+    .tl-row:hover .tl-year { color: var(--red); }
+    .tl-title { font-family: var(--font-display); font-size: 19px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 10px; }
+    .tl-row .tl-tag { font-family: var(--font-display); font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); margin-bottom: 14px; }
+    .tl-thumb { width: 150px; aspect-ratio: 4 / 3; margin-top: 20px; }
+    .pillar-links { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 24px; }
+    .partners-row { background: var(--paper); border-top: 1px solid var(--rule); padding: 56px 100px; }
+    .partners-inner { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: auto 1fr; gap: 64px; align-items: start; }
+    .team-label { font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid); margin-bottom: 16px; }
+    .marks { display: flex; flex-wrap: wrap; gap: 10px 34px; }
+    .marks span { font-family: var(--font-display); font-size: clamp(17px, 1.5vw, 21px); font-weight: 800; letter-spacing: -0.015em; color: var(--ink); }
+    @media (max-width: 1100px) { .partners-row { padding-left: 56px; padding-right: 56px; } }
+    @media (max-width: 900px) { .partners-row { padding: 44px 28px; } .partners-inner { grid-template-columns: 1fr; gap: 32px; } .tl-thumb { width: 100%; max-width: 280px; } }
+    .tl-desc { font-size: var(--t-sm); line-height: 1.7; color: var(--mid); }
+
+    .beliefs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+    .belief { background: var(--white); padding: 48px 40px; position: relative; }
+    .belief .belief-num { font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; color: var(--red); margin-bottom: 28px; }
+    .belief h3 { font-family: var(--font-display); font-size: 21px; font-weight: 800; letter-spacing: -0.015em; line-height: 1.18; margin-bottom: 14px; }
+    .belief p { font-size: var(--t-sm); line-height: 1.72; color: var(--mid); }
+
+    .split-photo { display: grid; grid-template-columns: 1fr 1fr; align-items: stretch; }
+    .split-photo .img-frame { min-height: 560px; }
+    .split-photo-text { padding: 96px 80px; background: var(--black); color: var(--white); display: flex; flex-direction: column; justify-content: center; }
+    .pull { font-family: var(--font-display); font-size: clamp(22px, 2vw, 31px); font-weight: 700; line-height: 1.3; letter-spacing: -0.018em; margin: 26px 0 32px; }
+    .pull em { font-style: normal; color: var(--red); }
+    .attrib { font-size: var(--t-sm); color: rgba(255,255,255,0.55); line-height: 1.6; }
+    .split-photo-text .attrib strong { color: var(--white); display: block; font-family: var(--font-display); font-weight: 700; font-size: var(--t-base); margin-bottom: 3px; }
+
+    .direction { display: grid; grid-template-columns: 1fr 1.25fr; gap: 72px; align-items: start; }
+    .direction-lead { font-family: var(--font-display); font-size: clamp(26px, 2.6vw, 40px); font-weight: 800; line-height: 1.12; letter-spacing: -0.022em; }
+    .direction-lead em { font-style: normal; color: var(--red); }
+    .direction p { font-size: 17px; line-height: 1.75; color: var(--mid); margin-bottom: 20px; max-width: 58ch; }
+    .direction p strong { color: var(--ink); font-weight: 600; }
+    .path { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 8px 0 36px; font-family: var(--font-display); font-size: 12px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); }
+    .path i { font-style: normal; color: var(--red); }
+    .path .now { background: var(--red); color: var(--white); padding: 6px 10px; }
+    .path .next { border: 1px dashed var(--ink); padding: 5px 10px; }
+    .domains { display: flex; flex-wrap: wrap; gap: 2px; }
+    .domains span { flex: 1 1 150px; background: var(--black); color: var(--white); padding: 20px 18px; font-family: var(--font-display); font-size: 12px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+    @media (max-width: 900px) { .direction { grid-template-columns: 1fr; gap: 32px; } }
+
+    .cta-band { background: var(--red); color: var(--white); padding: 88px 100px; }
+    .cta-band-inner { max-width: 1240px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 56px; flex-wrap: wrap; }
+    .cta-band h2 { font-family: var(--font-display); font-size: clamp(28px, 2.7vw, 42px); font-weight: 900; line-height: 1.06; letter-spacing: -0.025em; max-width: 22ch; }
+    .cta-band-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    @media (max-width: 1100px) { .statement { padding: 80px 56px; } .beliefs { grid-template-columns: 1fr; } }
+    @media (max-width: 900px) {
+      .statement { padding: 64px 28px; } .statement-inner { grid-template-columns: 1fr; gap: 36px; }
+      .tl-row { grid-template-columns: 1fr; gap: 16px; padding: 34px 0; }
+      .split-photo { grid-template-columns: 1fr; } .split-photo-text { padding: 56px 28px; }
+      .split-photo .img-frame { min-height: 340px; }
+      .cta-band { padding: 64px 28px; }
+    }
+  </style>
+</head>
+<body>
+  <nav id="main-nav">
+    <div class="nav-inner">
+      <a class="nav-logo" href="index.html">
+        <img src="../../assets/brandmark-white.png" alt="African Technology Forum" />
+      </a>
+      <ul class="nav-links">
+        <li class="has-menu">
+          <a href="who-we-are-mission.html" class="active">Who We Are<svg class="nav-caret" viewBox="0 0 8 8" fill="none"><path d="M1 2.5L4 5.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <div class="nav-menu">
+            <a href="who-we-are-mission.html"><div class="nav-menu-title">Mission &amp; Story</div><div class="nav-menu-desc">Why ATF exists, and its story since 1988.</div></a>
+            <a href="who-we-are-team.html"><div class="nav-menu-title">Team</div><div class="nav-menu-desc">Board, Challenge team, and country leads.</div></a>
+            <a href="governance.html"><div class="nav-menu-title">Governance</div><div class="nav-menu-desc">Board of Directors and how ATF is governed.</div></a>
+            <a href="partners.html"><div class="nav-menu-title">Partners &amp; Funders</div><div class="nav-menu-desc">The funders, institutions, and universities we work with.</div></a>
+            <a href="annual-reports.html"><div class="nav-menu-title">Annual Reports</div><div class="nav-menu-desc">Reports and financial statements.</div></a>
+            <a href="careers.html"><div class="nav-menu-title">Careers &amp; Volunteering</div><div class="nav-menu-desc">Volunteer with ATF, or see open roles.</div></a>
+          </div>
+        </li>
+        <li class="has-menu">
+          <a href="what-we-do-challenge.html">What We Do<svg class="nav-caret" viewBox="0 0 8 8" fill="none"><path d="M1 2.5L4 5.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <div class="nav-menu">
+            <a href="what-we-do-consulting.html"><div class="nav-menu-title">ATF Consulting</div><div class="nav-menu-desc">Advisory drawing on the ATF professional network.</div></a>
+            <a href="what-we-do-challenge.html"><div class="nav-menu-title">ATF AI Challenge</div><div class="nav-menu-desc">AI training and real problems for university students.</div></a>
+            <a href="what-we-do-chapters.html"><div class="nav-menu-title">ATF Chapters</div><div class="nav-menu-desc">Student chapters inside universities.</div></a>
+          </div>
+        </li>
+        <li><a href="what-we-do-chapters.html#where">Where We Work</a></li>
+        <li><a href="publications.html">Publications</a></li>
+        <li><a href="newsroom.html">Newsroom</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="partners.html#become" class="nav-btn-ghost">Partner With Us</a>
+        <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="who-we-are-mission.html" class="active">Who We Are</a>
+    <a class="sub" href="who-we-are-mission.html">Mission &amp; Story</a>
+    <a class="sub" href="who-we-are-team.html">Team</a>
+    <a class="sub" href="governance.html">Governance</a>
+    <a class="sub" href="partners.html">Partners &amp; Funders</a>
+    <a class="sub" href="annual-reports.html">Annual Reports</a>
+    <a class="sub" href="careers.html">Careers &amp; Volunteering</a>
+    <a href="what-we-do-challenge.html">What We Do</a>
+    <a class="sub" href="what-we-do-consulting.html">ATF Consulting</a>
+    <a class="sub" href="what-we-do-challenge.html">ATF AI Challenge</a>
+    <a class="sub" href="what-we-do-chapters.html">ATF Chapters</a>
+    <a href="what-we-do-chapters.html#where">Where We Work</a>
+    <a href="publications.html">Publications</a>
+    <a href="newsroom.html">Newsroom</a>
+    <a href="partners.html#become">Partner With Us</a>
+  </div>
+
+  <section class="page-hero">
+    <div class="page-hero-inner">
+      <div class="breadcrumb"><a href="index.html">Home</a><span>/</span><span>Who We Are</span></div>
+      <h1 class="page-title" style="max-width:22ch">Advancing the development of science and technology in <em>Africa</em> since 1988.</h1>
+      <p class="page-lede">ATF was founded at MIT in 1988 by African students and young professionals. Its form has changed every decade: a journal, a professional network, university chapters, and now the ATF AI Challenge. Its mission has stayed the same.</p>
+      <div class="page-hero-meta">
+        <div><span>Established</span><strong>1988</strong></div>
+        <div><span>Registered in</span><strong>Ghana</strong></div>
+        <div><span>Countries of operation</span><strong>4</strong></div>
+        <div><span>Eras</span><strong>4</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="subnav">
+    <div class="subnav-inner">
+      <a href="#mission">How We Do It</a>
+      <a href="#story">Our Story</a>
+      <a href="#direction">Where We're Going</a>
+      <a href="#pillars">How We Work</a>
+      <a href="#founding">In Our Words</a>
+    </div>
+  </div>
+
+  <section class="statement" id="mission">
+    <div class="statement-inner">
+      <p class="statement-side">How we do it</p>
+      <div>
+        <h2 class="statement-quote">By nurturing technologists, connecting them, and creating <em>pathways to impact</em>.</h2>
+        <div class="statement-body" style="margin-top:44px">
+          <p>We identify and nurture technologists across every discipline and career stage. We build the community and knowledge infrastructure that connects them to each other and to the wider world. And we create the pathways that turn learning into lasting impact.</p>
+          <p>Our founding language said ATF <strong>promotes</strong> this work. We now say <strong>advancing</strong>, because ATF does more than advocate for it. We do the work.</p>
+          <p>Today we operate in Ghana, Nigeria, Kenya, and South Africa. We have also run university chapters in Benin.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="story">
+    <div class="sec-inner">
+      <div class="sec-head-split">
+        <div>
+          <p class="eyebrow">Our Story</p>
+          <h2 class="sec-title">Four eras, <em>one thread</em>.</h2>
+        </div>
+        <p class="sec-intro">Through every era, ATF has connected African technologists, students and professionals, to knowledge, to resources, and to each other.</p>
+      </div>
+      <div class="timeline">
+        <div class="tl-row reveal">
+          <div><div class="tl-year">1988</div><div class="tl-thumb img-frame duotone"><image-slot id="era-journal" shape="rect" fit="cover" placeholder="Journal cover or book drive"></image-slot></div></div>
+          <div><p class="tl-tag">Journal era · 1988 to early 2000s</p><h3 class="tl-title">A journal and book drives</h3></div>
+          <p class="tl-desc">African students and young professionals at MIT founded ATF to make the work of Africa's scientists and technologists visible. They published a journal with contributors from across Africa and the diaspora, and ran book drives that sent engineering and technology texts to university libraries across the continent. By 1992 the journal had about 23 volunteer staff, contributors in 15 countries, and more than 11,000 readers.</p>
+        </div>
+        <div class="tl-row reveal">
+          <div><div class="tl-year">2000s</div><div class="tl-thumb img-frame duotone"><image-slot id="era-network" shape="rect" fit="cover" placeholder="Early consulting or network photo"></image-slot></div></div>
+          <div><p class="tl-tag">Consulting era · Continues today</p><h3 class="tl-title">A professional network</h3></div>
+          <p class="tl-desc">As the founders built careers at companies, universities, and institutions in Africa and abroad, ATF became a professional network. ATF Consulting put that network's expertise to work on projects that needed it. Consulting remains part of ATF today.</p>
+        </div>
+        <div class="tl-row reveal">
+          <div><div class="tl-year">2012</div><div class="tl-thumb img-frame duotone"><image-slot id="era-chapters" shape="rect" fit="cover" placeholder="University chapter photo"></image-slot></div></div>
+          <div><p class="tl-tag">University chapters era · 2012 to 2020</p><h3 class="tl-title">Back to students</h3></div>
+          <p class="tl-desc">ATF returned to its roots with student chapters inside universities. Chapters received funding, direction, access to experts, and exposure to emerging technologies such as nanotechnology and 3D printing. Six chapters ran at their peak: five in Ghana and one in Benin.</p>
+        </div>
+        <div class="tl-row reveal">
+          <div><div class="tl-year">2023</div><div class="tl-thumb img-frame duotone"><image-slot id="era-challenge" shape="rect" fit="cover" placeholder="AI Challenge finals photo"></image-slot></div></div>
+          <div><p class="tl-tag">ATF Challenge era · 2023 to today</p><h3 class="tl-title">The ATF AI Challenge</h3></div>
+          <p class="tl-desc">With sponsorship from OpenAI, ATF ran its first AI Challenge in 2023. The 2024 Challenge drew 450 students from 23 universities in Ghana and produced 22 MVPs. In 2025 it expanded to Nigeria, with partners such as Korle Bu Teaching Hospital and Esoko setting real problem statements. With support from Google.org, the Challenge now runs in Ghana, Nigeria, Kenya, and South Africa. AI is this era's field; the method — training, real problems, a community behind it — is meant to outlast it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bleed-stat">
+    <div class="bleed-stat-inner">
+      <p class="eyebrow on-dark">The journal era</p>
+      <div class="bleed-num" style="margin-top:28px">11,000<span>+</span></div>
+      <div class="bleed-caption">
+        <h3>Readers of the ATF journal by 1992.</h3>
+        <p>About 23 volunteers produced it, with contributors in 15 countries. The journal was ATF’s first piece of knowledge infrastructure, and it is why Knowledge is one of our three pillars today.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="direction">
+    <div class="sec-inner">
+      <p class="eyebrow">Where We're Going</p>
+      <div class="direction" style="margin-top:28px">
+        <h2 class="direction-lead">Not an AI organisation. An organisation that connects African technologists to <em>whatever comes next</em>.</h2>
+        <div>
+          <p>ATF has never been tied to one technology. We have moved from journals to book drives, to a professional network, to nanotechnology and 3D printing, and now to AI — always keeping the community that makes each step possible.</p>
+          <div class="path" aria-label="ATF's technology focus over time"><span>Journals</span><i>→</i><span>Nanotech</span><i>→</i><span>3D printing</span><i>→</i><span class="now">AI</span><i>→</i><span class="next">Next</span></div>
+          <p>AI is the field that matters most right now, and the <strong>ATF AI Challenge</strong> is where we are building the capacity to work at scale. But our work is to build pathways from learning to impact for African technologists, in whichever field offers the most at the time.</p>
+          <p>That is why we follow fields beyond AI that will shape Africa's next decade:</p>
+          <div class="domains">
+            <span>Health</span><span>Agriculture</span><span>Industry &amp; manufacturing</span><span>Telecommunications</span><span>Technology policy</span><span>Core sciences</span><span>Biotechnology</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec stone" id="pillars">
+    <div class="sec-inner">
+      <div class="sec-head-split">
+        <div>
+          <p class="eyebrow">How We Work</p>
+          <h2 class="sec-title">Three pillars.</h2>
+        </div>
+        <p class="sec-intro">Each pillar has its own job, and they rely on each other. Programmes are stronger when a community stands behind them and when what they teach us gets published.</p>
+      </div>
+      <div class="beliefs">
+        <div class="belief reveal"><div class="belief-num">01</div><h3>Community</h3><p>Our oldest function. It covers alumni from every era, university chapters, the mentors and experts who support our programmes, and the professional network behind ATF Consulting. Programmes end, but the community carries on.</p><div class="pillar-links"><a href="what-we-do-chapters.html" class="link-arrow">Chapters <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a href="who-we-are-team.html" class="link-arrow">Team <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div><div class="tri-accent red-dr" style="top:0;right:0"></div></div>
+        <div class="belief reveal reveal-delay-1"><div class="belief-num">02</div><h3>Programmes</h3><p>Structured programmes for African technologists, each with a clear outcome. The ATF AI Challenge is our current flagship; the fields will change as Africa's needs do.</p><div class="pillar-links"><a href="what-we-do-challenge.html" class="link-arrow">ATF Challenge <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div></div>
+        <div class="belief reveal reveal-delay-2" style="background:var(--black);color:var(--white)"><div class="belief-num">03</div><h3 style="color:var(--white)">Knowledge</h3><p style="color:rgba(255,255,255,0.68)">Research, policy briefs, curricula, and the data our programmes produce. It continues the work of the journal that started ATF in 1988.</p><div class="pillar-links"><a href="publications.html" class="link-arrow" style="color:var(--white)">Publications <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="split-photo" id="founding">
+    <div class="img-frame duotone">
+      <image-slot id="mission-portrait" shape="rect" fit="cover" placeholder="Drop an archival image: an early journal cover or founders' photo"></image-slot>
+    </div>
+    <div class="split-photo-text">
+      <p class="eyebrow on-dark">In our own words</p>
+      <p class="pull">"We seek to identify and nurture young minds in various disciplines to discuss, research, and publish information relating to the application of science and technology to solve <em>Africa's problems</em>."</p>
+      <p class="attrib"><strong>ATF's founding-era mission</strong>The commitment our mission still carries forward</p>
+      <a href="who-we-are-team.html#board" class="btn-outline-light" style="margin-top:40px;align-self:flex-start">Meet the co-founders <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
+  </section>
+
+  <section class="partners-row">
+    <div class="partners-inner">
+      <div class="partners-group">
+        <p class="team-label">Supported by</p>
+        <div class="marks"><span>Google.org</span><span>OpenAI</span></div>
+      </div>
+      <div class="partners-group">
+        <p class="team-label">Challenge partners include</p>
+        <div class="marks"><span>Korle Bu Teaching Hospital</span><span>37 Military Hospital</span><span>Esoko</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <div class="cta-band-inner">
+      <h2>Work with the forum.</h2>
+      <div class="cta-band-actions">
+        <a href="partners.html#become" class="btn-primary-light">Partner with ATF</a>
+        <a href="careers.html" class="btn-outline-light">Volunteer</a>
+      </div>
+    </div>
+  </section>
+
+  <footer id="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <img src="../../assets/logo-bright.png" alt="African Technology Forum" />
+          <p>Advancing the development of science and technology in Africa. Founded at MIT in 1988.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Who We Are</h4>
+          <a href="who-we-are-mission.html">Mission &amp; Story</a>
+          <a href="who-we-are-team.html">Team</a>
+          <a href="governance.html">Governance</a>
+          <a href="partners.html">Partners &amp; Funders</a>
+          <a href="annual-reports.html">Annual Reports</a>
+        </div>
+        <div class="footer-col">
+          <h4>What We Do</h4>
+          <a href="what-we-do-consulting.html">ATF Consulting</a>
+          <a href="what-we-do-challenge.html">ATF AI Challenge</a>
+          <a href="what-we-do-chapters.html">ATF Chapters</a>
+          <a href="publications.html">Publications</a>
+          <a href="newsroom.html">Newsroom</a>
+        </div>
+        <div class="footer-col">
+          <h4>Connect</h4>
+          <a href="partners.html#become">Partner With Us</a>
+          <a href="what-we-do-chapters.html#start">Start a Chapter</a>
+          <a href="careers.html">Careers &amp; Volunteering</a>
+          <a href="mailto:info@africantechnologyforum.org">info@africantechnologyforum.org</a>
+          <a href="https://www.linkedin.com/company/africantechnologyforum" target="_blank" rel="noopener">LinkedIn</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 1988–2026 African Technology Forum. All rights reserved.</p>
+        <div class="footer-legal">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Accessibility</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="site.js"></script>
+</body>
+</html>

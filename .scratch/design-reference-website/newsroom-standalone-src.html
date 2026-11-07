@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Website" name="Newsroom" subtitle="Press page: lead story, recent grid, release list, coverage quotes, media kit and press contact" viewport="1440x920" -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Newsroom — African Technology Forum</title>
+  <link href="../../colors_and_type.css" rel="stylesheet" />
+  <link href="site.css" rel="stylesheet" />
+  <script src="../../image-slot.js"></script>
+  <style>
+    .lead-story { display: grid; grid-template-columns: 1.15fr 0.85fr; background: var(--smoke); align-items: stretch; border-bottom: 1px solid var(--rule); }
+    .lead-story .img-frame { min-height: 540px; background: var(--stone); }
+    .lead-body { padding: 88px 72px; display: flex; flex-direction: column; justify-content: center; }
+    .story-kicker { display: flex; gap: 12px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
+    .pill { font-family: var(--font-display); font-size: 10.5px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; padding: 6px 11px; background: var(--red); color: var(--white); }
+    .pill.ghost { background: transparent; color: var(--mid); border: 1px solid var(--rule); }
+    .lead-body h2 { font-family: var(--font-display); font-size: clamp(28px, 3.1vw, 48px); font-weight: 900; line-height: 1.04; letter-spacing: -0.028em; color: var(--ink); margin-bottom: 20px; max-width: 22ch; }
+    .lead-body > p { font-size: var(--t-base); line-height: 1.74; color: var(--mid); max-width: 48ch; margin-bottom: 34px; }
+    .lead-body .news-date { font-size: 11px; margin-bottom: 0; max-width: none; }
+
+    .news-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+    .news-card { background: var(--white); display: flex; flex-direction: column; }
+    .news-card .img-frame { aspect-ratio: 3 / 2; }
+    .news-card-body { padding: 28px 28px 34px; display: flex; flex-direction: column; flex: 1; }
+    .news-cat { font-family: var(--font-display); font-size: 10.5px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--red); margin-bottom: 14px; }
+    .news-card h3 { font-family: var(--font-display); font-size: var(--t-lg); font-weight: 700; letter-spacing: -0.016em; line-height: 1.26; margin-bottom: 12px; }
+    .news-card:hover h3 { color: var(--red); }
+    .news-card .news-desc { font-size: var(--t-sm); line-height: 1.68; color: var(--mid); margin-bottom: 20px; flex: 1; }
+    .news-date { font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mid); }
+
+    .pr-list { border-top: 1px solid var(--rule); }
+    .pr-row { display: grid; grid-template-columns: 132px 1fr 150px; gap: 32px; align-items: center; padding: 26px 0; border-bottom: 1px solid var(--rule); transition: background 0.18s; }
+    .pr-row:hover { background: var(--paper); }
+    .pr-date { font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--mid); }
+    .pr-title { font-family: var(--font-display); font-size: var(--t-lg); font-weight: 700; letter-spacing: -0.015em; line-height: 1.3; }
+    .pr-row:hover .pr-title { color: var(--red); }
+    .pr-link { justify-self: end; }
+
+    .quotes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+    .quote-cell { background: var(--smoke); padding: 44px 36px; display: flex; flex-direction: column; justify-content: space-between; min-height: 260px; }
+    .quote-cell blockquote { font-family: var(--font-display); font-size: var(--t-lg); font-weight: 600; line-height: 1.42; letter-spacing: -0.012em; color: var(--ink); }
+    .quote-outlet { margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--rule); }
+    .quote-outlet strong { display: block; font-family: var(--font-display); font-size: 13px; font-weight: 800; letter-spacing: 0.02em; }
+    .quote-outlet span { font-size: 12px; color: var(--mid); }
+
+    .kit { display: grid; grid-template-columns: 1.1fr 0.9fr; }
+    .kit-left { background: var(--white); padding: 96px 76px; }
+    .kit-downloads { display: grid; gap: 2px; margin-top: 32px; background: var(--rule); border: 1px solid var(--rule); }
+    .kit-dl { background: var(--white); padding: 22px 26px; display: flex; justify-content: space-between; align-items: center; gap: 20px; transition: background 0.18s; }
+    .kit-dl:hover { background: var(--paper); }
+    .kit-dl div strong { display: block; font-family: var(--font-display); font-size: var(--t-base); font-weight: 700; letter-spacing: -0.01em; color: var(--ink); }
+    .kit-dl div span { font-size: 12.5px; color: var(--mid); }
+    .kit-dl i { font-style: normal; color: var(--ink); flex-shrink: 0; }
+    .kit-dl:hover i { color: var(--red); }
+    .kit-right { background: var(--ash); padding: 96px 68px; border-left: 1px solid var(--rule); }
+    .contact-card { background: var(--white); border: 1px solid var(--rule); padding: 34px 32px; margin-top: 28px; }
+    .contact-card h4 { font-family: var(--font-display); font-size: var(--t-base); font-weight: 700; color: var(--ink); margin-bottom: 8px; letter-spacing: -0.01em; }
+    .contact-card p { font-size: var(--t-sm); line-height: 1.7; color: var(--mid); }
+    .contact-card a { display: inline-block; margin-top: 14px; font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--red); letter-spacing: 0.01em; }
+    .sla { font-size: 13px; color: var(--mid); margin-top: 26px; line-height: 1.65; padding-top: 22px; border-top: 1px solid var(--rule); }
+
+    @media (max-width: 1100px) { .news-grid, .quotes { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 900px) {
+      .lead-story { grid-template-columns: 1fr; } .lead-body { padding: 56px 28px; } .lead-story .img-frame { min-height: 340px; }
+      .news-grid, .quotes { grid-template-columns: 1fr; }
+      .pr-row { grid-template-columns: 1fr; gap: 10px; } .pr-link { justify-self: start; }
+      .kit { grid-template-columns: 1fr; } .kit-left, .kit-right { padding: 56px 28px; }
+    }
+  </style>
+</head>
+<body>
+  <template id="__bundler_thumbnail" data-bg-color="#111111"><svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg"><rect width="1200" height="800" fill="#111"/><rect x="420" y="250" width="360" height="300" fill="#d32f2f"/><text x="600" y="440" font-family="Arial,sans-serif" font-size="140" font-weight="900" fill="#fff" text-anchor="middle">ATF</text></svg></template>
+  <nav id="main-nav">
+    <div class="nav-inner">
+      <a class="nav-logo" href="index.html">
+        <img src="../../assets/brandmark-white.png" alt="African Technology Forum" />
+      </a>
+      <ul class="nav-links">
+        <li class="has-menu">
+          <a href="who-we-are-mission.html">Who We Are<svg class="nav-caret" viewBox="0 0 8 8" fill="none"><path d="M1 2.5L4 5.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <div class="nav-menu">
+            <a href="who-we-are-mission.html"><div class="nav-menu-title">Mission &amp; Story</div><div class="nav-menu-desc">Why ATF exists, and its story since 1988.</div></a>
+            <a href="who-we-are-team.html"><div class="nav-menu-title">Team</div><div class="nav-menu-desc">Board, Challenge team, and country leads.</div></a>
+            <a href="governance.html"><div class="nav-menu-title">Governance</div><div class="nav-menu-desc">Board of Directors and how ATF is governed.</div></a>
+            <a href="partners.html"><div class="nav-menu-title">Partners &amp; Funders</div><div class="nav-menu-desc">The funders, institutions, and universities we work with.</div></a>
+            <a href="annual-reports.html"><div class="nav-menu-title">Annual Reports</div><div class="nav-menu-desc">Reports and financial statements.</div></a>
+            <a href="careers.html"><div class="nav-menu-title">Careers &amp; Volunteering</div><div class="nav-menu-desc">Volunteer with ATF, or see open roles.</div></a>
+          </div>
+        </li>
+        <li class="has-menu">
+          <a href="what-we-do-challenge.html">What We Do<svg class="nav-caret" viewBox="0 0 8 8" fill="none"><path d="M1 2.5L4 5.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <div class="nav-menu">
+            <a href="what-we-do-consulting.html"><div class="nav-menu-title">ATF Consulting</div><div class="nav-menu-desc">Advisory drawing on the ATF professional network.</div></a>
+            <a href="what-we-do-challenge.html"><div class="nav-menu-title">ATF AI Challenge</div><div class="nav-menu-desc">AI training and real problems for university students.</div></a>
+            <a href="what-we-do-chapters.html"><div class="nav-menu-title">ATF Chapters</div><div class="nav-menu-desc">Student chapters inside universities.</div></a>
+          </div>
+        </li>
+        <li><a href="what-we-do-chapters.html#where">Where We Work</a></li>
+        <li><a href="publications.html">Publications</a></li>
+        <li><a href="newsroom.html" class="active">Newsroom</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="partners.html#become" class="nav-btn-ghost">Partner With Us</a>
+        <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="who-we-are-mission.html">Who We Are</a>
+    <a class="sub" href="who-we-are-mission.html">Mission &amp; Story</a>
+    <a class="sub" href="who-we-are-team.html">Team</a>
+    <a class="sub" href="governance.html">Governance</a>
+    <a class="sub" href="partners.html">Partners &amp; Funders</a>
+    <a class="sub" href="annual-reports.html">Annual Reports</a>
+    <a class="sub" href="careers.html">Careers &amp; Volunteering</a>
+    <a href="what-we-do-challenge.html">What We Do</a>
+    <a class="sub" href="what-we-do-consulting.html">ATF Consulting</a>
+    <a class="sub" href="what-we-do-challenge.html">ATF AI Challenge</a>
+    <a class="sub" href="what-we-do-chapters.html">ATF Chapters</a>
+    <a href="what-we-do-chapters.html#where">Where We Work</a>
+    <a href="publications.html">Publications</a>
+    <a href="newsroom.html" class="active">Newsroom</a>
+    <a href="partners.html#become">Partner With Us</a>
+  </div>
+
+  <div class="subnav top">
+    <div class="subnav-inner">
+      <span class="subnav-label">Newsroom</span>
+      <a href="#latest">Latest</a>
+      <a href="#releases">Press releases</a>
+      <a href="#coverage">In the media</a>
+      <a href="#kit">Media kit</a>
+    </div>
+  </div>
+
+  <section class="lead-story" id="latest">
+    <div class="img-frame duotone">
+      <image-slot id="news-lead" shape="rect" fit="cover" placeholder="Drop the lead story image — documentary, from the event itself"></image-slot>
+    </div>
+    <div class="lead-body">
+      <div class="story-kicker">
+        <span class="pill">Lead story</span>
+        <span class="pill ghost">Programmes</span>
+      </div>
+      <h2>Google.org backs the ATF AI Challenge to scale to four countries</h2>
+      <p>The Challenge, which trained 450 students from 23 Ghanaian universities in 2024 and expanded to Nigeria in 2025, will now run in Ghana, Nigeria, Kenya, and South Africa.</p>
+      <div style="display:flex;gap:14px;flex-wrap:wrap">
+        <a href="newsroom-article.html" class="btn-primary">Read the announcement <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <a href="#kit" class="btn-outline">Media assets</a>
+      </div>
+      <p class="news-date" style="margin-top:32px">Accra</p>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-inner">
+      <div class="sec-head-split">
+        <div>
+          <p class="eyebrow">Recent</p>
+          <h2 class="sec-title">From across the network.</h2>
+        </div>
+        <p class="sec-intro">Chapter news, publication launches, and programme milestones. Chapters publish their own local news on their chapter pages.</p>
+      </div>
+      <div class="news-grid">
+        <a class="news-card reveal" href="newsroom-article.html">
+          <div class="img-frame"><image-slot id="news-1" shape="rect" fit="cover" placeholder="Drop story image"></image-slot></div>
+          <div class="news-card-body">
+            <p class="news-cat">Publications</p>
+            <h3>State of African Technology 2026 lands with 54 country profiles</h3>
+            <p class="news-desc">The ninth annual assessment adds a chapter on procurement as the binding constraint on public technology delivery.</p>
+            <p class="news-date">11 August 2026</p>
+          </div>
+        </a>
+        <a class="news-card reveal reveal-delay-1" href="newsroom-article.html">
+          <div class="img-frame"><image-slot id="news-2" shape="rect" fit="cover" placeholder="Drop story image"></image-slot></div>
+          <div class="news-card-body">
+            <p class="news-cat">Network</p>
+            <h3>Yaoundé becomes our first Central African chapter</h3>
+            <p class="news-desc">Eighty-five founding members, and the start of a two-year push into a region with one chapter and forty million students.</p>
+            <p class="news-date">2 August 2026</p>
+          </div>
+        </a>
+        <a class="news-card reveal reveal-delay-2" href="newsroom-article.html">
+          <div class="img-frame"><image-slot id="news-3" shape="rect" fit="cover" placeholder="Drop story image"></image-slot></div>
+          <div class="news-card-body">
+            <p class="news-cat">Consulting</p>
+            <h3>Procurement reform work extends to a third national authority</h3>
+            <p class="news-desc">Ninety officers trained to date; local bidder participation up more than threefold where the new criteria are in force.</p>
+            <p class="news-date">24 July 2026</p>
+          </div>
+        </a>
+        <a class="news-card reveal" href="newsroom-article.html">
+          <div class="img-frame"><image-slot id="news-4" shape="rect" fit="cover" placeholder="Drop story image"></image-slot></div>
+          <div class="news-card-body">
+            <p class="news-cat">Governance</p>
+            <h3>Two new trustees join the board</h3>
+            <p class="news-desc">Both bring public-sector delivery experience, filling the gap the 2025 governance review identified.</p>
+            <p class="news-date">9 July 2026</p>
+          </div>
+        </a>
+        <a class="news-card reveal reveal-delay-1" href="newsroom-article.html">
+          <div class="img-frame"><image-slot id="news-5" shape="rect" fit="cover" placeholder="Drop story image"></image-slot></div>
+          <div class="news-card-body">
+            <p class="news-cat">Programmes</p>
+            <h3>Cohort 2026 twelve-month review published in full</h3>
+            <p class="news-desc">Including the three finalists that stopped operating, and what we got wrong in selection.</p>
+            <p class="news-date">28 June 2026</p>
+          </div>
+        </a>
+        <a class="news-card reveal reveal-delay-2" href="newsroom-article.html">
+          <div class="img-frame"><image-slot id="news-6" shape="rect" fit="cover" placeholder="Drop story image"></image-slot></div>
+          <div class="news-card-body">
+            <p class="news-cat">Network</p>
+            <h3>Annual convening returns to Accra in November</h3>
+            <p class="news-desc">Thirty-seven chapter leads, two days, and a working agenda published in advance.</p>
+            <p class="news-date">15 June 2026</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec stone" id="releases">
+    <div class="sec-inner">
+      <div class="sec-head-split">
+        <div>
+          <p class="eyebrow">Press releases</p>
+          <h2 class="sec-title">On the record.</h2>
+        </div>
+        <p class="sec-intro">Full text of every formal statement, with named spokespeople and contact details attached. Nothing here is embargoed.</p>
+      </div>
+      <div class="pr-list">
+        <div class="pr-row"><p class="pr-date">14 Aug 2026</p><div class="pr-title">ATF Challenge 2027 opens for applications continent-wide</div><a href="newsroom-article.html" class="link-arrow pr-link">Full text <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+        <div class="pr-row"><p class="pr-date">11 Aug 2026</p><div class="pr-title">State of African Technology 2026 published under CC BY 4.0</div><a href="newsroom-article.html" class="link-arrow pr-link">Full text <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+        <div class="pr-row"><p class="pr-date">2 Aug 2026</p><div class="pr-title">African Technology Forum opens first chapter in Central Africa</div><a href="newsroom-article.html" class="link-arrow pr-link">Full text <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+        <div class="pr-row"><p class="pr-date">9 Jul 2026</p><div class="pr-title">Board appoints two trustees following governance review</div><a href="newsroom-article.html" class="link-arrow pr-link">Full text <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+        <div class="pr-row"><p class="pr-date">28 Jun 2026</p><div class="pr-title">ATF publishes twelve-month outcomes for its 2026 innovation cohort</div><a href="newsroom-article.html" class="link-arrow pr-link">Full text <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+        <div class="pr-row"><p class="pr-date">3 Jun 2026</p><div class="pr-title">Statement on national AI strategy consultations</div><a href="newsroom-article.html" class="link-arrow pr-link">Full text <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+      </div>
+      <div style="margin-top:40px"><a href="#" class="btn-outline">Release archive <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+    </div>
+  </section>
+
+  <section class="sec" id="coverage">
+    <div class="sec-inner">
+      <div class="sec-head-split">
+        <div>
+          <p class="eyebrow">In the media</p>
+          <h2 class="sec-title">Where our work has been cited.</h2>
+        </div>
+        <p class="sec-intro">Selected coverage. Quotations below are placeholders pending your clippings — send the real ones and I will swap them in with correct attribution.</p>
+      </div>
+      <div class="quotes">
+        <div class="quote-cell reveal">
+          <blockquote>“[Placeholder pull-quote from coverage — one sentence on ATF's procurement research.]”</blockquote>
+          <div class="quote-outlet"><strong>[Outlet name]</strong><span>Feature · July 2026</span></div>
+        </div>
+        <div class="quote-cell reveal reveal-delay-1">
+          <blockquote>“[Placeholder pull-quote — one sentence on the Challenge programme's outcomes.]”</blockquote>
+          <div class="quote-outlet"><strong>[Outlet name]</strong><span>Interview · June 2026</span></div>
+        </div>
+        <div class="quote-cell reveal reveal-delay-2">
+          <blockquote>“[Placeholder pull-quote — one sentence on the annual flagship report.]”</blockquote>
+          <div class="quote-outlet"><strong>[Outlet name]</strong><span>Analysis · August 2026</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="kit" id="kit">
+    <div class="kit-left">
+      <p class="eyebrow">Media kit</p>
+      <h2 class="sec-title" style="margin-bottom:18px">Everything you need to file.</h2>
+      <p style="font-size:var(--t-base);line-height:1.72;color:var(--mid);max-width:46ch">Logos in every approved variant, a one-page fact sheet, and high-resolution imagery cleared for editorial use. No permission request needed for any of it.</p>
+      <div class="kit-downloads">
+        <a class="kit-dl" href="../../assets/logo-full-color.png" download><div><strong>Logo pack</strong><span>Full colour, dark, and bright variants · PNG + SVG</span></div><i><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1v9m0 0L3.5 6.5M7 10l3.5-3.5M1 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></i></a>
+        <a class="kit-dl" href="#"><div><strong>Fact sheet</strong><span>One page: history, scale, programmes, leadership · PDF</span></div><i><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1v9m0 0L3.5 6.5M7 10l3.5-3.5M1 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></i></a>
+        <a class="kit-dl" href="#"><div><strong>Editorial imagery</strong><span>High-resolution photography cleared for press use · ZIP</span></div><i><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1v9m0 0L3.5 6.5M7 10l3.5-3.5M1 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></i></a>
+        <a class="kit-dl" href="../../README.md"><div><strong>Brand guidelines</strong><span>Colour, type, and logo usage rules</span></div><i><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1v9m0 0L3.5 6.5M7 10l3.5-3.5M1 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></i></a>
+      </div>
+    </div>
+    <div class="kit-right">
+      <p class="eyebrow">Press contact</p>
+      <h2 class="sec-title" style="margin-bottom:0">Talk to the press office.</h2>
+      <div class="contact-card">
+        <h4>[Name pending] — Communications Manager</h4>
+        <p>First point of contact for all media enquiries, interview requests, and data questions. Based in Accra, GMT.</p>
+        <a href="mailto:press@africantechnologyforum.org">press@africantechnologyforum.org</a>
+      </div>
+      <div class="contact-card">
+        <h4>Spokespeople</h4>
+        <p>Six senior staff are briefed to speak on the record: policy, consulting delivery, the chapter network, research, programmes, and governance.</p>
+        <a href="who-we-are-team.html" class="link-arrow" style="color:var(--red)">See the team <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+      <p class="sla">We answer media enquiries within one working day. For deadlines shorter than that, mark the subject line URGENT and we will call back.</p>
+    </div>
+  </section>
+
+  <footer id="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <img src="../../assets/logo-bright.png" alt="African Technology Forum" />
+          <p>Advancing the development of science and technology in Africa. Founded at MIT in 1988.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Who We Are</h4>
+          <a href="who-we-are-mission.html">Mission &amp; Story</a>
+          <a href="who-we-are-team.html">Team</a>
+          <a href="governance.html">Governance</a>
+          <a href="partners.html">Partners &amp; Funders</a>
+          <a href="annual-reports.html">Annual Reports</a>
+        </div>
+        <div class="footer-col">
+          <h4>What We Do</h4>
+          <a href="what-we-do-consulting.html">ATF Consulting</a>
+          <a href="what-we-do-challenge.html">ATF AI Challenge</a>
+          <a href="what-we-do-chapters.html">ATF Chapters</a>
+          <a href="publications.html">Publications</a>
+          <a href="newsroom.html">Newsroom</a>
+        </div>
+        <div class="footer-col">
+          <h4>Connect</h4>
+          <a href="partners.html#become">Partner With Us</a>
+          <a href="what-we-do-chapters.html#start">Start a Chapter</a>
+          <a href="careers.html">Careers &amp; Volunteering</a>
+          <a href="mailto:info@africantechnologyforum.org">info@africantechnologyforum.org</a>
+          <a href="https://www.linkedin.com/company/africantechnologyforum" target="_blank" rel="noopener">LinkedIn</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 1988–2026 African Technology Forum. All rights reserved.</p>
+        <div class="footer-legal">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Accessibility</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="site.js"></script>
+</body>
+</html>

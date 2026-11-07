@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Website" name="Who We Are — Team" subtitle="Board strip, filterable team list, profile pop-ups, volunteer link" viewport="1440x920" -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Team & Leadership — African Technology Forum</title>
+  <link href="../../colors_and_type.css" rel="stylesheet" />
+  <link href="site.css" rel="stylesheet" />
+  <script src="../../image-slot.js"></script>
+  <style>
+    .note-bar { background: var(--paper); border-bottom: 1px solid var(--rule); padding: 16px 100px; }
+    .note-bar-inner { max-width: 1240px; margin: 0 auto; display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--mid); }
+    .note-bar strong { font-family: var(--font-display); font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); }
+
+    .leads { background: var(--black); padding: 112px 100px; }
+    .leads-inner { max-width: 1240px; margin: 0 auto; }
+    .leads-head { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: end; margin-bottom: 60px; }
+    .leads-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 1px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.08); }
+    .lead-cell { background: var(--black); padding: 20px 18px; display: flex; align-items: center; gap: 10px; transition: background 0.2s; }
+    .lead-cell:hover { background: #17171a; }
+    .lead-tri { width: 0; height: 0; border-left: 9px solid var(--red); border-top: 6px solid transparent; border-bottom: 6px solid transparent; flex-shrink: 0; }
+    .lead-cell p { font-family: var(--font-display); font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.72); letter-spacing: 0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    @media (max-width: 900px) { .leads { padding: 72px 28px; } .leads-head { grid-template-columns: 1fr; gap: 24px; } }
+
+    .lead-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+    .board-grid { grid-template-columns: repeat(4, 1fr); }
+    .list-head { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; margin-bottom: 30px; }
+    .list-note { font-size: var(--t-sm); color: var(--mid); }
+    .board-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip { font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 10px 15px; border: 1px solid var(--rule); background: var(--white); color: var(--mid); cursor: pointer; transition: all 0.2s; white-space: nowrap; flex-shrink: 0; }
+    .chip span { margin-left: 6px; opacity: 0.6; }
+    .chip:hover { border-color: var(--ink); color: var(--ink); }
+    .chip.on { background: var(--ink); border-color: var(--ink); color: var(--white); }
+    .masthead { background: var(--white); border-top: 2px solid var(--ink); }
+    .mh-row { display: grid; grid-template-columns: 48px minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 2fr) 80px; gap: 24px; align-items: center; padding: 14px 24px; border-bottom: 1px solid var(--rule); }
+    .mh-row[hidden] { display: none; }
+    .mh-row:not(.mh-cols):hover { background: var(--paper); }
+    .mh-cols { padding-top: 12px; padding-bottom: 12px; }
+    .mh-cols span { font-family: var(--font-display); font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid); }
+    .mh-name { font-family: var(--font-display); font-size: var(--t-base); font-weight: 800; letter-spacing: -0.01em; color: var(--ink); }
+    .mh-role { font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase; color: var(--red); }
+    .mh-bio { font-size: 13.5px; line-height: 1.55; color: var(--mid); }
+    .mh-li { justify-self: end; margin: 0; }
+    .portrait.xs { --cut: 13px; --shard: 10px; --gap: 3px; width: 48px; height: 48px; margin-bottom: 0; }
+    .portrait.xs .ini { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 0 4px 4px 0; font-family: var(--font-display); font-size: 13px; font-weight: 800; color: var(--mid); pointer-events: none; }
+    .portrait.xs image-slot { position: absolute; inset: 0; }
+    .portrait.xs image-slot::part(empty), .portrait.xs image-slot::part(ring) { opacity: 0; }
+    .portrait.xs image-slot::part(frame) { background: transparent; }
+    .mh-row:hover .portrait::after { transform: translate(2px, 2px); }
+    .close-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 72px; align-items: start; }
+    @media (max-width: 1100px) { .board-strip { grid-template-columns: 1fr 1fr; } .close-grid { grid-template-columns: 1fr; gap: 40px; } }
+    @media (max-width: 900px) {
+      .mh-cols { display: none; }
+      .mh-row { grid-template-columns: 48px minmax(0, 1fr); gap: 4px 16px; padding: 16px; }
+      .mh-row > .portrait { grid-row: span 3; align-self: start; }
+      .mh-li { justify-self: start; }
+    }
+    @media (max-width: 600px) { .board-strip { grid-template-columns: 1fr; } }
+    /* ── profile pop-up ─────────────────────────────── */
+    .mh-row:not(.mh-cols), .board-strip .person { cursor: pointer; }
+    .mh-row:not(.mh-cols):focus-visible, .board-strip .person:focus-visible { outline: none; box-shadow: var(--focus-ring, 0 0 0 3px rgba(249,0,54,0.32)); }
+    .mh-name { transition: color 0.15s; }
+    .mh-row:hover .mh-name, .board-strip .person:hover .person-name { color: var(--red); }
+    .profile { border: none; padding: 0; margin: auto; inset: 0; width: min(880px, calc(100vw - 48px)); max-height: calc(100vh - 48px); background: var(--white); color: var(--ink); box-shadow: 0 18px 40px rgba(10,10,10,0.18); overflow: auto; }
+    .profile [hidden] { display: none !important; }
+    .profile::backdrop { background: rgba(10,10,10,0.62); }
+    .profile[open] { animation: pf-in 0.2s cubic-bezier(0.2,0,0,1); }
+    @keyframes pf-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .pf-close { position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--white); border: 1px solid var(--rule); color: var(--ink); cursor: pointer; z-index: 3; }
+    .pf-close:hover { border-color: var(--ink); }
+    .pf-grid { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 48px; padding: 48px; align-items: start; }
+    .pf-portrait { position: relative; width: 300px; height: 300px; }
+    .pf-portrait .img-frame { width: 100%; height: 100%; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 72px), calc(100% - 72px) 100%, 0 100%); display: flex; align-items: center; justify-content: center; }
+    .pf-portrait::after { content: ''; position: absolute; right: -12px; bottom: -12px; width: 60px; height: 60px; background: var(--red); clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+    .pf-portrait img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .pf-ini { font-family: var(--font-display); font-size: 72px; font-weight: 900; letter-spacing: -0.03em; color: var(--rule); }
+    .pf-body { padding-top: 8px; padding-right: 32px; display: flex; flex-direction: column; min-height: 300px; }
+    .pf-team { font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid); margin-bottom: 14px; }
+    .pf-name { font-family: var(--font-display); font-size: clamp(28px, 3vw, 40px); font-weight: 900; line-height: 1.05; letter-spacing: -0.028em; color: var(--ink); }
+    .pf-role { font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--red); margin-top: 14px; }
+    .pf-bio { font-size: var(--t-base); line-height: 1.72; color: var(--mid); margin-top: 22px; max-width: 46ch; }
+    .pf-actions { margin-top: 26px; }
+    .pf-nav { margin-top: auto; padding-top: 32px; display: flex; justify-content: space-between; align-items: center; gap: 16px; border-top: 1px solid var(--rule); }
+    .pf-nav button { background: none; border: none; cursor: pointer; padding: 18px 0 0; }
+    .pf-nav span { font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 0.12em; color: var(--mid); padding-top: 18px; }
+    @media (max-width: 800px) {
+      .pf-grid { grid-template-columns: 1fr; gap: 28px; padding: 28px; }
+      .pf-portrait { width: 200px; height: 200px; }
+      .pf-portrait .img-frame { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 48px), calc(100% - 48px) 100%, 0 100%); }
+      .pf-portrait::after { width: 40px; height: 40px; right: -8px; bottom: -8px; }
+      .pf-body { padding-right: 0; min-height: 0; }
+    }
+    .role-bio { font-size: 13px; line-height: 1.6; color: var(--mid); margin-top: 6px; max-width: 46ch; }
+    .role-row .person-links, .country .person-links { margin-top: 10px; }
+    .group-photo { background: var(--black); padding: 0 100px; }
+    .group-photo .img-frame { max-width: 1240px; margin: 0 auto; aspect-ratio: 21 / 8; transform: translateY(-1px); }
+    .founders { display: grid; grid-template-columns: 1fr 1.25fr; gap: 2px; background: var(--paper); border: 1px solid var(--rule); }
+    .founders-text { padding: 44px 40px; display: flex; flex-direction: column; justify-content: center; gap: 18px; }
+    .founders-text h3 { font-family: var(--font-display); font-size: clamp(22px, 2.2vw, 32px); font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; color: var(--ink); text-wrap: pretty; }
+    .founders-text h3 em { font-style: normal; color: var(--red); }
+    .founders-text > p:not(.team-sub) { font-size: var(--t-base); line-height: 1.7; color: var(--mid); max-width: 44ch; }
+    .founders-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+    .founders-cards .person { border-top: none; }
+    .directors { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+    .countries { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; background: var(--rule); border: 1px solid var(--rule); }
+    .country { background: var(--white); padding: 34px 28px 30px; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; min-height: 230px; position: relative; }
+    .country::before { content: ''; position: absolute; top: 0; left: 0; width: 0; height: 0; border-top: 18px solid var(--red); border-right: 18px solid transparent; }
+    .country-name { font-family: var(--font-display); font-size: clamp(26px, 2.4vw, 36px); font-weight: 900; letter-spacing: -0.03em; line-height: 1; color: var(--ink); }
+    .country-lead { display: grid; grid-template-columns: 64px 1fr; gap: 16px; align-items: center; }
+    .fields { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.08); }
+    .field-cell { background: var(--black); padding: 26px 24px; display: flex; align-items: center; gap: 12px; }
+    .field-cell p { font-family: var(--font-display); font-size: var(--t-base); font-weight: 700; color: var(--white); letter-spacing: -0.01em; }
+    .mentor-note { margin-top: 34px; font-size: var(--t-sm); color: rgba(255,255,255,0.62); }
+    .mentor-note a { color: var(--white); font-weight: 700; border-bottom: 1px solid var(--red); margin-left: 6px; }
+    .mentor-note a:hover { color: var(--red); }
+    @media (max-width: 1100px) {
+      .group-photo { padding: 0 56px; }
+      .founders { grid-template-columns: 1fr; }
+      .directors, .countries { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 900px) {
+      .group-photo { padding: 0 28px; } .group-photo .img-frame { aspect-ratio: 3 / 2; }
+      .founders-cards, .fields { grid-template-columns: 1fr; }
+      .founders-text { padding: 32px 26px; }
+    }
+    @media (max-width: 600px) { .directors, .countries { grid-template-columns: 1fr; } }
+    /* Cut-corner portrait: hard-edged crop with a detached red shard,
+       echoing the fragmented cuts in the ATF mark. */
+    .portrait { --cut: 34px; --shard: 28px; --gap: 7px; position: relative; width: 132px; height: 132px; margin-bottom: 26px; flex-shrink: 0; }
+    .portrait .img-frame { width: 100%; height: 100%; clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%); }
+    .portrait::after { content: ''; position: absolute; right: calc(var(--gap) * -1); bottom: calc(var(--gap) * -1); width: var(--shard); height: var(--shard); background: var(--red); clip-path: polygon(100% 0, 100% 100%, 0 100%); transition: transform 0.2s var(--ease); }
+    .person:hover .portrait::after, .role-row:hover .portrait::after { transform: translate(3px, 3px); }
+    .portrait.sm { --cut: 17px; --shard: 13px; --gap: 4px; width: 64px; height: 64px; margin-bottom: 0; }
+    /* Small slots: the slot's empty-state chrome (icon, "browse files", dashed
+       ring) can't fit 64px. Make it invisible but keep it clickable and
+       droppable; draw the initials ourselves underneath. A filled photo
+       covers the initials. */
+    .portrait.sm .img-frame { display: flex; align-items: center; justify-content: center; }
+    .portrait.sm .ini { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 0 6px 6px 0; font-family: var(--font-display); font-size: 16px; font-weight: 800; letter-spacing: 0.02em; color: var(--mid); pointer-events: none; }
+    .portrait.sm image-slot { position: absolute; inset: 0; }
+    .portrait.sm image-slot::part(empty),
+    .portrait.sm image-slot::part(ring) { opacity: 0; }
+    .portrait.sm image-slot::part(frame) { background: transparent; }
+    .person { padding: 34px 30px 36px; border-top: 2px solid var(--ink); }
+    .person .person-body { padding: 0; border-top: none; }
+    .person-name { font-size: var(--t-lg); }
+    .team-sub { font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid); margin: 56px 0 18px; }
+    @media (max-width: 1100px) { .board-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) { .board-grid { grid-template-columns: 1fr; } }
+    .person { background: var(--white); }
+    .person .img-frame { aspect-ratio: 4 / 5; background: var(--stone); }
+    .person-body { padding: 30px 30px 40px; border-top: 2px solid var(--ink); }
+    .person-name { font-family: var(--font-display); font-size: 20px; font-weight: 800; letter-spacing: -0.015em; margin-bottom: 7px; }
+    .person-name.pending { color: var(--mid); font-weight: 600; }
+    .person .person-role { font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--red); margin-bottom: 16px; }
+    .person-bio { font-size: var(--t-sm); line-height: 1.7; color: var(--mid); }
+    .person-links { display: flex; gap: 16px; margin-top: 20px; }
+    .person-links a { font-family: var(--font-display); font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink); }
+    .person-links a:hover { color: var(--red); }
+
+    .roles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; }
+    .role-row { background: var(--white); padding: 26px 30px; display: grid; grid-template-columns: 64px 1fr; gap: 22px; align-items: center; }
+    .role-avatar { width: 54px; height: 54px; background: var(--stone); border: 1px dashed var(--rule); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: var(--t-base); font-weight: 800; color: var(--mid); }
+    .role-title { font-family: var(--font-display); font-size: var(--t-base); font-weight: 700; letter-spacing: -0.01em; margin-bottom: 5px; }
+    .role-meta { font-size: var(--t-sm); color: var(--mid); line-height: 1.6; }
+
+    .board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+    .board-cell { background: var(--black); padding: 34px 28px; min-height: 168px; display: flex; flex-direction: column; justify-content: space-between; }
+    .board-cell h4 { font-family: var(--font-display); font-size: 15.5px; font-weight: 700; color: var(--white); letter-spacing: -0.01em; }
+    .board-cell p { font-size: 12.5px; color: rgba(255,255,255,0.5); line-height: 1.6; margin-top: 8px; }
+    .board-cell span { font-family: var(--font-display); font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); }
+
+    .join { display: grid; grid-template-columns: 1.2fr 1fr; }
+    .join-left { background: var(--red); color: var(--white); padding: 96px 80px; }
+    .join-left h2 { font-family: var(--font-display); font-size: clamp(28px, 2.8vw, 44px); font-weight: 900; line-height: 1.05; letter-spacing: -0.025em; margin: 24px 0 22px; max-width: 20ch; }
+    .join-left p { font-size: var(--t-base); line-height: 1.7; color: rgba(255,255,255,0.85); max-width: 44ch; margin-bottom: 34px; }
+    .join-right { background: var(--stone); padding: 96px 64px; }
+    .job { display: block; padding: 24px 0; border-bottom: 1px solid var(--rule); }
+    .job:first-child { border-top: 1px solid var(--rule); }
+    .job-title { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 6px; transition: color 0.2s; }
+    .job:hover .job-title { color: var(--red); }
+    .job .job-meta { font-size: 13px; color: var(--mid); }
+
+    @media (max-width: 1100px) { .note-bar { padding: 14px 56px; } .lead-grid { grid-template-columns: 1fr 1fr; } .board { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 900px) {
+      .note-bar { padding: 14px 28px; }
+      .lead-grid, .roles, .board { grid-template-columns: 1fr; }
+      .join { grid-template-columns: 1fr; } .join-left, .join-right { padding: 56px 28px; }
+    }
+  </style>
+</head>
+<body>
+  <nav id="main-nav">
+    <div class="nav-inner">
+      <a class="nav-logo" href="index.html">
+        <img src="../../assets/brandmark-white.png" alt="African Technology Forum" />
+      </a>
+      <ul class="nav-links">
+        <li class="has-menu">
+          <a href="who-we-are-mission.html" class="active">Who We Are<svg class="nav-caret" viewBox="0 0 8 8" fill="none"><path d="M1 2.5L4 5.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <div class="nav-menu">
+            <a href="who-we-are-mission.html"><div class="nav-menu-title">Mission &amp; Story</div><div class="nav-menu-desc">Why ATF exists, and its story since 1988.</div></a>
+            <a href="who-we-are-team.html"><div class="nav-menu-title">Team</div><div class="nav-menu-desc">Board, Challenge team, and country leads.</div></a>
+            <a href="governance.html"><div class="nav-menu-title">Governance</div><div class="nav-menu-desc">Board of Directors and how ATF is governed.</div></a>
+            <a href="partners.html"><div class="nav-menu-title">Partners &amp; Funders</div><div class="nav-menu-desc">The funders, institutions, and universities we work with.</div></a>
+            <a href="annual-reports.html"><div class="nav-menu-title">Annual Reports</div><div class="nav-menu-desc">Reports and financial statements.</div></a>
+            <a href="careers.html"><div class="nav-menu-title">Careers &amp; Volunteering</div><div class="nav-menu-desc">Volunteer with ATF, or see open roles.</div></a>
+          </div>
+        </li>
+        <li class="has-menu">
+          <a href="what-we-do-challenge.html">What We Do<svg class="nav-caret" viewBox="0 0 8 8" fill="none"><path d="M1 2.5L4 5.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <div class="nav-menu">
+            <a href="what-we-do-consulting.html"><div class="nav-menu-title">ATF Consulting</div><div class="nav-menu-desc">Advisory drawing on the ATF professional network.</div></a>
+            <a href="what-we-do-challenge.html"><div class="nav-menu-title">ATF AI Challenge</div><div class="nav-menu-desc">AI training and real problems for university students.</div></a>
+            <a href="what-we-do-chapters.html"><div class="nav-menu-title">ATF Chapters</div><div class="nav-menu-desc">Student chapters inside universities.</div></a>
+          </div>
+        </li>
+        <li><a href="what-we-do-chapters.html#where">Where We Work</a></li>
+        <li><a href="publications.html">Publications</a></li>
+        <li><a href="newsroom.html">Newsroom</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="partners.html#become" class="nav-btn-ghost">Partner With Us</a>
+        <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="who-we-are-mission.html" class="active">Who We Are</a>
+    <a class="sub" href="who-we-are-mission.html">Mission &amp; Story</a>
+    <a class="sub" href="who-we-are-team.html">Team</a>
+    <a class="sub" href="governance.html">Governance</a>
+    <a class="sub" href="partners.html">Partners &amp; Funders</a>
+    <a class="sub" href="annual-reports.html">Annual Reports</a>
+    <a class="sub" href="careers.html">Careers &amp; Volunteering</a>
+    <a href="what-we-do-challenge.html">What We Do</a>
+    <a class="sub" href="what-we-do-consulting.html">ATF Consulting</a>
+    <a class="sub" href="what-we-do-challenge.html">ATF AI Challenge</a>
+    <a class="sub" href="what-we-do-chapters.html">ATF Chapters</a>
+    <a href="what-we-do-chapters.html#where">Where We Work</a>
+    <a href="publications.html">Publications</a>
+    <a href="newsroom.html">Newsroom</a>
+    <a href="partners.html#become">Partner With Us</a>
+  </div>
+
+  <section class="page-hero">
+    <div class="page-hero-inner">
+      <div class="breadcrumb"><a href="index.html">Home</a><span>/</span><a href="who-we-are-mission.html">Who We Are</a><span>/</span><span>Team</span></div>
+      <h1 class="page-title">The people behind <em>the forum</em>.</h1>
+      <p class="page-lede">A volunteer board, including two of ATF's co-founders, provides oversight. A team in Ghana, Nigeria, Kenya, and South Africa delivers the ATF AI Challenge.</p>
+    </div>
+  </section>
+
+  <section class="sec" id="board">
+    <div class="sec-inner">
+      <div class="list-head">
+        <p class="eyebrow">Board of Directors</p>
+        <p class="list-note">Two members of the board co-founded ATF at MIT in 1988.</p>
+      </div>
+      <div class="board-strip">
+        <div class="person">
+          <div class="portrait"><div class="img-frame duotone"><image-slot id="team-mawuli-tse" shape="rect" fit="cover" placeholder="Photo"></image-slot></div></div>
+          <div class="person-body">
+            <div class="person-role">Board Chair and Co-founder</div>
+            <div class="person-name">Mawuli Tse</div>
+            <p class="person-bio">Chairs the board and leads its oversight of strategy, governance, and finances.</p>
+            <div class="person-links" data-li="mawuli-tse"></div>
+          </div>
+        </div>
+        <div class="person">
+          <div class="portrait"><div class="img-frame duotone"><image-slot id="team-karanja-gakio" shape="rect" fit="cover" placeholder="Photo"></image-slot></div></div>
+          <div class="person-body">
+            <div class="person-role">Co-founder and Director</div>
+            <div class="person-name">Karanja Gakio</div>
+            <p class="person-bio">Guides ATF’s strategic direction and governance.</p>
+            <div class="person-links" data-li="karanja-gakio"></div>
+          </div>
+        </div>
+        <div class="person">
+          <div class="portrait"><div class="img-frame duotone"><image-slot id="team-michael-tekletsion-berhan" shape="rect" fit="cover" placeholder="Photo"></image-slot></div></div>
+          <div class="person-body">
+            <div class="person-role">Director</div>
+            <div class="person-name">Michael Tekletsion Berhan</div>
+            <p class="person-bio">Oversees ATF’s governance and finances.</p>
+            <div class="person-links" data-li="michael-tekletsion-berhan"></div>
+          </div>
+        </div>
+        <div class="person">
+          <div class="portrait"><div class="img-frame duotone"><image-slot id="team-michael-owu" shape="rect" fit="cover" placeholder="Photo"></image-slot></div></div>
+          <div class="person-body">
+            <div class="person-role">Director</div>
+            <div class="person-name">Michael Owu</div>
+            <p class="person-bio">Provides oversight of ATF’s programmes and governance.</p>
+            <div class="person-links" data-li="michael-owu"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec stone" id="team">
+    <div class="sec-inner">
+      <div class="list-head">
+        <p class="eyebrow">ATF AI Challenge Team</p>
+        <div class="chips" id="team-filter">
+          <button class="chip on" data-team="all">All <span>17</span></button>
+          <button class="chip" data-team="Leads">Leads <span>4</span></button>
+          <button class="chip" data-team="Country Leads">Country Leads <span>4</span></button>
+          <button class="chip" data-team="Programme Managers">Programme Managers <span>4</span></button>
+          <button class="chip" data-team="Technical">Technical <span>5</span></button>
+        </div>
+      </div>
+      <div class="masthead">
+        <div class="mh-row mh-cols" aria-hidden="true"><span></span><span>Name</span><span>Role</span><span>Responsibility</span><span></span></div>
+        <div class="mh-row" data-team="Leads">
+          <div class="portrait xs"><div class="img-frame duotone"><span class="ini" aria-hidden="true">SA</span><image-slot id="team-samuel-alomenu" shape="rect" fit="cover" placeholder="SA"></image-slot></div></div>
+          <div class="mh-name">Samuel Alomenu</div>
+          <div class="mh-role">Programs Lead</div>
+          <p class="mh-bio">Leads delivery of the ATF AI Challenge across all four countries.</p>
+          <div class="person-links mh-li" data-li="samuel-alomenu"></div>
+        </div>
+        <div class="mh-row" data-team="Leads">
+          <div class="portrait xs"><div class="img-frame duotone"><span class="ini" aria-hidden="true">EM</span><image-slot id="team-elorm-mensah" shape="rect" fit="cover" placeholder="EM"></image-slot></div></div>
+          <div class="mh-name">Elorm Mensah</div>
+          <div class="mh-role">M&amp;E Lead</div>
+          <p class="mh-bio">Leads monitoring and evaluation of participant outcomes and results.</p>
+          <div class="person-links mh-li" data-li="elorm-mensah"></div>
+        </div>
+        <div class="mh-row" data-team="Leads">
+          <div class="portrait xs"><div class="img-frame duotone"><span class="ini" aria-hidden="true">EA</span><image-slot id="team-enyonam-agbenyegah" shape="rect" fit="cover" placeholder="EA"></image-slot></div></div>
+          <div class="mh-name">Enyonam Agbenyegah</div>
+          <div class="mh-role">Finance Lead</div>
+          <p class="mh-bio">Manages finance, grant reporting, and compliance.</p>
+          <div class="person-links mh-li" data-li="enyonam-agbenyegah"></div>
+        </div>
+        <div class="mh-row" data-team="Leads">
+          <div class="portrait xs"><div class="img-frame duotone"><span class="ini" aria-hidden="true">MA</span><image-slot id="team-michael-adjei" shape="rect" fit="cover" placeholder="MA"></image-slot></div></div>
+          <div class="mh-name">Michael Adjei</div>
+          <div class="mh-role">Communications Lead</div>
+          <p class="mh-bio">Leads communications, media, and public outreach.</p>
+          <div class="person-links mh-li" data-li="michael-adjei"></div>
+        </div>
+        <div class="mh-row" data-team="Country Leads">
+          <div class="portrait xs"><div class="img-frame duotone"><span class="ini" aria-hidden="true">LS</span><image-slot id="team-linda-sarpong" shape="rect" fit="cover" placeholder="LS"></image-slot></div></div>
+          <div class="mh-name">Dr. Linda Sarpong</div>
+          <div class="mh-role">Country Lead, Ghana</div>
+          <p class="mh-bio">Leads the Challenge in Ghana, including university and institutional partnerships.</p>
+          <div class="person-links mh-li" data-li="linda-sarpong"></div>
+        </div>
+        <div class="mh-row" data-team="Country Leads">
+          <div class="portrait xs"><div class="img-frame duotone"><span class="ini" aria-hidden="true">SA</span><image-slot id="team-seun-awoyele" shape="rect" fit="cover" placeholder="SA"></image-slot></div></div>
+          <div class="mh-name">Seun Awoyele</div>
+          <div class="mh-role">Country Lead, Nigeria</div>
+          <p class="mh-bio">Leads the Challenge in Nigeria, including university and institutional partnerships.</p>
+          <div class="person-links mh-li" data-li="seun-awoyele"></div>
+        </div>
+        <div class="mh-row" data-team="Country Leads">
+          <div class="portrait xs"><div class="img-frame duotone"><span class="ini" aria-hidden="true">VM</span><image-slot id="team-victor-mutua" shape="rect" fit="cover" placeholder="VM"></image-slot></div></div>
+          <div class="mh-name">Victor Mutua</div>
+          <div class="mh-role">Country Lead, Kenya</div>
+          <p class="mh-bio">Leads the Challenge in Kenya, including university and institutional partnerships.</p>
+          <div class="person-links mh-li" data-li="victor-mutua"></div>
+        </div>
+        <div class="mh-row" data-team="Country Leads">
+          <div class="portrait xs"><div class="img-frame duotone"><span class="ini" aria-hidden="true">NM</span><image-slot id="team-ntsoaki-mohapi" shape="rect" fit="cover" placeholder="NM"></image-slot></div></div>
+          <div class="mh-name">Ntsoaki Mohapi</div>
+          <div class="mh-role">Country Lead, South Africa</div>
+          <p class="mh-bio">Leads the Challenge in South Africa, including university and institutional partnerships.</p>
+          <div class="person-links mh-li" data-li="ntsoaki-mohapi"></div>
+        </div>
+        <div class="mh-row" data-team="Programme Managers">
+          <div class="portrait xs"><div class="img-frame duotone"><span class="ini" aria-hidden="true">AA</span><image-slot id="team-amanda-addai-tinagyaa" shape="rect" fit="cover" placeholder="AA"></image-slot></div></div>
+          <div class="mh-name">Amanda Addai-Tinagyaa</div>
+          <div class="mh-role">Programme Manager</div>
+          <p class="mh-bio">Manages Challenge cohorts, participants, and partner coordination.</p>
+          <div class="person-links mh-li" data-li="amanda-addai-tinagyaa"></div>
+        </div>
+        <div class="mh-row" data-team="Programme Managers">
+          <div class="portrait xs"><div class="img-frame duotone"><span class="ini" aria-hidden="true">FC</span><image-slot id="team-faith-chepkoech-malel" shape="rect" fit="cover" placeholder="FC"></image-slot></div></div>
+          <div class="mh-name">Faith Chepkoech Malel</div>
+          <div class="mh-role">Programme Manager</div>
+          <p class="mh-bio">Manages Challenge cohorts, participants, and partner coordination.</p>
+          <div class="person-links mh-li" data-li="faith-chepkoech-malel"></div>
+        </div>
+        <div class="mh-row" data-team="Programme Managers">
+          <div class="portrait xs"><div class="img-frame duotone"><span class="ini" aria-hidden="true">OO</span><image-slot id="team-oluchi-obijuru" shape="rect" fit="cover" placeholder="OO"></image-slot></div></div>
+          <div class="mh-name">Oluchi Obijuru</div>
+          <div class="mh-role">Programme Manager</div>
+          <p class="mh-bio">Manages Challenge cohorts, participants, and partner coordination.</p>
+          <div class="person-links mh-li" data-li="oluchi-obijuru"></div>
+        </div>
+        <div class="mh-row" data-team="Programme Managers">
+          <div class="portrait xs"><div class="img-frame duotone"><span class="ini" aria-hidden="true">UI</span><image-slot id="team-ursula-itumeleng" shape="rect" fit="cover" placeholder="UI"></image-slot></div></div>
+          <div class="mh-name">Ursula Itumeleng</div>
+          <div class="mh-role">Programme Manager</div>
+          <p class="mh-bio">Manages Challenge cohorts, participants, and partner coordination.</p>
+          <div class="person-links mh-li" data-li="ursula-itumeleng"></div>
+        </div>
+        <div class="mh-row" data-team="Technical">
+          <div class="portrait xs"><div class="img-frame duotone"><span class="ini" aria-hidden="true">SA</span><image-slot id="team-sami-amegavi" shape="rect" fit="cover" placeholder="SA"></image-slot></div></div>
+          <div class="mh-name">Sami Amegavi</div>
+          <div class="mh-role">Technical Lead</div>
+          <p class="mh-bio">Leads the technical team that builds the Challenge platforms and develops its curriculum.</p>
+          <div class="person-links mh-li" data-li="sami-amegavi"></div>
+        </div>
+        <div class="mh-row" data-team="Technical">
+          <div class="portrait xs"><div class="img-frame duotone"><span class="ini" aria-hidden="true">YD</span><image-slot id="team-youssouf-da-silva" shape="rect" fit="cover" placeholder="YD"></image-slot></div></div>
+          <div class="mh-name">Youssouf Da Silva</div>
+          <div class="mh-role">Technical Team</div>
+          <p class="mh-bio">Builds the community platforms for the ATF AI Challenge.</p>
+          <div class="person-links mh-li" data-li="youssouf-da-silva"></div>
+        </div>
+        <div class="mh-row" data-team="Technical">
+          <div class="portrait xs"><div class="img-frame duotone"><span class="ini" aria-hidden="true">SM</span><image-slot id="team-salifu-mutaru" shape="rect" fit="cover" placeholder="SM"></image-slot></div></div>
+          <div class="mh-name">Salifu Mutaru</div>
+          <div class="mh-role">Technical Team</div>
+          <p class="mh-bio">Builds the platforms for the ATF AI Challenge.</p>
+          <div class="person-links mh-li" data-li="salifu-mutaru"></div>
+        </div>
+        <div class="mh-row" data-team="Technical">
+          <div class="portrait xs"><div class="img-frame duotone"><span class="ini" aria-hidden="true">PA</span><image-slot id="team-prince-anani" shape="rect" fit="cover" placeholder="PA"></image-slot></div></div>
+          <div class="mh-name">Prince Anani</div>
+          <div class="mh-role">Technical Team</div>
+          <p class="mh-bio">Supports curriculum development and delivery.</p>
+          <div class="person-links mh-li" data-li="prince-anani"></div>
+        </div>
+        <div class="mh-row" data-team="Technical">
+          <div class="portrait xs"><div class="img-frame duotone"><span class="ini" aria-hidden="true">AD</span><image-slot id="team-abib-duut" shape="rect" fit="cover" placeholder="AD"></image-slot></div></div>
+          <div class="mh-name">Abib Duut</div>
+          <div class="mh-role">Technical Team</div>
+          <p class="mh-bio">Champions curriculum development for the ATF AI Challenge.</p>
+          <div class="person-links mh-li" data-li="abib-duut"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="volunteer">
+    <div class="sec-inner close-grid">
+      <div>
+        <p class="eyebrow">Mentors and Volunteers</p>
+        <h2 class="sec-title"><em>120+</em> mentors and experts.</h2>
+        <p class="sec-intro">Mentors and domain experts support every Challenge cohort, in AI and machine learning, clinical medicine, agriculture, finance, legal services, and entrepreneurship. Like ATF itself, much of this work runs on people giving their time.</p>
+      </div>
+      <div>
+        <p class="team-sub" style="margin:0 0 6px">Ways to get involved</p>
+        <a class="job" href="careers.html#ways"><div class="job-title">Mentor, judge, or support a chapter</div><p class="job-meta">Six ways to volunteer with ATF</p></a>
+        <a class="job" href="careers.html#roles"><div class="job-title">Open roles</div><p class="job-meta">Paid positions, when they open</p></a>
+        <a class="job" href="careers.html#join"><div class="job-title">Sign up to volunteer</div><p class="job-meta">Two-minute form</p></a>
+      </div>
+    </div>
+  </section>
+
+
+  <dialog class="profile" id="profile" aria-labelledby="pf-name">
+    <button class="pf-close" id="pf-close" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+    <div class="pf-grid">
+      <div class="pf-portrait">
+        <div class="img-frame duotone" id="pf-frame"><span class="pf-ini" id="pf-ini"></span></div>
+      </div>
+      <div class="pf-body">
+        <p class="pf-team" id="pf-team"></p>
+        <h2 class="pf-name" id="pf-name"></h2>
+        <p class="pf-role" id="pf-role"></p>
+        <p class="pf-bio" id="pf-bio"></p>
+        <div class="pf-actions">
+          <a class="btn-outline" id="pf-li" target="_blank" rel="noopener" hidden>LinkedIn</a>
+        </div>
+        <div class="pf-nav">
+          <button id="pf-prev" class="link-arrow" aria-label="Previous person"><svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M12 4.5H2M6 1L2 4.5 6 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Previous</button>
+          <span id="pf-count"></span>
+          <button id="pf-next" class="link-arrow" aria-label="Next person">Next <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <footer id="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <img src="../../assets/logo-bright.png" alt="African Technology Forum" />
+          <p>Advancing the development of science and technology in Africa. Founded at MIT in 1988.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Who We Are</h4>
+          <a href="who-we-are-mission.html">Mission &amp; Story</a>
+          <a href="who-we-are-team.html">Team</a>
+          <a href="governance.html">Governance</a>
+          <a href="partners.html">Partners &amp; Funders</a>
+          <a href="annual-reports.html">Annual Reports</a>
+        </div>
+        <div class="footer-col">
+          <h4>What We Do</h4>
+          <a href="what-we-do-consulting.html">ATF Consulting</a>
+          <a href="what-we-do-challenge.html">ATF AI Challenge</a>
+          <a href="what-we-do-chapters.html">ATF Chapters</a>
+          <a href="publications.html">Publications</a>
+          <a href="newsroom.html">Newsroom</a>
+        </div>
+        <div class="footer-col">
+          <h4>Connect</h4>
+          <a href="partners.html#become">Partner With Us</a>
+          <a href="what-we-do-chapters.html#start">Start a Chapter</a>
+          <a href="careers.html">Careers &amp; Volunteering</a>
+          <a href="mailto:info@africantechnologyforum.org">info@africantechnologyforum.org</a>
+          <a href="https://www.linkedin.com/company/africantechnologyforum" target="_blank" rel="noopener">LinkedIn</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 1988–2026 African Technology Forum. All rights reserved.</p>
+        <div class="footer-legal">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Accessibility</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="site.js"></script>
+  <script>
+    /* LinkedIn URLs. Paste a profile URL next to a name; its link appears on the page. Empty = no link shown. */
+    var LINKEDIN = {
+      'mawuli-tse': '',
+      'karanja-gakio': '',
+      'michael-tekletsion-berhan': '',
+      'michael-owu': '',
+      'samuel-alomenu': '',
+      'elorm-mensah': '',
+      'enyonam-agbenyegah': '',
+      'michael-adjei': '',
+      'linda-sarpong': '',
+      'seun-awoyele': '',
+      'victor-mutua': '',
+      'ntsoaki-mohapi': '',
+      'amanda-addai-tinagyaa': '',
+      'faith-chepkoech-malel': '',
+      'oluchi-obijuru': '',
+      'ursula-itumeleng': '',
+      'sami-amegavi': '',
+      'youssouf-da-silva': '',
+      'salifu-mutaru': '',
+      'prince-anani': '',
+      'abib-duut': ''
+    };
+    document.querySelectorAll('[data-li]').forEach(function (el) {
+      var url = LINKEDIN[el.getAttribute('data-li')];
+      if (url) el.innerHTML = '<a href="' + url + '" target="_blank" rel="noopener">LinkedIn</a>';
+      else el.remove();
+    });
+    document.querySelectorAll('#team-filter .chip').forEach(function (c) {
+      c.addEventListener('click', function () {
+        document.querySelectorAll('#team-filter .chip').forEach(function (x) { x.classList.remove('on'); });
+        c.classList.add('on');
+        var tm = c.getAttribute('data-team');
+        document.querySelectorAll('.mh-row[data-team]').forEach(function (r) { r.hidden = !(tm === 'all' || r.getAttribute('data-team') === tm); });
+      });
+    });
+
+    (function () {
+      var dlg = document.getElementById('profile');
+      if (!dlg) return;
+      var $ = function (id) { return document.getElementById(id); };
+      var items = [], idx = 0;
+      function collect() {
+        items = Array.prototype.slice.call(document.querySelectorAll('.board-strip .person, .mh-row[data-team]')).filter(function (el) { return !el.hidden; });
+      }
+      function read(el) {
+        var isBoard = el.classList.contains('person');
+        var slot = el.querySelector('image-slot');
+        var img = slot && slot.shadowRoot && slot.shadowRoot.querySelector('img[part="image"]');
+        var src = slot && slot.hasAttribute('data-filled') && img && img.src ? img.src : '';
+        var li = el.querySelector('[data-li]');
+        return {
+          name: (el.querySelector(isBoard ? '.person-name' : '.mh-name') || {}).textContent || '',
+          role: (el.querySelector(isBoard ? '.person-role' : '.mh-role') || {}).textContent || '',
+          bio: (el.querySelector(isBoard ? '.person-bio' : '.mh-bio') || {}).textContent || '',
+          team: isBoard ? 'Board of Directors' : 'ATF AI Challenge \u00b7 ' + el.getAttribute('data-team'),
+          ini: (el.querySelector('.ini') || {}).textContent || (slot ? (slot.getAttribute('placeholder') || '') : ''),
+          li: li && typeof LINKEDIN !== 'undefined' ? LINKEDIN[li.getAttribute('data-li')] : '',
+          src: src
+        };
+      }
+      function show(i) {
+        idx = (i + items.length) % items.length;
+        var d = read(items[idx]);
+        $('pf-name').textContent = d.name;
+        $('pf-role').textContent = d.role;
+        $('pf-bio').textContent = d.bio;
+        $('pf-team').textContent = d.team;
+        var frame = $('pf-frame');
+        var old = frame.querySelector('img'); if (old) old.remove();
+        if (d.src) { var im = document.createElement('img'); im.src = d.src; im.alt = d.name; frame.appendChild(im); $('pf-ini').textContent = ''; }
+        else { $('pf-ini').textContent = d.ini && d.ini !== 'Photo' ? d.ini : d.name.split(' ').map(function (w) { return w[0]; }).slice(0, 2).join(''); }
+        var a = $('pf-li');
+        if (d.li) { a.href = d.li; a.hidden = false; } else { a.hidden = true; }
+        $('pf-count').textContent = (idx + 1) + ' / ' + items.length;
+      }
+      function open(el) { collect(); show(items.indexOf(el)); if (!dlg.open) dlg.showModal(); }
+      document.addEventListener('click', function (e) {
+        var el = e.target.closest('.board-strip .person, .mh-row[data-team]');
+        if (!el || e.target.closest('image-slot') || e.target.closest('a')) return;
+        open(el);
+      });
+      document.querySelectorAll('.board-strip .person, .mh-row[data-team]').forEach(function (el) {
+        el.setAttribute('tabindex', '0'); el.setAttribute('role', 'button');
+        el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(el); } });
+      });
+      $('pf-close').addEventListener('click', function () { dlg.close(); });
+      $('pf-prev').addEventListener('click', function () { show(idx - 1); });
+      $('pf-next').addEventListener('click', function () { show(idx + 1); });
+      dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+      dlg.addEventListener('keydown', function (e) { if (e.key === 'ArrowRight') show(idx + 1); if (e.key === 'ArrowLeft') show(idx - 1); });
+    })();
+  </script>
+</body>
+</html>

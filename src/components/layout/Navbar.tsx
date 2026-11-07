@@ -50,7 +50,6 @@ const navItems: NavItem[] = [
     label: "Who We Are",
     panel: "opportunity",
     children: [
-      { label: "Overview", to: "/who-we-are" },
       { label: "Our Mission, Vision and Story", to: "/about" },
       { label: "The Team And Contributors", to: "/team" },
     ],
@@ -59,34 +58,38 @@ const navItems: NavItem[] = [
     label: "What We Do",
     panel: "opportunity",
     children: [
-      { label: "Overview", to: "/what-we-do" },
       { label: "ATF Consulting", to: "/consulting" },
       { label: "ATF Challenge", to: "/challenge" },
       { label: "ATF Chapters", to: "/chapters" },
     ],
   },
-  {
-    label: "Where We Work",
-    panel: "opportunity",
-    children: [
-      { label: "Overview", to: "/where-we-work" },
-      { label: "Ghana", to: "/countries/ghana" },
-      { label: "Nigeria", to: "/countries/nigeria" },
-      { label: "Kenya", to: "/countries/kenya" },
-      { label: "South Africa", to: "/countries/south-africa" },
-    ],
-  },
-  {
-    label: "Publications",
-    panel: "opportunity",
-    children: [
-      { label: "Overview", to: "/publications" },
-      { label: "Newsroom", to: "/news" },
-      { label: "Articles", to: "/articles" },
-      { label: "Research Papers", to: "/research" },
-      { label: "Library", to: "/library" },
-    ],
-  },
+  // YDS: We are hiding the drop-down until we have enough content for 
+  //      multiple sections and multiple pages
+  // {
+  //   label: "Where We Work",
+  //   panel: "opportunity",
+  //   children: [
+  //     { label: "Overview", to: "/where-we-work" },
+  //     { label: "Ghana", to: "/countries/ghana" },
+  //     { label: "Nigeria", to: "/countries/nigeria" },
+  //     { label: "Kenya", to: "/countries/kenya" },
+  //     { label: "South Africa", to: "/countries/south-africa" },
+  //   ],
+  // },
+  // YDS: We are replacing the "Publications" drop-down with a simple page
+  //      link until we have enough content for multiple sections in the other pages
+  // {
+  //   label: "Publications",
+  //   panel: "opportunity",
+  //   children: [
+  //     { label: "Overview", to: "/publications" },
+  //     { label: "Newsroom", to: "/news" },
+  //     { label: "Articles", to: "/articles" },
+  //     { label: "Research Papers", to: "/research" },
+  //     { label: "Library", to: "/library" },
+  //   ],
+  // },
+  { label: "Publications", to: "/publications" },
   { label: "Newsroom", to: "/news" },
 ];
 

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Website" name="What We Do — ATF Chapters" subtitle="University chapters: where we work map, what chapters do, bring ATF to your university" viewport="1440x920" -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATF Chapters — African Technology Forum</title>
+  <link href="../../colors_and_type.css" rel="stylesheet" />
+  <link href="site.css" rel="stylesheet" />
+  <script src="https://unpkg.com/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous"></script>
+  <script src="../../image-slot.js"></script>
+  <style>
+    .map-wrap { background: var(--black); padding: 96px 0; }
+    .map-head { max-width: 1240px; margin: 0 auto; padding: 0 100px 44px; display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: end; }
+    .map-grid { max-width: 1240px; margin: 0 auto; padding: 0 100px; display: grid; grid-template-columns: 1.35fr 1fr; gap: 2px; }
+    .map-canvas { background: #111; min-height: 560px; position: relative; overflow: hidden; }
+    .map-canvas svg { width: 100%; height: 100%; display: block; position: absolute; inset: 0; }
+    .map-land { fill: #1C1C1E; stroke: #2A2A2E; stroke-width: 0.5; transition: fill 0.2s var(--ease), opacity 0.2s; }
+    .map-land.s-active { fill: var(--red); }
+    .map-land.s-scaling { fill: #7A1426; }
+    .map-land.s-past { fill: #4A4A50; }
+    .map-land.dim { opacity: 0.25; }
+    .map-label { font-family: var(--font-display); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; fill: var(--white); text-transform: uppercase; pointer-events: none; paint-order: stroke; stroke: #0A0A0A; stroke-width: 3px; }
+    .map-key { position: absolute; left: 24px; bottom: 22px; display: flex; gap: 18px; flex-wrap: wrap; font-family: var(--font-display); font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.7); }
+    .map-key span { display: flex; align-items: center; gap: 7px; }
+    .map-key i { width: 11px; height: 11px; display: block; }
+    .map-legend { background: #141414; padding: 28px 36px; }
+    .region { padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.09); display: grid; grid-template-columns: 14px 1fr; gap: 16px; cursor: default; }
+    .region:last-child { border-bottom: none; }
+    .region-sw { width: 14px; height: 14px; margin-top: 3px; }
+    .region-name { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--white); }
+    .region .region-sub { font-size: 13px; line-height: 1.55; color: rgba(255,255,255,0.65); margin-top: 5px; }
+    .region.on .region-name { color: var(--red-bright); }
+
+    .does { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+    .does-cell { background: var(--white); border-top: 2px solid var(--ink); padding: 34px 28px 40px; }
+    .does-cell:first-child { border-top-color: var(--red); }
+    .does-cell h3 { font-family: var(--font-display); font-size: 17px; font-weight: 700; margin-bottom: 11px; }
+    .does-cell p { font-size: var(--t-sm); line-height: 1.68; color: var(--mid); }
+    .does-n { font-family: var(--font-display); font-size: 30px; font-weight: 900; color: var(--red); letter-spacing: -0.03em; margin-bottom: 22px; }
+
+    .eras { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+    .era { background: var(--white); padding: 44px 40px; }
+    .era .img-frame { aspect-ratio: 16 / 9; margin-bottom: 28px; }
+    .era-tag { font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); margin-bottom: 12px; }
+    .era h3 { font-family: var(--font-display); font-size: 24px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 12px; }
+    .era p { font-size: var(--t-base); line-height: 1.7; color: var(--mid); max-width: 48ch; }
+
+    .playbook { display: grid; grid-template-columns: 1fr 1.1fr; }
+    .playbook-left { background: var(--paper); padding: 104px 80px; }
+    .playbook-right { background: var(--white); padding: 104px 80px; border-left: 1px solid var(--rule); }
+    .step { display: grid; grid-template-columns: 46px 1fr; gap: 22px; padding: 24px 0; border-bottom: 1px solid var(--rule); }
+    .step:last-child { border-bottom: none; }
+    .step-n { font-family: var(--font-display); font-size: var(--t-base); font-weight: 900; color: var(--white); background: var(--red); width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; }
+    .step h4 { font-family: var(--font-display); font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+    .step p { font-size: var(--t-sm); line-height: 1.7; color: var(--mid); }
+    .support-list { list-style: none; display: flex; flex-direction: column; gap: 16px; margin: 30px 0 0; }
+    .support-list li { font-size: var(--t-base); line-height: 1.6; color: var(--ink); padding-left: 24px; position: relative; }
+    .support-list li::before { content: ''; position: absolute; left: 0; top: 7px; border-left: 7px solid var(--red); border-top: 4.5px solid transparent; border-bottom: 4.5px solid transparent; }
+
+    @media (max-width: 1100px) {
+      .map-head, .map-grid { padding-left: 56px; padding-right: 56px; }
+      .map-grid { grid-template-columns: 1fr; } .does { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 900px) {
+      .map-head { grid-template-columns: 1fr; gap: 24px; padding: 0 28px 32px; }
+      .map-grid { padding: 0 28px; } .map-canvas { min-height: 380px; }
+      .does, .eras { grid-template-columns: 1fr; }
+      .playbook { grid-template-columns: 1fr; } .playbook-left, .playbook-right { padding: 56px 28px; }
+    }
+  </style>
+</head>
+<body>
+  <nav id="main-nav">
+    <div class="nav-inner">
+      <a class="nav-logo" href="index.html">
+        <img src="../../assets/brandmark-white.png" alt="African Technology Forum" />
+      </a>
+      <ul class="nav-links">
+        <li class="has-menu">
+          <a href="who-we-are-mission.html">Who We Are<svg class="nav-caret" viewBox="0 0 8 8" fill="none"><path d="M1 2.5L4 5.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <div class="nav-menu">
+            <a href="who-we-are-mission.html"><div class="nav-menu-title">Mission &amp; Story</div><div class="nav-menu-desc">Why ATF exists, and its story since 1988.</div></a>
+            <a href="who-we-are-team.html"><div class="nav-menu-title">Team</div><div class="nav-menu-desc">Board, Challenge team, and country leads.</div></a>
+            <a href="governance.html"><div class="nav-menu-title">Governance</div><div class="nav-menu-desc">Board of Directors and how ATF is governed.</div></a>
+            <a href="partners.html"><div class="nav-menu-title">Partners &amp; Funders</div><div class="nav-menu-desc">The funders, institutions, and universities we work with.</div></a>
+            <a href="annual-reports.html"><div class="nav-menu-title">Annual Reports</div><div class="nav-menu-desc">Reports and financial statements.</div></a>
+            <a href="careers.html"><div class="nav-menu-title">Careers &amp; Volunteering</div><div class="nav-menu-desc">Volunteer with ATF, or see open roles.</div></a>
+          </div>
+        </li>
+        <li class="has-menu">
+          <a href="what-we-do-challenge.html" class="active">What We Do<svg class="nav-caret" viewBox="0 0 8 8" fill="none"><path d="M1 2.5L4 5.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <div class="nav-menu">
+            <a href="what-we-do-consulting.html"><div class="nav-menu-title">ATF Consulting</div><div class="nav-menu-desc">Advisory drawing on the ATF professional network.</div></a>
+            <a href="what-we-do-challenge.html"><div class="nav-menu-title">ATF AI Challenge</div><div class="nav-menu-desc">AI training and real problems for university students.</div></a>
+            <a href="what-we-do-chapters.html"><div class="nav-menu-title">ATF Chapters</div><div class="nav-menu-desc">Student chapters inside universities.</div></a>
+          </div>
+        </li>
+        <li><a href="what-we-do-chapters.html#where">Where We Work</a></li>
+        <li><a href="publications.html">Publications</a></li>
+        <li><a href="newsroom.html">Newsroom</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="partners.html#become" class="nav-btn-ghost">Partner With Us</a>
+        <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="who-we-are-mission.html">Who We Are</a>
+    <a class="sub" href="who-we-are-mission.html">Mission &amp; Story</a>
+    <a class="sub" href="who-we-are-team.html">Team</a>
+    <a class="sub" href="governance.html">Governance</a>
+    <a class="sub" href="partners.html">Partners &amp; Funders</a>
+    <a class="sub" href="annual-reports.html">Annual Reports</a>
+    <a class="sub" href="careers.html">Careers &amp; Volunteering</a>
+    <a href="what-we-do-challenge.html" class="active">What We Do</a>
+    <a class="sub" href="what-we-do-consulting.html">ATF Consulting</a>
+    <a class="sub" href="what-we-do-challenge.html">ATF AI Challenge</a>
+    <a class="sub" href="what-we-do-chapters.html">ATF Chapters</a>
+    <a href="what-we-do-chapters.html#where">Where We Work</a>
+    <a href="publications.html">Publications</a>
+    <a href="newsroom.html">Newsroom</a>
+    <a href="partners.html#become">Partner With Us</a>
+  </div>
+
+  <section class="page-hero">
+    <div class="page-hero-inner">
+      <div class="breadcrumb"><a href="index.html">Home</a><span>/</span><span>What We Do</span><span>/</span><span>ATF Chapters</span></div>
+      <h1 class="page-title">Chapters <em>inside</em> universities.</h1>
+      <p class="page-lede">ATF chapters are student groups based at universities. They give students direction, access to experts, and early exposure to emerging technology. We are now bringing chapters back through formal agreements with universities.</p>
+      <div class="page-hero-meta">
+        <div><span>First chapters</span><strong>2012</strong></div>
+        <div><span>Chapters at peak</span><strong>6</strong></div>
+        <div><span>Chapter countries</span><strong>Ghana, Benin</strong></div>
+        <div><span>Now</span><strong>Reactivating</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="subnav">
+    <div class="subnav-inner">
+      <a href="#where">Where We Work</a>
+      <a href="#does">What Chapters Do</a>
+      <a href="#history">History</a>
+      <a href="#start">Bring ATF to Your University</a>
+    </div>
+  </div>
+
+  <section class="map-wrap" id="where">
+    <div class="map-head">
+      <div>
+        <p class="eyebrow on-dark">Where We Work</p>
+        <h2 class="sec-title" style="color:var(--white)">Four countries today. Five in our history.</h2>
+      </div>
+      <p class="sec-intro" style="color:rgba(255,255,255,0.72)">ATF is registered in Ghana and operates in Ghana, Nigeria, Kenya, and South Africa. We also ran a university chapter in Benin.</p>
+    </div>
+    <div class="map-grid">
+      <div class="map-canvas" id="map-canvas">
+        <svg id="africa-map" role="img" aria-label="Map of Africa highlighting Ghana, Nigeria, Kenya, South Africa, and Benin"></svg>
+        <div class="map-key">
+          <span><i style="background:var(--red)"></i>Active</span>
+          <span><i style="background:#7A1426"></i>Scaling</span>
+          <span><i style="background:#4A4A50"></i>Past chapter</span>
+        </div>
+      </div>
+      <div class="map-legend" id="map-legend">
+        <div class="region" data-iso="GHA"><span class="region-sw" style="background:var(--red)"></span><div><div class="region-name">Ghana</div><p class="region-sub">Registered here. University chapters since 2012; AI Challenge since 2023.</p></div></div>
+        <div class="region" data-iso="NGA"><span class="region-sw" style="background:var(--red)"></span><div><div class="region-name">Nigeria</div><p class="region-sub">AI Challenge since 2025.</p></div></div>
+        <div class="region" data-iso="KEN"><span class="region-sw" style="background:#7A1426"></span><div><div class="region-name">Kenya</div><p class="region-sub">AI Challenge scaling here with Google.org support.</p></div></div>
+        <div class="region" data-iso="ZAF"><span class="region-sw" style="background:#7A1426"></span><div><div class="region-name">South Africa</div><p class="region-sub">AI Challenge scaling here with Google.org support.</p></div></div>
+        <div class="region" data-iso="BEN"><span class="region-sw" style="background:#4A4A50"></span><div><div class="region-name">Benin</div><p class="region-sub">University chapter, 2012 to 2020.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="does">
+    <div class="sec-inner">
+      <div class="sec-head-split">
+        <div>
+          <p class="eyebrow">What Chapters Do</p>
+          <h2 class="sec-title">A way in, on campus.</h2>
+        </div>
+        <p class="sec-intro">Chapters belong to ATF's Community pillar. A chapter is where a student first meets ATF — and often where they first meet someone already doing the work they want to do, in any field of science and technology.</p>
+      </div>
+      <div class="does">
+        <div class="does-cell reveal"><div class="does-n">01</div><h3>Direction</h3><p>Chapters get guidance from ATF on what to run and how, so students spend their time building rather than organising from scratch.</p></div>
+        <div class="does-cell reveal reveal-delay-1"><div class="does-n">02</div><h3>Access to experts</h3><p>Introductions to researchers and practitioners from the ATF network, in the fields students are studying.</p></div>
+        <div class="does-cell reveal reveal-delay-2"><div class="does-n">03</div><h3>Emerging technology</h3><p>Early exposure to new fields across science and technology. Past chapters explored nanotechnology and 3D printing. Today that includes AI, and chapters will follow whatever frontier comes next.</p></div>
+        <div class="does-cell reveal reveal-delay-3"><div class="does-n">04</div><h3>A lifelong community</h3><p>Members join a community that spans ATF's founding generation, former chapter members, and today's programme participants, with a route into ATF programmes such as the <a href="what-we-do-challenge.html">AI Challenge</a>.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec stone" id="history">
+    <div class="sec-inner">
+      <div class="sec-head-split">
+        <div>
+          <p class="eyebrow">History</p>
+          <h2 class="sec-title">Back to students, <em>again</em>.</h2>
+        </div>
+        <p class="sec-intro">ATF was founded by students at MIT in 1988. Chapters are how it keeps returning to them.</p>
+      </div>
+      <div class="eras">
+        <div class="era reveal">
+          <div class="img-frame duotone"><image-slot id="ch-era-1" shape="rect" fit="cover" placeholder="Chapter event photo, 2012–2020"></image-slot></div>
+          <p class="era-tag">2012 to 2020</p>
+          <h3>Six chapters at peak</h3>
+          <p>Five chapters in Ghana and one in Benin. Each received funding, direction, and access to experts, and introduced students to fields like nanotechnology and 3D printing.</p>
+        </div>
+        <div class="era reveal reveal-delay-1">
+          <div class="img-frame duotone"><image-slot id="ch-era-2" shape="rect" fit="cover" placeholder="Students at a partner university today"></image-slot></div>
+          <p class="era-tag">Today</p>
+          <h3>Reactivating through universities</h3>
+          <p>We are reopening chapters through memoranda of understanding with universities, so each chapter has an institutional home and outlasts any one student cohort.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="playbook" id="start">
+    <div class="playbook-left">
+      <p class="eyebrow">Bring ATF to Your University</p>
+      <h2 class="sec-title" style="margin-bottom:34px">No chapter on your campus? Start the conversation.</h2>
+      <p style="font-size:16px;line-height:1.72;color:var(--mid);margin-bottom:38px;max-width:46ch">Students, lecturers, and university administrators can all get in touch. Tell us your university, who is involved, and why a chapter would help.</p>
+      <a href="mailto:info@africantechnologyforum.org?subject=Chapter%20enquiry" class="btn-primary">Email us about a chapter <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      <p style="font-size:13px;color:var(--mid);margin-top:20px">info@africantechnologyforum.org</p>
+    </div>
+    <div class="playbook-right">
+      <p class="eyebrow" style="margin-bottom:30px">How it works</p>
+      <div class="step"><div class="step-n">1</div><div><h4>Get in touch</h4><p>Send us your university, your department, and the students or staff who want to lead.</p></div></div>
+      <div class="step"><div class="step-n">2</div><div><h4>Agree an MoU</h4><p>ATF and the university sign a memorandum of understanding that sets out how the chapter will run.</p></div></div>
+      <div class="step"><div class="step-n">3</div><div><h4>Appoint student leads</h4><p>The chapter is run by students, with a staff contact at the university.</p></div></div>
+      <div class="step"><div class="step-n">4</div><div><h4>Launch and connect</h4><p>The chapter joins the ATF community and takes part in ATF programmes where they run.</p></div></div>
+
+      <p class="eyebrow" style="margin:52px 0 0">What ATF provides</p>
+      <ul class="support-list">
+        <li>Direction and programme materials</li>
+        <li>Introductions to experts from the ATF network</li>
+        <li>A route into ATF programmes, currently the AI Challenge</li>
+        <li>ATF brand assets for chapter events</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer id="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <img src="../../assets/logo-bright.png" alt="African Technology Forum" />
+          <p>Advancing the development of science and technology in Africa. Founded at MIT in 1988.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Who We Are</h4>
+          <a href="who-we-are-mission.html">Mission &amp; Story</a>
+          <a href="who-we-are-team.html">Team</a>
+          <a href="governance.html">Governance</a>
+          <a href="partners.html">Partners &amp; Funders</a>
+          <a href="annual-reports.html">Annual Reports</a>
+        </div>
+        <div class="footer-col">
+          <h4>What We Do</h4>
+          <a href="what-we-do-consulting.html">ATF Consulting</a>
+          <a href="what-we-do-challenge.html">ATF AI Challenge</a>
+          <a href="what-we-do-chapters.html">ATF Chapters</a>
+          <a href="publications.html">Publications</a>
+          <a href="newsroom.html">Newsroom</a>
+        </div>
+        <div class="footer-col">
+          <h4>Connect</h4>
+          <a href="partners.html#become">Partner With Us</a>
+          <a href="what-we-do-chapters.html#start">Start a Chapter</a>
+          <a href="careers.html">Careers &amp; Volunteering</a>
+          <a href="mailto:info@africantechnologyforum.org">info@africantechnologyforum.org</a>
+          <a href="https://www.linkedin.com/company/africantechnologyforum" target="_blank" rel="noopener">LinkedIn</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 1988–2026 African Technology Forum. All rights reserved.</p>
+        <div class="footer-legal">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Accessibility</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+  (function () {
+    var STATUS = { GHA: 'active', NGA: 'active', KEN: 'scaling', ZAF: 'scaling', BEN: 'past' };
+    var NAMES = { GHA: 'Ghana', NGA: 'Nigeria', KEN: 'Kenya', ZAF: 'South Africa', BEN: 'Benin' };
+    var NUM_TO_ISO = { 12:'DZA',24:'AGO',204:'BEN',72:'BWA',854:'BFA',108:'BDI',120:'CMR',132:'CPV',140:'CAF',148:'TCD',174:'COM',178:'COG',180:'COD',384:'CIV',262:'DJI',818:'EGY',226:'GNQ',232:'ERI',748:'SWZ',231:'ETH',266:'GAB',270:'GMB',288:'GHA',324:'GIN',624:'GNB',404:'KEN',426:'LSO',430:'LBR',434:'LBY',450:'MDG',454:'MWI',466:'MLI',478:'MRT',480:'MUS',504:'MAR',508:'MOZ',516:'NAM',562:'NER',566:'NGA',646:'RWA',686:'SEN',694:'SLE',706:'SOM',710:'ZAF',728:'SSD',729:'SDN',834:'TZA',768:'TGO',788:'TUN',800:'UGA',894:'ZMB',716:'ZWE',732:'ESH' };
+    var canvas = document.getElementById('map-canvas');
+    var svg = d3.select('#africa-map');
+    var g = svg.append('g');
+
+    function draw(features) {
+      var w = canvas.clientWidth, h = canvas.clientHeight;
+      if (!w || !h) return;
+      svg.attr('viewBox', '0 0 ' + w + ' ' + h);
+      g.selectAll('*').remove();
+      var projection = d3.geoMercator().fitExtent([[24, 24], [w - 24, h - 64]], { type: 'FeatureCollection', features: features });
+      var path = d3.geoPath(projection);
+      g.selectAll('path').data(features).join('path')
+        .attr('d', path)
+        .attr('data-iso', function (d) { return NUM_TO_ISO[+d.id]; })
+        .attr('class', function (d) { var s = STATUS[NUM_TO_ISO[+d.id]]; return 'map-land' + (s ? ' s-' + s : ''); });
+      var labelled = features.filter(function (d) { return STATUS[NUM_TO_ISO[+d.id]]; });
+      g.selectAll('text').data(labelled).join('text')
+        .attr('class', 'map-label')
+        .attr('text-anchor', 'middle')
+        .attr('x', function (d) { var c = path.centroid(d); return NUM_TO_ISO[+d.id] === 'BEN' ? c[0] - 2 : c[0]; })
+        .attr('y', function (d) { var c = path.centroid(d); var iso = NUM_TO_ISO[+d.id]; return iso === 'BEN' ? c[1] - 26 : iso === 'GHA' ? c[1] + 22 : c[1] + 4; })
+        .text(function (d) { return NAMES[NUM_TO_ISO[+d.id]]; });
+    }
+
+    document.querySelectorAll('#map-legend .region').forEach(function (row) {
+      var iso = row.getAttribute('data-iso');
+      row.addEventListener('mouseenter', function () {
+        row.classList.add('on');
+        g.selectAll('.map-land').classed('dim', function () { return this.getAttribute('data-iso') !== iso && !!STATUS[this.getAttribute('data-iso')]; });
+      });
+      row.addEventListener('mouseleave', function () { row.classList.remove('on'); g.selectAll('.map-land').classed('dim', false); });
+    });
+
+    d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json').then(function (topo) {
+      var african = topojson.feature(topo, topo.objects.countries).features.filter(function (f) { return !!NUM_TO_ISO[+f.id]; });
+      draw(african);
+      var t;
+      window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(function () { draw(african); }, 160); });
+    }).catch(function () {
+      canvas.insertAdjacentHTML('beforeend', '<p style="color:rgba(255,255,255,0.6);font-size:13px;padding:32px;position:relative">Map data unavailable offline.</p>');
+    });
+  })();
+  </script>
+  <script src="site.js"></script>
+</body>
+</html>

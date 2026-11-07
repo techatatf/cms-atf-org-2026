@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Website" name="What We Do — ATF Challenge" subtitle="Programme page: how it works, problem partners, growth since 2023, campaign, FAQ" viewport="1440x920" -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATF AI Challenge — African Technology Forum</title>
+  <link href="../../colors_and_type.css" rel="stylesheet" />
+  <link href="site.css" rel="stylesheet" />
+  <script src="../../image-slot.js"></script>
+  <style>
+    .stick-stack { position: sticky; top: var(--nav-h); z-index: 160; }
+    .stick-stack .subnav { position: static; top: auto; z-index: auto; }
+    .apply-bar { background: var(--red); color: var(--white); padding: 16px 100px; }
+    .apply-bar-inner { max-width: 1240px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+    .apply-bar-text { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+    .apply-bar-text strong { font-family: var(--font-display); font-size: var(--t-base); font-weight: 800; }
+    .apply-bar-text span { font-size: var(--t-sm); color: var(--white); }
+
+    .why { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+    .why-cell { background: var(--white); border-top: 2px solid var(--ink); padding: 34px 28px 40px; }
+    .why-cell:nth-child(1) { border-top-color: var(--red); }
+    .why-icon { font-family: var(--font-display); font-size: 30px; font-weight: 900; color: var(--red); letter-spacing: -0.03em; margin-bottom: 22px; }
+    .why-cell h3 { font-family: var(--font-display); font-size: 17px; font-weight: 700; margin-bottom: 11px; }
+    .why-cell p { font-size: var(--t-sm); line-height: 1.68; color: var(--mid); }
+
+    .tracks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+    .track { background: #141416; color: var(--white); padding: 44px 36px 40px; position: relative; overflow: hidden; }
+    .track::after { content: ''; position: absolute; right: 0; bottom: 0; border-bottom: 56px solid var(--red); border-left: 56px solid transparent; }
+    .track .track-tag { font-family: var(--font-display); font-size: 10.5px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--red-bright); margin-bottom: 24px; }
+    .track h3 { font-family: var(--font-display); font-size: 24px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 14px; }
+    .track p { font-size: var(--t-sm); line-height: 1.7; color: rgba(255,255,255,0.72); max-width: 34ch; }
+    .track .track-since { margin-top: 28px; font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.6); }
+
+    .stages { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+    .stage { background: var(--white); padding: 30px 26px 34px; border-top: 3px solid var(--rule); }
+    .stage.now { border-top-color: var(--red); background: var(--paper); }
+    .stage .stage-date { font-family: var(--font-display); font-size: 34px; font-weight: 900; letter-spacing: -0.03em; color: var(--ink); line-height: 1; margin-bottom: 18px; }
+    .stage.now .stage-date { color: var(--red); }
+    .stage h4 { font-family: var(--font-display); font-size: var(--t-base); font-weight: 700; margin-bottom: 9px; }
+    .stage p { font-size: 13.5px; line-height: 1.65; color: var(--mid); }
+    .stage-badge { display: inline-block; margin-top: 16px; font-family: var(--font-display); font-size: 9.5px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; background: var(--red); color: var(--white); padding: 5px 9px; }
+
+    .campaign { display: grid; grid-template-columns: 1fr 1.15fr; background: var(--black); align-items: stretch; }
+    .campaign-text { padding: 104px 80px; display: flex; flex-direction: column; justify-content: center; }
+    .campaign-text h2 { font-family: var(--font-display); font-size: clamp(28px, 2.9vw, 46px); font-weight: 900; line-height: 1.04; letter-spacing: -0.028em; color: var(--white); margin: 24px 0 22px; max-width: 18ch; }
+    .campaign-text > p { font-size: var(--t-base); line-height: 1.72; color: rgba(255,255,255,0.72); max-width: 44ch; }
+    .campaign-art { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: #141416; padding: 2px; }
+    .campaign-art img { width: 100%; height: 100%; object-fit: cover; }
+
+    .faq-item { border-bottom: 1px solid var(--rule); }
+    .faq-item:first-child { border-top: 1px solid var(--rule); }
+    .faq-q { width: 100%; background: none; border: none; text-align: left; padding: 26px 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 24px; font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--ink); }
+    .faq-q:hover { color: var(--red); }
+    .faq-q i { font-style: normal; font-size: 22px; color: var(--red); line-height: 1; }
+    .faq-a { font-size: var(--t-sm); line-height: 1.75; color: var(--mid); max-width: 74ch; padding: 0 0 26px; display: none; }
+    .faq-item.open .faq-a { display: block; }
+
+    .final { background: var(--red); color: var(--white); padding: 104px 100px; text-align: center; }
+    .final h2 { font-family: var(--font-display); font-size: clamp(32px, 4vw, 62px); font-weight: 900; line-height: 1.02; letter-spacing: -0.03em; max-width: 20ch; margin: 24px auto 22px; }
+    .final p { font-size: 17px; line-height: 1.65; color: var(--white); max-width: 52ch; margin: 0 auto 38px; }
+    .final .eyebrow { justify-content: center; }
+
+    @media (max-width: 1100px) { .apply-bar, .final { padding-left: 56px; padding-right: 56px; } .why, .stages { grid-template-columns: 1fr 1fr; } .tracks { grid-template-columns: 1fr; } }
+    @media (max-width: 900px) {
+      .apply-bar { padding: 14px 28px; } .stick-stack { position: static; } .final { padding: 72px 28px; }
+      .why, .stages { grid-template-columns: 1fr; }
+      .campaign { grid-template-columns: 1fr; } .campaign-text { padding: 56px 28px; }
+    }
+  </style>
+</head>
+<body>
+  <nav id="main-nav">
+    <div class="nav-inner">
+      <a class="nav-logo" href="index.html">
+        <img src="../../assets/brandmark-white.png" alt="African Technology Forum" />
+      </a>
+      <ul class="nav-links">
+        <li class="has-menu">
+          <a href="who-we-are-mission.html">Who We Are<svg class="nav-caret" viewBox="0 0 8 8" fill="none"><path d="M1 2.5L4 5.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <div class="nav-menu">
+            <a href="who-we-are-mission.html"><div class="nav-menu-title">Mission &amp; Story</div><div class="nav-menu-desc">Why ATF exists, and its story since 1988.</div></a>
+            <a href="who-we-are-team.html"><div class="nav-menu-title">Team</div><div class="nav-menu-desc">Board, Challenge team, and country leads.</div></a>
+            <a href="governance.html"><div class="nav-menu-title">Governance</div><div class="nav-menu-desc">Board of Directors and how ATF is governed.</div></a>
+            <a href="partners.html"><div class="nav-menu-title">Partners &amp; Funders</div><div class="nav-menu-desc">The funders, institutions, and universities we work with.</div></a>
+            <a href="annual-reports.html"><div class="nav-menu-title">Annual Reports</div><div class="nav-menu-desc">Reports and financial statements.</div></a>
+            <a href="careers.html"><div class="nav-menu-title">Careers &amp; Volunteering</div><div class="nav-menu-desc">Volunteer with ATF, or see open roles.</div></a>
+          </div>
+        </li>
+        <li class="has-menu">
+          <a href="what-we-do-challenge.html" class="active">What We Do<svg class="nav-caret" viewBox="0 0 8 8" fill="none"><path d="M1 2.5L4 5.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <div class="nav-menu">
+            <a href="what-we-do-consulting.html"><div class="nav-menu-title">ATF Consulting</div><div class="nav-menu-desc">Advisory drawing on the ATF professional network.</div></a>
+            <a href="what-we-do-challenge.html"><div class="nav-menu-title">ATF AI Challenge</div><div class="nav-menu-desc">AI training and real problems for university students.</div></a>
+            <a href="what-we-do-chapters.html"><div class="nav-menu-title">ATF Chapters</div><div class="nav-menu-desc">Student chapters inside universities.</div></a>
+          </div>
+        </li>
+        <li><a href="what-we-do-chapters.html#where">Where We Work</a></li>
+        <li><a href="publications.html">Publications</a></li>
+        <li><a href="newsroom.html">Newsroom</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="partners.html#become" class="nav-btn-ghost">Partner With Us</a>
+        <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="who-we-are-mission.html">Who We Are</a>
+    <a class="sub" href="who-we-are-mission.html">Mission &amp; Story</a>
+    <a class="sub" href="who-we-are-team.html">Team</a>
+    <a class="sub" href="governance.html">Governance</a>
+    <a class="sub" href="partners.html">Partners &amp; Funders</a>
+    <a class="sub" href="annual-reports.html">Annual Reports</a>
+    <a class="sub" href="careers.html">Careers &amp; Volunteering</a>
+    <a href="what-we-do-challenge.html" class="active">What We Do</a>
+    <a class="sub" href="what-we-do-consulting.html">ATF Consulting</a>
+    <a class="sub" href="what-we-do-challenge.html">ATF AI Challenge</a>
+    <a class="sub" href="what-we-do-chapters.html">ATF Chapters</a>
+    <a href="what-we-do-chapters.html#where">Where We Work</a>
+    <a href="publications.html">Publications</a>
+    <a href="newsroom.html">Newsroom</a>
+    <a href="partners.html#become">Partner With Us</a>
+  </div>
+
+  <section class="page-hero">
+    <div class="page-hero-inner">
+      <div class="breadcrumb"><a href="index.html">Home</a><span>/</span><span>What We Do</span><span>/</span><span>ATF Challenge</span></div>
+      <h1 class="page-title">Learn AI. Build for a <em>real</em> problem.</h1>
+      <p class="page-lede">The ATF AI Challenge trains university students in applied AI, then sets them real problems from hospitals and companies to build against. It started in Ghana in 2023. With support from Google.org, it is scaling to Ghana, Nigeria, Kenya, and South Africa.</p>
+      <div class="page-hero-meta">
+        <div><span>First Challenge</span><strong>2023</strong></div>
+        <div><span>Students, 2024</span><strong>450</strong></div>
+        <div><span>Universities, 2024</span><strong>23</strong></div>
+        <div><span>MVPs built, 2024</span><strong>22</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="stick-stack">
+    <div class="apply-bar">
+      <div class="apply-bar-inner">
+        <div class="apply-bar-text">
+          <strong>Taking part?</strong>
+          <span>Dates, eligibility, and applications are on atfchallenge.org.</span>
+        </div>
+        <a href="https://atfchallenge.org" target="_blank" rel="noopener" class="btn-primary-light">Go to atfchallenge.org <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+    </div>
+    <div class="subnav">
+      <div class="subnav-inner">
+        <a href="#how">How It Works</a>
+        <a href="#partners">Problem Partners</a>
+        <a href="#growth">Since 2023</a>
+        <a href="#faq">FAQ</a>
+      </div>
+    </div>
+  </div>
+
+  <section class="sec" id="how">
+    <div class="sec-inner">
+      <div class="sec-head-split">
+        <div>
+          <p class="eyebrow">How It Works</p>
+          <h2 class="sec-title">Training first. Then a real brief.</h2>
+        </div>
+        <p class="sec-intro">The Challenge is built around one idea: students learn fastest when the problem belongs to someone who needs it solved.</p>
+      </div>
+      <div class="why">
+        <div class="why-cell reveal"><div class="why-icon">01</div><h3>Train</h3><p>Participants learn applied AI: working with data, using models, and turning them into a tool someone can use.</p></div>
+        <div class="why-cell reveal reveal-delay-1"><div class="why-icon">02</div><h3>Take a real problem</h3><p>Partner organisations set problem statements drawn from their own work — a hospital ward, a farm advisory service.</p></div>
+        <div class="why-cell reveal reveal-delay-2"><div class="why-icon">03</div><h3>Build in teams</h3><p>Teams build a minimum viable product against the problem they chose, with input from the partner who set it.</p></div>
+        <div class="why-cell reveal reveal-delay-3"><div class="why-icon">04</div><h3>Show the work</h3><p>Teams present working MVPs. In 2024, 450 students from 23 universities produced 22 of them.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec dark" id="partners">
+    <div class="sec-inner">
+      <div class="sec-head-split">
+        <div>
+          <p class="eyebrow on-dark">Problem Partners</p>
+          <h2 class="sec-title">Who sets the problems.</h2>
+        </div>
+        <p class="sec-intro">Since 2025, institutions have brought their own problem statements to the Challenge. Teams work on problems these partners actually face.</p>
+      </div>
+      <div class="tracks">
+        <div class="track reveal">
+          <p class="track-tag">Health</p>
+          <h3>Korle Bu Teaching Hospital</h3>
+          <p>Ghana's national referral and teaching hospital, in Accra.</p>
+          <p class="track-since">Problem partner since 2025</p>
+        </div>
+        <div class="track reveal reveal-delay-1">
+          <p class="track-tag">Health</p>
+          <h3>37 Military Hospital</h3>
+          <p>A major hospital in Accra serving military and civilian patients.</p>
+          <p class="track-since">Problem partner since 2025</p>
+        </div>
+        <div class="track reveal reveal-delay-2">
+          <p class="track-tag">Agriculture</p>
+          <h3>Esoko</h3>
+          <p>A Ghanaian company providing information services to farmers.</p>
+          <p class="track-since">Problem partner since 2025</p>
+        </div>
+      </div>
+      <div style="margin-top:44px">
+        <a href="partners.html#become" class="btn-outline-light">Set a problem statement <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="growth">
+    <div class="sec-inner">
+      <div class="sec-head-split">
+        <div>
+          <p class="eyebrow">Since 2023</p>
+          <h2 class="sec-title">From one country to <em>four</em>.</h2>
+        </div>
+        <p class="sec-intro">The Challenge is the latest chapter in ATF's work since 1988: finding technologists early and giving them a way in.</p>
+      </div>
+      <div class="stages">
+        <div class="stage reveal"><p class="stage-date">2023</p><h4>The first AI Challenge</h4><p>ATF runs its first AI Challenge in Ghana, with sponsorship from OpenAI.</p></div>
+        <div class="stage reveal reveal-delay-1"><p class="stage-date">2024</p><h4>450 students</h4><p>Students from 23 universities across Ghana take part and build 22 MVPs.</p></div>
+        <div class="stage reveal reveal-delay-2"><p class="stage-date">2025</p><h4>Into Nigeria</h4><p>The Challenge expands to Nigeria. Korle Bu, 37 Military Hospital, and Esoko set problem statements.</p></div>
+        <div class="stage now reveal reveal-delay-3"><p class="stage-date">Next</p><h4>Four countries</h4><p>With support from Google.org, the Challenge scales to Ghana, Nigeria, Kenya, and South Africa.</p><span class="stage-badge">Under way</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bleed-stat">
+    <div class="bleed-stat-inner">
+      <p class="eyebrow on-dark">The 2024 Challenge</p>
+      <div class="bleed-num" style="margin-top:28px">22<span>.</span></div>
+      <div class="bleed-caption">
+        <h3>Working MVPs from a single year of the Challenge.</h3>
+        <p>450 students from 23 Ghanaian universities trained, formed teams, and built. The next step is taking the same model to Nigeria, Kenya, and South Africa.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="campaign">
+    <div class="campaign-text">
+      <p class="eyebrow on-dark">The campaign</p>
+      <h2>Don't just watch the AI revolution. Build it.</h2>
+      <p>Recruitment runs through universities and chapters as well as online — posters on campus, word of mouth between classmates, and lecturers who pass it on.</p>
+    </div>
+    <div class="campaign-art">
+      <img src="../../assets/example-a2-poster.jpg" alt="ATF Challenge recruitment poster" />
+      <img src="../../assets/example-challenge-wf.png" alt="ATF Challenge campaign artwork" />
+    </div>
+  </section>
+
+  <section class="sec stone" id="faq">
+    <div class="sec-inner" style="max-width:960px">
+      <p class="eyebrow">FAQ</p>
+      <h2 class="sec-title" style="margin-bottom:48px">Common questions.</h2>
+      <div class="faq-item open"><button class="faq-q">Who can take part?<i>−</i></button><p class="faq-a">The Challenge is for university students in the countries where it runs. Eligibility rules for each round are published on <a href="https://atfchallenge.org" target="_blank" rel="noopener">atfchallenge.org</a>.</p></div>
+      <div class="faq-item"><button class="faq-q">Which countries does it run in?<i>+</i></button><p class="faq-a">Ghana since 2023 and Nigeria since 2025. With support from Google.org, it is scaling to Kenya and South Africa.</p></div>
+      <div class="faq-item"><button class="faq-q">Who sets the problems?<i>+</i></button><p class="faq-a">Partner organisations. Korle Bu Teaching Hospital, 37 Military Hospital, and Esoko have all set problem statements for Challenge teams.</p></div>
+      <div class="faq-item"><button class="faq-q">Can my organisation set a problem?<i>+</i></button><p class="faq-a">Yes. Hospitals, companies, and agencies can bring a problem statement and share experts as mentors. <a href="partners.html#become">Start a partnership enquiry</a>.</p></div>
+      <div class="faq-item"><button class="faq-q">Where do I apply?<i>+</i></button><p class="faq-a">On <a href="https://atfchallenge.org" target="_blank" rel="noopener">atfchallenge.org</a>, which carries the current dates and application form.</p></div>
+    </div>
+  </section>
+
+  <section class="final">
+    <p class="eyebrow on-dark">The next Challenge</p>
+    <h2>Build something that gets used.</h2>
+    <p>Students apply on atfchallenge.org. Organisations can set a problem statement or mentor a team.</p>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+      <a href="https://atfchallenge.org" target="_blank" rel="noopener" class="btn-primary-light">Apply on atfchallenge.org <svg width="13" height="9" viewBox="0 0 13 9" fill="none"><path d="M1 4.5h10M7 1l4 3.5L7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      <a href="partners.html#become" class="btn-outline-light">Partner on the Challenge</a>
+    </div>
+  </section>
+
+  <script>
+    document.querySelectorAll('.faq-q').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var open = b.parentElement.classList.toggle('open');
+        b.querySelector('i').textContent = open ? '\u2212' : '+';
+      });
+    });
+  </script>
+
+  <footer id="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <img src="../../assets/logo-bright.png" alt="African Technology Forum" />
+          <p>Advancing the development of science and technology in Africa. Founded at MIT in 1988.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Who We Are</h4>
+          <a href="who-we-are-mission.html">Mission &amp; Story</a>
+          <a href="who-we-are-team.html">Team</a>
+          <a href="governance.html">Governance</a>
+          <a href="partners.html">Partners &amp; Funders</a>
+          <a href="annual-reports.html">Annual Reports</a>
+        </div>
+        <div class="footer-col">
+          <h4>What We Do</h4>
+          <a href="what-we-do-consulting.html">ATF Consulting</a>
+          <a href="what-we-do-challenge.html">ATF AI Challenge</a>
+          <a href="what-we-do-chapters.html">ATF Chapters</a>
+          <a href="publications.html">Publications</a>
+          <a href="newsroom.html">Newsroom</a>
+        </div>
+        <div class="footer-col">
+          <h4>Connect</h4>
+          <a href="partners.html#become">Partner With Us</a>
+          <a href="what-we-do-chapters.html#start">Start a Chapter</a>
+          <a href="careers.html">Careers &amp; Volunteering</a>
+          <a href="mailto:info@africantechnologyforum.org">info@africantechnologyforum.org</a>
+          <a href="https://www.linkedin.com/company/africantechnologyforum" target="_blank" rel="noopener">LinkedIn</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 1988–2026 African Technology Forum. All rights reserved.</p>
+        <div class="footer-legal">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Accessibility</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="site.js"></script>
+</body>
+</html>
