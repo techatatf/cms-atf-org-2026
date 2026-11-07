@@ -1,9 +1,9 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 
 import { AppLink } from "@/components/site/AppLink";
 import { OpportunityButton } from "@/components/site/OpportunityButton";
-import { DiagonalAccentSection } from "@/components/site/Page";
+import { DiagonalAccentSection, Eyebrow, TriangleBullet } from "@/components/site/Page";
 import { cn } from "@/lib/utils";
 
 /** Text link with a trailing arrow, e.g. "Board profiles →". */
@@ -180,6 +180,103 @@ export function NameTags({ names, dark = false }: { names: readonly string[]; da
           )}
         >
           {name}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/**
+ * Numbered cells in a row, e.g. the four steps of a process. The first cell
+ * carries the accent rule; `muted` numbers stay grey instead of red.
+ */
+export function NumberedCells({
+  cells,
+  mutedNumbers = false,
+  emphasizeLast = false,
+}: {
+  cells: readonly { title: string; body: ReactNode }[];
+  mutedNumbers?: boolean;
+  /** Render the last cell dark, as a closing step. */
+  emphasizeLast?: boolean;
+}) {
+  return (
+    <ol className="grid gap-0.5 sm:grid-cols-2 lg:grid-cols-4">
+      {cells.map((cell, index) => {
+        const dark = emphasizeLast && index === cells.length - 1;
+        const accentRule = dark || (!mutedNumbers && index === 0);
+        return (
+          <li
+            key={cell.title}
+            className={cn(
+              "border-t-2 p-7 lg:px-7 lg:pb-10 lg:pt-9",
+              dark ? "bg-atf-black text-white" : "bg-white",
+              accentRule ? "border-primary" : mutedNumbers ? "border-atf-gray-200" : "border-atf-ink",
+            )}
+          >
+            <p
+              className={cn(
+                "mb-5 font-display font-black leading-none tracking-tight",
+                !mutedNumbers && "text-3xl text-primary",
+                mutedNumbers && (dark ? "text-[42px] text-white/25" : "text-[42px] text-atf-gray-200"),
+              )}
+            >
+              {String(index + 1).padStart(2, "0")}
+            </p>
+            <h3 className={cn("font-display text-[17px] font-bold", dark ? "text-white" : "text-atf-black")}>
+              {cell.title}
+            </h3>
+            <p className={cn("mt-2.5 text-sm leading-[1.68]", dark ? "text-white/70" : "text-atf-gray-500")}>
+              {cell.body}
+            </p>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+/** One big number with a caption, e.g. "22." MVPs, on the diagonal accent band. */
+export function StatBand({
+  id,
+  eyebrow,
+  value,
+  title,
+  body,
+  style,
+}: {
+  id?: string;
+  eyebrow: string;
+  value: string;
+  title: string;
+  body: ReactNode;
+  style?: CSSProperties;
+}) {
+  return (
+    <DiagonalAccentSection id={id} style={style}>
+      <div>
+        <Eyebrow light>{eyebrow}</Eyebrow>
+        <p className="font-display text-7xl font-black md:text-8xl">
+          {value}
+          <span className="text-primary lg:text-white">.</span>
+        </p>
+      </div>
+      <div className="lg:pl-10">
+        <h3 className="font-display text-2xl font-black uppercase leading-tight md:text-3xl">{title}</h3>
+        <p className="mt-4 max-w-xl text-base leading-7 text-white/75">{body}</p>
+      </div>
+    </DiagonalAccentSection>
+  );
+}
+
+/** List with accent triangle bullets. */
+export function TriangleList({ items }: { items: readonly ReactNode[] }) {
+  return (
+    <ul className="mt-7 flex flex-col gap-4">
+      {items.map((item, index) => (
+        <li key={index} className="flex items-start gap-4 text-base leading-relaxed text-atf-ink">
+          <TriangleBullet className="mt-[7px]" />
+          <span>{item}</span>
         </li>
       ))}
     </ul>
