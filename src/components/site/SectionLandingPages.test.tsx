@@ -249,9 +249,9 @@ describe("WhatWeDoLandingPage", () => {
       }));
 
     expect(detailLinks).toEqual([
-      { label: "ATF Consulting", href: "/consulting" },
       { label: "ATF Challenge", href: "/challenge" },
       { label: "ATF Chapters", href: "/chapters" },
+      { label: "ATF Consulting", href: "/consulting" },
     ]);
   });
 });

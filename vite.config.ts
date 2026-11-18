@@ -1,3 +1,5 @@
+/// <reference types="vitest/config" />
+import { configDefaults } from 'vitest/config'
 import { defineConfig } from 'vite'
 import viteReact from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
@@ -19,5 +21,9 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
+  },
+  test: {
+    // backend-cms has its own Node test runner (see backend-cms/package.json).
+    exclude: [...configDefaults.exclude, 'backend-cms/**'],
   },
 })

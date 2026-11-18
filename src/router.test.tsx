@@ -35,6 +35,14 @@ function createDeferred<T>() {
   return { promise, resolve, reject };
 }
 
+// The homepage can also show a "Loading news..." status, so scope the query
+// to the newsletter section instead of the whole screen.
+function newsletterStatus() {
+  const section = document.getElementById("newsletter");
+  if (!section) throw new Error("Newsletter section is missing");
+  return within(section).getByRole("status");
+}
+
 async function renderHomepageNewsletter() {
   vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
   const router = createAppRouter({
@@ -54,7 +62,7 @@ async function renderHomepageNewsletter() {
     email,
     form,
     router,
-    status: screen.getByRole("status"),
+    status: newsletterStatus(),
   };
 }
 
@@ -296,7 +304,7 @@ describe("application router homepage-only mode", () => {
     });
     expect(action.disabled).toBe(true);
     expect(email.readOnly).toBe(true);
-    expect(screen.getByRole("status").textContent).toContain("Subscribing…");
+    expect(newsletterStatus().textContent).toContain("Subscribing…");
     expect(subscribeToNewsletterMock).toHaveBeenCalledTimes(1);
     expect(subscribeToNewsletterMock).toHaveBeenCalledWith(
       "Visitor+tag@Example.COM",
@@ -314,7 +322,7 @@ describe("application router homepage-only mode", () => {
       await subscription.promise;
     });
 
-    const status = screen.getByRole("status");
+    const status = newsletterStatus();
     expect(status.getAttribute("data-newsletter-status")).toBe("success");
     expect(status.textContent).toContain("Success");
     expect(status.textContent).toContain("Welcome to ATF!");
@@ -349,12 +357,12 @@ describe("application router homepage-only mode", () => {
     fireEvent.submit(form);
 
     await waitFor(() => {
-      expect(screen.getByRole("status").textContent).toContain(
+      expect(newsletterStatus().textContent).toContain(
         "Successfully subscribed to our newsletter!",
       );
     });
     expect(email.value).toBe("");
-    expect(screen.getByRole("status").textContent).toContain("Success");
+    expect(newsletterStatus().textContent).toContain("Success");
     expect(analyticsCaptureMock).toHaveBeenCalledTimes(1);
   });
 
@@ -369,11 +377,11 @@ describe("application router homepage-only mode", () => {
     fireEvent.submit(form);
 
     await waitFor(() => {
-      expect(screen.getByRole("status").textContent).toContain(
+      expect(newsletterStatus().textContent).toContain(
         "Welcome to ATF!",
       );
     });
-    expect(screen.getByRole("status").textContent).toContain("Success");
+    expect(newsletterStatus().textContent).toContain("Success");
     expect(email.value).toBe("");
   });
 
@@ -390,11 +398,11 @@ describe("application router homepage-only mode", () => {
     fireEvent.submit(form);
 
     await waitFor(() => {
-      expect(screen.getByRole("status").textContent).toContain(
+      expect(newsletterStatus().textContent).toContain(
         "Welcome to ATF!",
       );
     });
-    expect(screen.getByRole("status").textContent).toContain("Success");
+    expect(newsletterStatus().textContent).toContain("Success");
     expect(email.value).toBe("");
   });
 
@@ -418,12 +426,12 @@ describe("application router homepage-only mode", () => {
       fireEvent.submit(form);
 
       await waitFor(() => {
-        expect(screen.getByRole("status").textContent).toContain(
+        expect(newsletterStatus().textContent).toContain(
           expectedMessage,
         );
       });
       expect(email.value).toBe("person@example.com");
-      expect(screen.getByRole("status").textContent).toContain("Error");
+      expect(newsletterStatus().textContent).toContain("Error");
       expect(analyticsCaptureMock).not.toHaveBeenCalled();
       expect(
         screen.getByRole<HTMLButtonElement>("button", { name: "Subscribe" })
@@ -431,9 +439,9 @@ describe("application router homepage-only mode", () => {
       ).toBe(false);
 
       fireEvent.change(email, { target: { value: "person2@example.com" } });
-      expect(screen.getByRole("status").textContent).toBe("");
+      expect(newsletterStatus().textContent).toBe("");
       expect(
-        screen.getByRole("status").getAttribute("data-newsletter-status"),
+        newsletterStatus().getAttribute("data-newsletter-status"),
       ).toBe("idle");
     },
   );
@@ -450,11 +458,11 @@ describe("application router homepage-only mode", () => {
     fireEvent.submit(form);
 
     await waitFor(() => {
-      expect(screen.getByRole("status").textContent).toContain(
+      expect(newsletterStatus().textContent).toContain(
         "Failed to subscribe. Please try again.",
       );
     });
-    expect(screen.getByRole("status").textContent).not.toMatch(
+    expect(newsletterStatus().textContent).not.toMatch(
       /connection|host|transport/i,
     );
     expect(email.value).toBe("person@example.com");
@@ -469,16 +477,16 @@ describe("application router homepage-only mode", () => {
     const { email, form } = await renderHomepageNewsletter();
 
     fireEvent.submit(form);
-    expect(screen.getByRole("status").textContent).toContain(
+    expect(newsletterStatus().textContent).toContain(
       "Email address is required",
     );
 
     fireEvent.change(email, { target: { value: "v" } });
 
     expect(email.value).toBe("v");
-    expect(screen.getByRole("status").textContent).toBe("");
+    expect(newsletterStatus().textContent).toBe("");
     expect(
-      screen.getByRole("status").getAttribute("data-newsletter-status"),
+      newsletterStatus().getAttribute("data-newsletter-status"),
     ).toBe("idle");
   });
 
