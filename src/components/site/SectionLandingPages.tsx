@@ -132,7 +132,7 @@ export function WhoWeAreLandingPage() {
                   African technology.
                 </>
               }
-              body="Since 1987, ATF has helped institutions and communities translate technology ambition into practical capacity, evidence, and implementation."
+              body="Since 1988, ATF has helped institutions and communities translate technology ambition into practical capacity, evidence, and implementation."
             />
             <p className="atf-body">
               The forum works at the intersection of consulting, innovation, and
@@ -143,9 +143,9 @@ export function WhoWeAreLandingPage() {
           </div>
           <StatGrid
             stats={[
-              { value: "1987", label: "Established as a professional forum" },
-              { value: "30K+", label: "Participants reached through programs" },
-              { value: "37+", label: "Active chapters across Africa" },
+              { value: "1988", label: "Established as a professional forum" },
+              { value: "23K", label: "Participants reached through programs" },
+              { value: "30", label: "Active chapters across Africa" },
               { value: "3", label: "Flagship initiatives" },
             ]}
           />
@@ -344,9 +344,9 @@ export function WhereWeWorkLandingPage() {
         />
         <StatGrid
           stats={[
-            { value: "37+", label: "Active chapters across the continent" },
-            { value: "12", label: "Countries with active programs" },
-            { value: "10K+", label: "Members connected through chapters" },
+            { value: "30", label: "Active chapters across the continent" },
+            { value: "5", label: "Countries with active programs" },
+            { value: "35+", label: "MVPs built in the AI Challenge" },
             { value: "4", label: "Featured country networks" },
           ]}
         />

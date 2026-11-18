@@ -115,8 +115,8 @@ describe("HomePage hero", () => {
 
     expect(panelQueries.getByText("5")).toBeTruthy();
     expect(panelQueries.getByText("Countries")).toBeTruthy();
-    expect(panelQueries.getByText("35+")).toBeTruthy();
-    expect(panelQueries.getByText("Functional MVPs delivered")).toBeTruthy();
+    expect(panelQueries.getByText("30")).toBeTruthy();
+    expect(panelQueries.getByText("Active chapters")).toBeTruthy();
     expect(panelQueries.getByText("23K")).toBeTruthy();
     expect(panelQueries.getByText("Participants empowered")).toBeTruthy();
   });

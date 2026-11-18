@@ -6,7 +6,7 @@ import { OpportunityButton } from "@/components/site/OpportunityButton";
 const announcement = {
   label: "Alert",
   title: "ATF Challenge 2026",
-  body: "Registration for the 2026 AI School is now closed. The build phase begins this September.",
+  body: "Africa’s future will be built by Africans. We help them build it.",
   href: "https://bit.ly/atf-wf",
   action: "Follow the journey",
 };

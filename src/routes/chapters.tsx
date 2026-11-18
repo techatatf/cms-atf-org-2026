@@ -27,10 +27,10 @@ const subnav = [
 ] as const;
 
 const regions: readonly MapRegion[] = [
-  { iso: "GHA", name: "Ghana", status: "active", description: "Registered here. University chapters since 2012; AI Challenge since 2023." },
-  { iso: "NGA", name: "Nigeria", status: "active", description: "AI Challenge since 2025." },
-  { iso: "KEN", name: "Kenya", status: "scaling", description: "AI Challenge scaling here with Google.org support." },
-  { iso: "ZAF", name: "South Africa", status: "scaling", description: "AI Challenge scaling here with Google.org support." },
+  { iso: "GHA", name: "Ghana", status: "active", description: "Registered here. 8 university chapters, first opened in 2012; AI Challenge since 2023." },
+  { iso: "NGA", name: "Nigeria", status: "active", description: "12 university chapters; AI Challenge since 2025." },
+  { iso: "KEN", name: "Kenya", status: "scaling", description: "6 university chapters; AI Challenge scaling here with Google.org support." },
+  { iso: "ZAF", name: "South Africa", status: "scaling", description: "4 university chapters; AI Challenge scaling here with Google.org support." },
   { iso: "BEN", name: "Benin", status: "past", description: "University chapter, 2012 to 2020." },
 ];
 
@@ -65,14 +65,14 @@ const chapterBenefits = [
 const eras = [
   {
     tag: "2012 to 2020",
-    title: "Six chapters at peak",
+    title: "Six chapters by 2020",
     body: "Five chapters in Ghana and one in Benin. Each received funding, direction, and access to experts, and introduced students to fields like nanotechnology and 3D printing.",
     image: "Chapter event photo, 2012–2020",
   },
   {
     tag: "Today",
-    title: "Reactivating through universities",
-    body: "We are reopening chapters through memoranda of understanding with universities, so each chapter has an institutional home and outlasts any one student cohort.",
+    title: "Growing through university partnerships",
+    body: "We open new chapters through memoranda of understanding with universities, so each chapter has an institutional home and outlasts any one student cohort.",
     image: "Students at a partner university today",
   },
 ] as const;
@@ -99,12 +99,12 @@ function ChaptersPage() {
         title: "Chapters inside universities.",
         titleAccent: "inside",
         description:
-          "ATF chapters are student groups based at universities. They give students direction, access to experts, and early exposure to emerging technology. We are now bringing chapters back through formal agreements with universities.",
+          "ATF chapters are student groups based at universities. They give students direction, access to experts, and early exposure to emerging technology. We grow the network through formal agreements with universities.",
         meta: [
           { label: "First chapters", value: "2012" },
-          { label: "Chapters at peak", value: "6" },
-          { label: "Chapter countries", value: "Ghana, Benin" },
-          { label: "Now", value: "Reactivating" },
+          { label: "Active chapters", value: "30" },
+          { label: "Chapter countries", value: "Nigeria, Ghana, Kenya, South Africa" },
+          { label: "Now", value: "Growing" },
         ],
       }}
     >

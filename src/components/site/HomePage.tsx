@@ -79,7 +79,7 @@ const heroContent = {
   ],
   stats: [
     { value: "5", label: "Countries" },
-    { value: "35+", label: "Functional MVPs delivered" },
+    { value: "30", label: "Active chapters" },
     { value: "23K", label: "Participants empowered" },
   ],
 } as const;
@@ -362,7 +362,7 @@ function AboutSection() {
             },
             { value: "5", label: "Countries with active programs" },
             { value: "3", label: "Core initiatives driving change" },
-            { value: "35+", label: "Functional MVPs delivered" },
+            { value: "35+", label: "MVPs built in the AI Challenge" },
           ].map((fact, index) => (
             <div
               key={fact.label}

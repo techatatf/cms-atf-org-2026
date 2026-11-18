@@ -9,10 +9,10 @@ import { ChallengeAnnouncementBanner } from "@/components/layout/ChallengeAnnoun
 afterEach(() => cleanup());
 
 describe("ChallengeAnnouncementBanner", () => {
-  it("renders the New tag as an Opportunity Button link", () => {
+  it("renders the Alert tag as an Opportunity Button link", () => {
     render(<ChallengeAnnouncementBanner />);
 
-    const newLink = screen.getByRole("link", { name: "New" });
+    const newLink = screen.getByRole("link", { name: "Alert" });
 
     expect(newLink.getAttribute("href")).toBe("https://bit.ly/atf-wf");
     expect(newLink.getAttribute("data-slot")).toBe("opportunity-button");
@@ -26,7 +26,7 @@ describe("ChallengeAnnouncementBanner", () => {
 
     const title = screen.getByText("ATF Challenge 2026");
     const body = screen.getByText(
-      "— AI School registration is now closed. The build phase begins this September.",
+      "— Africa’s future will be built by Africans. We help them build it.",
     );
     const action = screen.getByRole("link", { name: "Follow the journey" });
     const copy = title.closest("p");

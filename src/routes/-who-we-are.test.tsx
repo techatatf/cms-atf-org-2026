@@ -157,7 +157,7 @@ describe("Page Hero", () => {
   it("shows Key Facts from the design reference on What We Do pages", async () => {
     await renderPage("/chapters");
     await screen.findByRole("heading", { level: 1, name: "Chapters inside universities." });
-    expect(screen.getByText("Chapters at peak").nextElementSibling?.textContent).toBe("6");
-    expect(screen.getByText("Reactivating")).toBeTruthy();
+    expect(screen.getByText("Active chapters").nextElementSibling?.textContent).toBe("30");
+    expect(screen.getByText("Growing")).toBeTruthy();
   });
 });
