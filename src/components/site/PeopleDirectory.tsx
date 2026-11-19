@@ -95,7 +95,7 @@ function PersonProfileDialog({
                   {person.name}
                 </Dialog.Title>
                 <p className="mt-2 font-semibold text-atf-ink">{person.role}</p>
-                <p className="atf-body mt-4">{person.bio}</p>
+                {person.bio ? <p className="atf-body mt-4">{person.bio}</p> : null}
                 {person.linkedin ? (
                   <OpportunityButton
                     href={person.linkedin}
@@ -169,7 +169,9 @@ export function PersonCardGrid({
               <p className="mt-2 font-display text-xl font-black uppercase leading-tight text-atf-black group-hover:text-primary">
                 {person.name}
               </p>
-              <p className="mt-3 text-sm leading-6 text-atf-gray-500">{person.bio}</p>
+              {person.bio ? (
+                <p className="mt-3 text-sm leading-6 text-atf-gray-500">{person.bio}</p>
+              ) : null}
             </div>
           </button>
           <div className="px-5 pb-5 empty:hidden">

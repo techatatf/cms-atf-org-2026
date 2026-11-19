@@ -5,7 +5,6 @@ import {
   ArrowLink,
   CalloutBox,
   FactGrid,
-  InfoCellGrid,
 } from "@/components/site/ContentBlocks";
 import { OpportunityButton } from "@/components/site/OpportunityButton";
 import { ContentBand, SectionHeader, SubpageTemplate } from "@/components/site/Page";
@@ -19,16 +18,8 @@ export const Route = createFileRoute("/governance")({
 
 const subnav = [
   { id: "board", label: "Board" },
-  { id: "responsibilities", label: "Responsibilities" },
   { id: "structure", label: "Structure" },
   { id: "reports", label: "Annual Reports" },
-] as const;
-
-const responsibilities = [
-  { title: "Mission and strategy", body: "Sets ATF's direction and makes sure its programmes serve the mission." },
-  { title: "Financial oversight", body: "Approves budgets and reviews ATF's finances and use of funds." },
-  { title: "Accountability", body: "Reviews programme results and ATF's reporting to funders and partners." },
-  { title: "Leadership", body: "Appoints and supports ATF's leadership and new board members." },
 ] as const;
 
 const structure = [
@@ -46,7 +37,7 @@ function GovernancePage() {
         title: "How ATF is governed.",
         titleAccent: "governed",
         description:
-          "ATF is registered in Ghana and governed by a Board of Directors. The board oversees ATF's strategy, finances, and accountability. Its members serve without pay.",
+          "ATF is registered in Ghana and governed by a Board of Directors. Its members serve without pay.",
       }}
     >
       <SectionSubnav items={subnav} />
@@ -72,12 +63,7 @@ function GovernancePage() {
         </div>
       </ContentBand>
 
-      <ContentBand id="responsibilities" muted style={sectionAnchorStyle}>
-        <SectionHeader eyebrow="Responsibilities" title="What the board does." />
-        <InfoCellGrid cells={responsibilities} />
-      </ContentBand>
-
-      <ContentBand id="structure" style={sectionAnchorStyle}>
+      <ContentBand id="structure" muted style={sectionAnchorStyle}>
         <SectionHeader
           eyebrow="Structure"
           title="One organisation, four countries."
@@ -86,7 +72,7 @@ function GovernancePage() {
         <FactGrid facts={structure} />
       </ContentBand>
 
-      <ContentBand id="reports" muted style={sectionAnchorStyle}>
+      <ContentBand id="reports" style={sectionAnchorStyle}>
         <CalloutBox
           title="Annual reports and financial statements"
           body="Reports are published once the Board approves them. See them all on the Annual Reports page."

@@ -11,7 +11,8 @@ export type Person = {
   slug: string;
   name: string;
   role: string;
-  bio: string;
+  /** Short description. Omitted for board members. */
+  bio?: string;
   /** Profile URL. Empty means no LinkedIn link is shown. */
   linkedin: string;
 };
@@ -31,28 +32,24 @@ export const boardMembers: Person[] = [
     slug: "mawuli-tse",
     name: "Mawuli Tse",
     role: "Board Chair and Co-founder",
-    bio: "Chairs the board and leads its oversight of strategy, governance, and finances.",
     linkedin: "",
   },
   {
     slug: "karanja-gakio",
     name: "Karanja Gakio",
     role: "Co-founder and Director",
-    bio: "Guides ATF’s strategic direction and governance.",
     linkedin: "",
   },
   {
     slug: "michael-tekletsion-berhan",
     name: "Michael Tekletsion Berhan",
     role: "Director",
-    bio: "Oversees ATF’s governance and finances.",
     linkedin: "",
   },
   {
     slug: "michael-owu",
     name: "Michael Owu",
     role: "Director",
-    bio: "Provides oversight of ATF’s programmes and governance.",
     linkedin: "",
   },
 ];

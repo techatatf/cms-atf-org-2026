@@ -59,6 +59,35 @@ describe("Who We Are pages", () => {
     );
   });
 
+  it("shows board names and roles without role descriptions", async () => {
+    await renderPage("/team");
+    await screen.findByRole("heading", { level: 1, name: "The people behind the forum." });
+
+    const board = document.querySelector<HTMLElement>("#board")!;
+    const cards = within(board).getAllByRole("listitem");
+    expect(cards.map((card) => card.querySelectorAll("p").length)).toEqual([2, 2, 2, 2]);
+    expect(within(board).getByText("Board Chair and Co-founder")).toBeTruthy();
+    expect(within(board).getByText("Mawuli Tse")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "View profile: Michael Owu" }));
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByText("Director")).toBeTruthy();
+    expect(within(dialog).queryByText(/oversight/i)).toBeNull();
+  });
+
+  it("leaves the board responsibilities section off the Governance page", async () => {
+    await renderPage("/governance");
+    await screen.findByRole("heading", { level: 1, name: "How ATF is governed." });
+
+    expect(screen.queryByRole("heading", { name: "What the board does." })).toBeNull();
+    const subnav = screen.getByRole("navigation", { name: "On this page" });
+    expect(within(subnav).getAllByRole("link").map((link) => link.textContent)).toEqual([
+      "Board",
+      "Structure",
+      "Annual Reports",
+    ]);
+  });
+
   it("filters the Challenge team and steps through profiles", async () => {
     await renderPage("/team");
     await screen.findByRole("heading", { level: 1, name: "The people behind the forum." });
